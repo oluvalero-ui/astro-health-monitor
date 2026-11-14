@@ -6,9 +6,11 @@ import AnatomicalScanner from "@/components/AnatomicalScanner";
 import BiomarkersDashboard from "@/components/BiomarkersDashboard";
 import EmergencyBannerModal from "@/components/EmergencyBannerModal";
 import GamificationPanel from "@/components/GamificationPanel";
+import LeftNavSidebar, { NavSectionId } from "@/components/LeftNavSidebar";
 import MultimodalScanModal, {
   ScanModalTab,
 } from "@/components/MultimodalScanModal";
+import OverviewBentoGrid from "@/components/OverviewBentoGrid";
 import ScientificReferencesModal from "@/components/ScientificReferencesModal";
 import TelemetryCharts from "@/components/TelemetryCharts";
 import TopMissionBar from "@/components/TopMissionBar";
@@ -149,9 +151,34 @@ export default function HomePage() {
   );
 
   const [selectedZone, setSelectedZone] = useState<SystemZoneId>("cerebro");
+  const [activeNavSection, setActiveNavSection] =
+    useState<NavSectionId>("resumen");
   const [scanModalOpen, setScanModalOpen] = useState(false);
   const [scanInitialTab, setScanInitialTab] = useState<ScanModalTab>("camara");
   const [referencesOpen, setReferencesOpen] = useState(false);
+
+  const handleNavigateSection = (section: NavSectionId) => {
+    setActiveNavSection(section);
+    if (typeof document === "undefined") return;
+    const idMap: Record<NavSectionId, string> = {
+      resumen: "resumen-bento",
+      escaner: "scanner-section",
+      biomarcadores: "biomarkers-section",
+      informes: "informes-section",
+    };
+    const target = document.getElementById(idMap[section]);
+    target?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const handleSelectZoneAndScroll = (zone: SystemZoneId) => {
+    setSelectedZone(zone);
+    setActiveNavSection("escaner");
+    if (typeof document !== "undefined") {
+      document
+        .getElementById("scanner-section")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
 
   const zoneStatuses = useMemo(
     () => evaluateAllZoneStatuses(state.biomarkers, state.routine),
@@ -423,105 +450,133 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 bg-telemetry-grid text-slate-100">
-      {/* Top Aerospace Mission Bar + Environment Selector + Telemedicine Switch */}
-      <TopMissionBar
-        environmentId={state.environmentId}
-        telemedicineEnabled={state.telemedicineEnabled}
-        missionDay={state.missionDay}
-        astronautName={state.astronautName}
-        crewRole={state.crewRole}
-        dailyRadiationMsv={state.biomarkers.dailyRadiationMsv}
-        cumulativeRadiationMsv={state.biomarkers.cumulativeRadiationMsv}
-        readinessScore={readinessScore}
+    <div className="flex min-h-screen flex-col bg-[#f4f7fc] text-slate-900 md:flex-row">
+      {/* Left Deep-Navy Sidebar (Reference Design Layout) */}
+      <LeftNavSidebar
+        activeSection={activeNavSection}
         emergencyMode={state.emergencyMode}
-        zoneStatuses={zoneStatuses}
-        onSelectEnvironment={handleSelectEnvironment}
-        onToggleTelemedicine={handleToggleTelemedicine}
+        onNavigate={handleNavigateSection}
         onOpenScanModal={() => handleOpenScanTab("camara")}
-        onToggleEmergency={handleToggleEmergency}
         onOpenReferences={() => setReferencesOpen(true)}
-        onResetMission={handleResetMission}
+        onToggleEmergency={handleToggleEmergency}
       />
 
-      {/* Module 5: Live Emergency Alert & Flight Surgeon Contact Protocol */}
-      <EmergencyBannerModal
-        emergencyMode={state.emergencyMode}
-        environmentId={state.environmentId}
-        telemedicineEnabled={state.telemedicineEnabled}
-        biomarkers={state.biomarkers}
-        checklist={state.emergencyChecklist}
-        onToggleStep={handleToggleEmergencyStep}
-        onRestoreNominal={handleToggleEmergency}
-      />
-
-      {/* Main Workspace */}
-      <main className="mx-auto max-w-[1600px] space-y-6 px-4 py-6 sm:px-6">
-        {/* Module 1: Interactive Anatomical & Psychological SVG Scanner */}
-        <AnatomicalScanner
-          selectedZone={selectedZone}
-          onSelectZone={setSelectedZone}
-          zoneStatuses={zoneStatuses}
-          biomarkers={state.biomarkers}
+      {/* Right Main Scrollable Area */}
+      <div className="min-w-0 flex-1 bg-telemetry-grid">
+        {/* Top Mission Bar (scrolls naturally with content, non-sticky) */}
+        <TopMissionBar
           environmentId={state.environmentId}
-          onOpenScanTab={handleOpenScanTab}
+          telemedicineEnabled={state.telemedicineEnabled}
+          missionDay={state.missionDay}
+          astronautName={state.astronautName}
+          crewRole={state.crewRole}
+          dailyRadiationMsv={state.biomarkers.dailyRadiationMsv}
+          cumulativeRadiationMsv={state.biomarkers.cumulativeRadiationMsv}
+          readinessScore={readinessScore}
+          emergencyMode={state.emergencyMode}
+          zoneStatuses={zoneStatuses}
+          onSelectEnvironment={handleSelectEnvironment}
+          onToggleTelemedicine={handleToggleTelemedicine}
+          onOpenScanModal={() => handleOpenScanTab("camara")}
+          onToggleEmergency={handleToggleEmergency}
+          onOpenReferences={() => setReferencesOpen(true)}
+          onResetMission={handleResetMission}
         />
 
-        {/* Module 2: Comprehensive Biomarkers, Mental/Behavioral Health & Routine Change Detector */}
-        <BiomarkersDashboard
-          biomarkers={state.biomarkers}
-          previousBiomarkers={state.previousBiomarkers}
-          routine={state.routine}
-          lastCameraFinding={state.lastCameraFinding}
-          lastUltrasoundFinding={state.lastUltrasoundFinding}
-          onSelectSystemZone={setSelectedZone}
-          onOpenManualEdit={() => handleOpenScanTab("manual")}
-        />
+        {/* Main Workspace */}
+        <main className="mx-auto max-w-[1600px] space-y-6 px-4 py-6 sm:px-6">
+          {/* Module 5: Live Emergency Alert & Flight Surgeon Contact Protocol */}
+          <EmergencyBannerModal
+            emergencyMode={state.emergencyMode}
+            environmentId={state.environmentId}
+            telemedicineEnabled={state.telemedicineEnabled}
+            biomarkers={state.biomarkers}
+            checklist={state.emergencyChecklist}
+            onToggleStep={handleToggleEmergencyStep}
+            onRestoreNominal={handleToggleEmergency}
+          />
 
-        {/* Module 4: Dynamic Recharts Telemetry + Gamification Action Plan */}
-        <div className="grid grid-cols-1 gap-5 xl:grid-cols-12">
-          <div className="xl:col-span-7">
-            <TelemetryCharts history={state.history} />
-          </div>
-          <div className="xl:col-span-5">
-            <GamificationPanel
-              quests={state.quests}
-              xp={state.xp}
-              streakDays={state.streakDays}
-              onToggleQuest={handleToggleQuest}
-              onAddCustomQuest={handleAddCustomQuest}
-            />
-          </div>
-        </div>
+          {/* Executive 4-Card Bento Overview (mirrors reference screenshot layout) */}
+          <OverviewBentoGrid
+            environmentId={state.environmentId}
+            biomarkers={state.biomarkers}
+            routine={state.routine}
+            zoneStatuses={zoneStatuses}
+            readinessScore={readinessScore}
+            history={state.history}
+            onSelectZoneAndScroll={handleSelectZoneAndScroll}
+            onOpenScanTab={handleOpenScanTab}
+            onOpenReferences={() => setReferencesOpen(true)}
+          />
 
-        {/* Local Offline Activity Audit Log */}
-        <section className="rounded-2xl border border-slate-800 bg-slate-900/80 p-4 sm:p-5">
-          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-            <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-300">
-              <ClipboardList className="h-4 w-4 text-cyan-400" />
-              Bitácora Local de Autoevaluaciones (Persistencia Offline)
-            </h3>
-            <span className="flex items-center gap-1.5 text-[11px] text-emerald-400">
-              <ShieldCheck className="h-3.5 w-3.5" />
-              Guardado localmente en el dispositivo sin conexión externa
-            </span>
+          {/* Module 1: Interactive Anatomical & Psychological SVG Scanner */}
+          <AnatomicalScanner
+            selectedZone={selectedZone}
+            onSelectZone={setSelectedZone}
+            zoneStatuses={zoneStatuses}
+            biomarkers={state.biomarkers}
+            environmentId={state.environmentId}
+            onOpenScanTab={handleOpenScanTab}
+          />
+
+          {/* Module 2: Comprehensive Biomarkers, Mental/Behavioral Health & Routine Change Detector */}
+          <BiomarkersDashboard
+            biomarkers={state.biomarkers}
+            previousBiomarkers={state.previousBiomarkers}
+            routine={state.routine}
+            lastCameraFinding={state.lastCameraFinding}
+            lastUltrasoundFinding={state.lastUltrasoundFinding}
+            onSelectSystemZone={handleSelectZoneAndScroll}
+            onOpenManualEdit={() => handleOpenScanTab("manual")}
+          />
+
+          {/* Module 4: Dynamic Recharts Telemetry + Gamification Action Plan */}
+          <div className="grid grid-cols-1 gap-5 xl:grid-cols-12">
+            <div className="xl:col-span-7">
+              <TelemetryCharts history={state.history} />
+            </div>
+            <div className="xl:col-span-5">
+              <GamificationPanel
+                quests={state.quests}
+                xp={state.xp}
+                streakDays={state.streakDays}
+                onToggleQuest={handleToggleQuest}
+                onAddCustomQuest={handleAddCustomQuest}
+              />
+            </div>
           </div>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
-            {state.scanLogs.slice(0, 4).map((log) => (
-              <div
-                key={log.id}
-                className="rounded-xl border border-slate-800 bg-slate-950/80 p-3 text-xs"
-              >
-                <div className="flex items-center justify-between font-mono-hud text-[10px]">
-                  <span className="uppercase text-cyan-400">{log.modality}</span>
-                  <span className="text-slate-500">{log.timestamp}</span>
+
+          {/* Local Offline Activity Audit Log */}
+          <section className="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-[0_6px_24px_rgba(15,23,42,0.04)] sm:p-5">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+              <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-700">
+                <ClipboardList className="h-4 w-4 text-[#1a73e8]" />
+                Bitácora Local de Autoevaluaciones (Persistencia Offline)
+              </h3>
+              <span className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-700">
+                <ShieldCheck className="h-3.5 w-3.5" />
+                Guardado localmente en el dispositivo sin conexión externa
+              </span>
+            </div>
+            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
+              {state.scanLogs.slice(0, 4).map((log) => (
+                <div
+                  key={log.id}
+                  className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 text-xs"
+                >
+                  <div className="flex items-center justify-between font-mono-hud text-[10px]">
+                    <span className="font-semibold uppercase text-[#1a73e8]">
+                      {log.modality}
+                    </span>
+                    <span className="text-slate-400">{log.timestamp}</span>
+                  </div>
+                  <p className="mt-1 line-clamp-2 text-slate-600">{log.summary}</p>
                 </div>
-                <p className="mt-1 line-clamp-2 text-slate-300">{log.summary}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-      </main>
+              ))}
+            </div>
+          </section>
+        </main>
+      </div>
 
       {/* Module 3: Multimodal Scan Modal (Camera / Ultrasound / Manual) */}
       {scanModalOpen && (

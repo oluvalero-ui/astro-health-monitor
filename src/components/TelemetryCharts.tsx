@@ -33,14 +33,17 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
   );
 
   return (
-    <section className="flex h-full flex-col rounded-2xl border border-slate-800 bg-slate-900/90 p-4 shadow-xl sm:p-5">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+    <section
+      id="informes-section"
+      className="flex h-full flex-col rounded-2xl border border-slate-200/90 bg-white p-4 shadow-[0_6px_24px_rgba(15,23,42,0.04)] sm:p-5"
+    >
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
         <div>
-          <h2 className="flex items-center gap-2 text-base font-bold text-white">
-            <LineIcon className="h-5 w-5 text-cyan-400" />
+          <h2 className="flex items-center gap-2 text-base font-bold text-slate-900">
+            <LineIcon className="h-5 w-5 text-[#1a73e8]" />
             Módulo 4A · Evolución Temporal (Recharts)
           </h2>
-          <p className="mt-0.5 text-xs text-slate-400">
+          <p className="mt-0.5 text-xs text-slate-500">
             Tendencias históricas y actualizaciones en tiempo real tras cada escaneo o simulación.
           </p>
         </div>
@@ -49,10 +52,10 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
           <button
             type="button"
             onClick={() => setActiveTab("vitales")}
-            className={`inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition ${
+            className={`inline-flex cursor-pointer items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-semibold transition ${
               activeTab === "vitales"
-                ? "border-cyan-400/70 bg-cyan-500/20 text-cyan-200"
-                : "border-slate-800 bg-slate-950/70 text-slate-400 hover:text-slate-200"
+                ? "border-[#1a73e8] bg-[#1a73e8] text-white shadow-xs"
+                : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-white hover:text-slate-900"
             }`}
           >
             <HeartPulse className="h-3.5 w-3.5" />
@@ -61,10 +64,10 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
           <button
             type="button"
             onClick={() => setActiveTab("carga")}
-            className={`inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition ${
+            className={`inline-flex cursor-pointer items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-semibold transition ${
               activeTab === "carga"
-                ? "border-amber-400/70 bg-amber-500/20 text-amber-200"
-                : "border-slate-800 bg-slate-950/70 text-slate-400 hover:text-slate-200"
+                ? "border-[#1a73e8] bg-[#1a73e8] text-white shadow-xs"
+                : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-white hover:text-slate-900"
             }`}
           >
             <Activity className="h-3.5 w-3.5" />
@@ -73,10 +76,10 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
           <button
             type="button"
             onClick={() => setActiveTab("emocional")}
-            className={`inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition ${
+            className={`inline-flex cursor-pointer items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-semibold transition ${
               activeTab === "emocional"
-                ? "border-violet-400/70 bg-violet-500/20 text-violet-200"
-                : "border-slate-800 bg-slate-950/70 text-slate-400 hover:text-slate-200"
+                ? "border-[#1a73e8] bg-[#1a73e8] text-white shadow-xs"
+                : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-white hover:text-slate-900"
             }`}
           >
             <Brain className="h-3.5 w-3.5" />
@@ -87,7 +90,7 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
 
       <div className="h-[310px] w-full flex-1">
         {!mounted ? (
-          <div className="flex h-full w-full items-center justify-center rounded-xl border border-slate-800 bg-slate-950/60 text-xs text-slate-500">
+          <div className="flex h-full w-full items-center justify-center rounded-xl border border-slate-100 bg-slate-50 text-xs text-slate-400">
             Cargando gráficas telemétricas...
           </div>
         ) : activeTab === "vitales" ? (
@@ -96,23 +99,24 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
               data={history}
               margin={{ top: 10, right: 16, left: -12, bottom: 5 }}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
               <XAxis
                 dataKey="label"
-                stroke="#64748b"
-                tick={{ fill: "#94a3b8", fontSize: 11 }}
+                stroke="#94a3b8"
+                tick={{ fill: "#64748b", fontSize: 11 }}
               />
               <YAxis
-                stroke="#64748b"
-                tick={{ fill: "#94a3b8", fontSize: 11 }}
+                stroke="#94a3b8"
+                tick={{ fill: "#64748b", fontSize: 11 }}
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "#020617",
-                  borderColor: "#334155",
+                  backgroundColor: "#ffffff",
+                  borderColor: "#e2e8f0",
                   borderRadius: "0.75rem",
                   fontSize: "12px",
-                  color: "#f1f5f9",
+                  color: "#0f172a",
+                  boxShadow: "0 10px 25px rgba(15,23,42,0.08)",
                 }}
               />
               <Legend wrapperStyle={{ fontSize: "12px" }} />
@@ -120,7 +124,7 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
                 type="monotone"
                 dataKey="bpm"
                 name="Pulso (BPM)"
-                stroke="#f43f5e"
+                stroke="#e11d48"
                 strokeWidth={2.4}
                 dot={{ r: 3.5 }}
                 activeDot={{ r: 6 }}
@@ -129,7 +133,7 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
                 type="monotone"
                 dataKey="glucose"
                 name="Glucosa (mg/dL)"
-                stroke="#f59e0b"
+                stroke="#d97706"
                 strokeWidth={2.4}
                 dot={{ r: 3.5 }}
               />
@@ -137,7 +141,7 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
                 type="monotone"
                 dataKey="hydration"
                 name="Hidratación (%)"
-                stroke="#22d3ee"
+                stroke="#1a73e8"
                 strokeWidth={2.4}
                 dot={{ r: 3.5 }}
               />
@@ -150,33 +154,34 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
               margin={{ top: 10, right: 16, left: -12, bottom: 5 }}
             >
               <defs>
-                <linearGradient id="gradCortisol" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#ef4444" stopOpacity={0.35} />
+                <linearGradient id="gradCortisolLight" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#ef4444" stopOpacity={0.22} />
                   <stop offset="95%" stopColor="#ef4444" stopOpacity={0.02} />
                 </linearGradient>
-                <linearGradient id="gradMelatonin" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#38bdf8" stopOpacity={0.32} />
-                  <stop offset="95%" stopColor="#38bdf8" stopOpacity={0.02} />
+                <linearGradient id="gradMelatoninLight" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#1a73e8" stopOpacity={0.22} />
+                  <stop offset="95%" stopColor="#1a73e8" stopOpacity={0.02} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
               <XAxis
                 dataKey="label"
-                stroke="#64748b"
-                tick={{ fill: "#94a3b8", fontSize: 11 }}
+                stroke="#94a3b8"
+                tick={{ fill: "#64748b", fontSize: 11 }}
               />
               <YAxis
                 domain={[0, 100]}
-                stroke="#64748b"
-                tick={{ fill: "#94a3b8", fontSize: 11 }}
+                stroke="#94a3b8"
+                tick={{ fill: "#64748b", fontSize: 11 }}
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "#020617",
-                  borderColor: "#334155",
+                  backgroundColor: "#ffffff",
+                  borderColor: "#e2e8f0",
                   borderRadius: "0.75rem",
                   fontSize: "12px",
-                  color: "#f1f5f9",
+                  color: "#0f172a",
+                  boxShadow: "0 10px 25px rgba(15,23,42,0.08)",
                 }}
               />
               <Legend wrapperStyle={{ fontSize: "12px" }} />
@@ -185,15 +190,15 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
                 dataKey="cortisol"
                 name="Cortisol / Estrés"
                 stroke="#ef4444"
-                fill="url(#gradCortisol)"
+                fill="url(#gradCortisolLight)"
                 strokeWidth={2.2}
               />
               <Area
                 type="monotone"
                 dataKey="melatonin"
                 name="Melatonina (Sueño)"
-                stroke="#38bdf8"
-                fill="url(#gradMelatonin)"
+                stroke="#1a73e8"
+                fill="url(#gradMelatoninLight)"
                 strokeWidth={2.2}
               />
               <Line
@@ -208,7 +213,7 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
                 type="monotone"
                 dataKey="mentalFatigue"
                 name="Cansancio Mental"
-                stroke="#a855f7"
+                stroke="#6366f1"
                 strokeWidth={2.2}
                 dot={{ r: 3 }}
               />
@@ -220,24 +225,25 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
               data={history}
               margin={{ top: 10, right: 16, left: -12, bottom: 5 }}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
               <XAxis
                 dataKey="label"
-                stroke="#64748b"
-                tick={{ fill: "#94a3b8", fontSize: 11 }}
+                stroke="#94a3b8"
+                tick={{ fill: "#64748b", fontSize: 11 }}
               />
               <YAxis
                 domain={[0, 100]}
-                stroke="#64748b"
-                tick={{ fill: "#94a3b8", fontSize: 11 }}
+                stroke="#94a3b8"
+                tick={{ fill: "#64748b", fontSize: 11 }}
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "#020617",
-                  borderColor: "#334155",
+                  backgroundColor: "#ffffff",
+                  borderColor: "#e2e8f0",
                   borderRadius: "0.75rem",
                   fontSize: "12px",
-                  color: "#f1f5f9",
+                  color: "#0f172a",
+                  boxShadow: "0 10px 25px rgba(15,23,42,0.08)",
                 }}
               />
               <Legend wrapperStyle={{ fontSize: "12px" }} />
@@ -245,7 +251,7 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
                 type="monotone"
                 dataKey="stress"
                 name="Estrés"
-                stroke="#f43f5e"
+                stroke="#e11d48"
                 strokeWidth={2.3}
                 dot={{ r: 3.5 }}
               />
@@ -253,7 +259,7 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
                 type="monotone"
                 dataKey="loneliness"
                 name="Soledad"
-                stroke="#8b5cf6"
+                stroke="#6366f1"
                 strokeWidth={2.3}
                 dot={{ r: 3.5 }}
               />
