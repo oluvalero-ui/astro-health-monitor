@@ -94,7 +94,7 @@ export default function TopMissionBar({
 
   return (
     <header
-      className={`sticky top-0 z-30 border-b backdrop-blur-md transition-colors ${
+      className={`relative border-b backdrop-blur-md transition-colors ${
         emergencyMode
           ? "border-red-500/70 bg-slate-950/95 shadow-lg shadow-red-950/40"
           : "border-slate-800 bg-slate-950/92"
