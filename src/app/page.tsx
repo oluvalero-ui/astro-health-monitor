@@ -7,6 +7,7 @@ import BiomarkersDashboard from "@/components/BiomarkersDashboard";
 import EmergencyBannerModal from "@/components/EmergencyBannerModal";
 import GamificationPanel from "@/components/GamificationPanel";
 import LeftNavSidebar, { NavSectionId } from "@/components/LeftNavSidebar";
+import MissionTimeSyncBar from "@/components/MissionTimeSyncBar";
 import MultimodalScanModal, {
   ScanModalTab,
 } from "@/components/MultimodalScanModal";
@@ -494,6 +495,12 @@ export default function HomePage() {
             checklist={state.emergencyChecklist}
             onToggleStep={handleToggleEmergencyStep}
             onRestoreNominal={handleToggleEmergency}
+          />
+          {/* Cronometría en vivo: Tiempo del Astronauta vs. Tiempo en la Tierra */}
+          <MissionTimeSyncBar
+            environmentId={state.environmentId}
+            missionDay={state.missionDay}
+            telemedicineEnabled={state.telemedicineEnabled}
           />
 
           {/* Executive 4-Card Bento Overview (mirrors reference screenshot layout) */}
