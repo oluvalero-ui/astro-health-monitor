@@ -89,6 +89,25 @@ export interface BiomarkerData {
   moodScore: number;
   postureScore: number;
   facialTension: number;
+  spo2Percent: number;
+  respiratoryRateRpm: number;
+  minuteVentilationLpm: number;
+  hrvRmssdMs: number;
+  pttMs: number;
+  perfusionIndex: number;
+  skinTempC: number;
+  lastOscillometricCalHours: number;
+  pttCalibrationRequired: boolean;
+}
+
+export interface HemodynamicIndices {
+  mapMmHg: number;
+  pulsePressureMmHg: number;
+  shockIndex: number;
+  orthostaticAlert: boolean;
+  mapStatus: HealthStatus;
+  pulsePressureStatus: HealthStatus;
+  shockStatus: HealthStatus;
 }
 
 export interface RoutineTracking {
@@ -159,7 +178,7 @@ export interface EmergencyProtocolStep {
 export interface ScanLogEntry {
   id: string;
   timestamp: string;
-  modality: "camara" | "ultrasonido" | "manual" | "emergencia";
+  modality: "camara" | "ultrasonido" | "manual" | "emergencia" | "wearable";
   summary: string;
 }
 

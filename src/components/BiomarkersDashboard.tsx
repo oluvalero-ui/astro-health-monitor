@@ -25,6 +25,7 @@ import {
   Thermometer,
   UserCheck,
   Users,
+  Watch,
 } from "lucide-react";
 import { CSA_RADIATION_LIMITS } from "@/data/missionData";
 import {
@@ -43,15 +44,19 @@ import {
   evaluateCortisolStatus,
   evaluateDepressionStatus,
   evaluateGlucoseStatus,
+  evaluateHrvStatus,
   evaluateHydrationStatus,
   evaluateLonelinessStatus,
   evaluateMelatoninStatus,
   evaluateMentalFatigueStatus,
   evaluateMoodStatus,
+  evaluatePerfusionIndexStatus,
   evaluatePhysicalFatigueStatus,
   evaluatePostureStatus,
   evaluateRadiationStatus,
+  evaluateRespiratoryRateStatus,
   evaluateSleepStatus,
+  evaluateSpo2Status,
   evaluateStressStatus,
   evaluateTempStatus,
   getCareerRadiationPct,
@@ -69,6 +74,7 @@ interface BiomarkersDashboardProps {
   lastUltrasoundFinding: string;
   onSelectSystemZone: (zone: SystemZoneId) => void;
   onOpenManualEdit: () => void;
+  onJumpToWearable?: () => void;
 }
 
 interface MetricCardProps {
@@ -213,6 +219,7 @@ export default function BiomarkersDashboard({
   lastUltrasoundFinding,
   onSelectSystemZone,
   onOpenManualEdit,
+  onJumpToWearable,
 }: BiomarkersDashboardProps) {
   const routineAnalysis = computeRoutineDeviations(routine);
   const radStatus = evaluateRadiationStatus(b.dailyRadiationMsv);
@@ -226,6 +233,10 @@ export default function BiomarkersDashboard({
   const cardioStatus = worstStatus([
     evaluateBpmStatus(b.bpm),
     evaluateBpStatus(b.systolicBP, b.diastolicBP),
+    evaluateSpo2Status(b.spo2Percent),
+    evaluateRespiratoryRateStatus(b.respiratoryRateRpm),
+    evaluateHrvStatus(b.hrvRmssdMs),
+    evaluatePerfusionIndexStatus(b.perfusionIndex),
   ]);
 
   const physicalBoneStatus = worstStatus([
@@ -355,9 +366,21 @@ export default function BiomarkersDashboard({
               Haz clic en cualquier tarjeta para abrir su guía anatómica y contramedidas.
             </p>
           </div>
-          <span className="font-mono-hud text-[11px] text-slate-500">
-            Último Ultrasonido: {lastUltrasoundFinding}
-          </span>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <span className="font-mono-hud text-[11px] text-slate-500">
+              Último Ultrasonido: {lastUltrasoundFinding}
+            </span>
+            {onJumpToWearable && (
+              <button
+                type="button"
+                onClick={onJumpToWearable}
+                className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-[#1a73e8] transition hover:bg-blue-100"
+              >
+                <Watch className="h-3.5 w-3.5" />
+                Arnés Vestible: SpO₂ {b.spo2Percent}% · FR {b.respiratoryRateRpm} rpm · HRV {b.hrvRmssdMs} ms
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -365,7 +388,7 @@ export default function BiomarkersDashboard({
             title="Pulsaciones por Minuto"
             value={`${b.bpm}`}
             unit="BPM"
-            subtitle={`Presión Arterial: ${b.systolicBP}/${b.diastolicBP} mmHg (Base: 55-85 BPM)`}
+            subtitle={`HRV ${b.hrvRmssdMs} ms · SpO₂ ${b.spo2Percent}% · FR ${b.respiratoryRateRpm} rpm`}
             status={cardioStatus}
             trend={getTrend(b.bpm, prev.bpm, 1.5)}
             progressPercent={(b.bpm / 150) * 100}
@@ -376,7 +399,7 @@ export default function BiomarkersDashboard({
             title="Presión Arterial"
             value={`${b.systolicBP}/${b.diastolicBP}`}
             unit="mmHg"
-            subtitle="Capacidad cardiovascular en gravedad alterada"
+            subtitle={`Derivada vía PTT (${b.pttMs} ms) · Bio-Monitor Frontal`}
             status={evaluateBpStatus(b.systolicBP, b.diastolicBP)}
             trend={getTrend(b.systolicBP, prev.systolicBP, 2)}
             progressPercent={(b.systolicBP / 170) * 100}

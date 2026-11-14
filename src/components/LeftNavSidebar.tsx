@@ -9,11 +9,13 @@ import {
   Home,
   Monitor,
   ShieldAlert,
+  Watch,
 } from "lucide-react";
 
 export type NavSectionId =
   | "resumen"
   | "escaner"
+  | "wearable"
   | "biomarcadores"
   | "informes";
 
@@ -69,6 +71,16 @@ export default function LeftNavSidebar({
             className={navBtnClass(activeSection === "escaner")}
           >
             <Home className="h-5 w-5" />
+          </button>
+
+          {/* Arnés Vestible (13 Signos Bio-Monitor CSA) */}
+          <button
+            type="button"
+            title="Arnés Vestible (13 Signos)"
+            onClick={() => onNavigate("wearable")}
+            className={navBtnClass(activeSection === "wearable")}
+          >
+            <Watch className="h-5 w-5" />
           </button>
 
           {/* Biomarcadores y Detector de Rutina */}
@@ -155,6 +167,16 @@ export default function LeftNavSidebar({
           aria-label="Escáner"
         >
           <Home className="h-4 w-4" />
+        </button>
+        <button
+          type="button"
+          onClick={() => onNavigate("wearable")}
+          className={`rounded-lg p-2 ${
+            activeSection === "wearable" ? "bg-[#1a73e8]" : "text-blue-100/80"
+          }`}
+          aria-label="Arnés Vestible (13 Signos)"
+        >
+          <Watch className="h-4 w-4" />
         </button>
         <button
           type="button"

@@ -9,6 +9,7 @@ import {
   AstronautDashboardState,
   BiomarkerData,
   HealthStatus,
+  HemodynamicIndices,
   MissionEnvironmentId,
   RoutineDeviationItem,
   RoutineTracking,
@@ -166,11 +167,106 @@ export function evaluateFacialTensionStatus(tension: number): HealthStatus {
   return "optimal";
 }
 
+export function evaluateSpo2Status(spo2: number): HealthStatus {
+  if (spo2 < 92) return "critical";
+  if (spo2 < 95) return "warning";
+  return "optimal";
+}
+
+export function evaluateRespiratoryRateStatus(rpm: number): HealthStatus {
+  if (rpm > 24 || rpm < 9) return "critical";
+  if (rpm > 20 || rpm < 12) return "warning";
+  return "optimal";
+}
+
+export function evaluateMinuteVentilationStatus(lpm: number): HealthStatus {
+  if (lpm > 12.0 || lpm < 3.8) return "critical";
+  if (lpm > 8.0 || lpm < 5.0) return "warning";
+  return "optimal";
+}
+
+export function evaluateHrvStatus(rmssd: number): HealthStatus {
+  if (rmssd < 14) return "critical";
+  if (rmssd <= 20) return "warning";
+  return "optimal";
+}
+
+export function evaluatePttStatus(pttMs: number): HealthStatus {
+  if (pttMs < 130 || pttMs > 280) return "critical";
+  if (pttMs < 150 || pttMs > 250) return "warning";
+  return "optimal";
+}
+
+export function evaluatePerfusionIndexStatus(pi: number): HealthStatus {
+  if (pi < 0.5) return "critical";
+  if (pi < 1.0 || pi > 10.0) return "warning";
+  return "optimal";
+}
+
+export function evaluateSkinTempStatus(temp: number): HealthStatus {
+  if (temp < 30.5 || temp > 37.0) return "critical";
+  if (temp < 32.0 || temp > 35.5) return "warning";
+  return "optimal";
+}
+
+export function computeHemodynamicIndices(
+  b: BiomarkerData,
+  environmentId: MissionEnvironmentId = "iss"
+): HemodynamicIndices {
+  const mapMmHg = Math.round(b.diastolicBP + (b.systolicBP - b.diastolicBP) / 3);
+  const pulsePressureMmHg = b.systolicBP - b.diastolicBP;
+  const shockIndex = Number((b.bpm / Math.max(b.systolicBP, 1)).toFixed(2));
+  const isPartialGravity = environmentId === "luna" || environmentId === "marte";
+  const orthostaticAlert =
+    isPartialGravity &&
+    (b.systolicBP < 95 || shockIndex >= 0.85 || b.pttCalibrationRequired);
+
+  const mapStatus: HealthStatus =
+    mapMmHg < 65 || mapMmHg > 115
+      ? "critical"
+      : mapMmHg < 70 || mapMmHg > 100
+      ? "warning"
+      : "optimal";
+
+  const pulsePressureStatus: HealthStatus =
+    pulsePressureMmHg < 20
+      ? "critical"
+      : pulsePressureMmHg < 25 || pulsePressureMmHg < 30 || pulsePressureMmHg > 50
+      ? "warning"
+      : "optimal";
+
+  const shockStatus: HealthStatus =
+    shockIndex >= 0.9
+      ? "critical"
+      : shockIndex > 0.7 || shockIndex < 0.45
+      ? "warning"
+      : "optimal";
+
+  return {
+    mapMmHg,
+    pulsePressureMmHg,
+    shockIndex,
+    orthostaticAlert,
+    mapStatus,
+    pulsePressureStatus,
+    shockStatus,
+  };
+}
+
 export function evaluateAllZoneStatuses(
   b: BiomarkerData,
-  routine: RoutineTracking
+  routine: RoutineTracking,
+  environmentId: MissionEnvironmentId = "iss"
 ): Record<SystemZoneId, HealthStatus> {
   const routineAnalysis = computeRoutineDeviations(routine);
+  const hemo = computeHemodynamicIndices(b, environmentId);
+  const brainOrthostaticStatus: HealthStatus = hemo.orthostaticAlert
+    ? b.systolicBP < 95 || hemo.shockIndex >= 0.9
+      ? "critical"
+      : b.pttCalibrationRequired
+      ? "warning"
+      : "optimal"
+    : "optimal";
 
   return {
     cerebro: worstStatus([
@@ -182,6 +278,7 @@ export function evaluateAllZoneStatuses(
       evaluateSleepStatus(b.sleepHours),
       evaluateMoodStatus(b.moodScore),
       routineAnalysis.overallStatus === "critical" ? "warning" : "optimal",
+      brainOrthostaticStatus,
     ]),
     rostro: worstStatus([
       evaluatePostureStatus(b.postureScore),
@@ -190,6 +287,10 @@ export function evaluateAllZoneStatuses(
     corazon: worstStatus([
       evaluateBpmStatus(b.bpm),
       evaluateBpStatus(b.systolicBP, b.diastolicBP),
+      evaluateSpo2Status(b.spo2Percent),
+      evaluateRespiratoryRateStatus(b.respiratoryRateRpm),
+      evaluateHrvStatus(b.hrvRmssdMs),
+      evaluatePerfusionIndexStatus(b.perfusionIndex),
     ]),
     endocrino: worstStatus([
       evaluateCortisolStatus(b.cortisolIndex),
@@ -310,6 +411,50 @@ export function clamp(val: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, val));
 }
 
+export function hydrateBiomarkers(
+  raw?: Partial<BiomarkerData> | null
+): BiomarkerData {
+  return {
+    bpm: raw?.bpm ?? DEFAULT_BIOMARKERS.bpm,
+    systolicBP: raw?.systolicBP ?? DEFAULT_BIOMARKERS.systolicBP,
+    diastolicBP: raw?.diastolicBP ?? DEFAULT_BIOMARKERS.diastolicBP,
+    bloodGlucoseMgDl: raw?.bloodGlucoseMgDl ?? DEFAULT_BIOMARKERS.bloodGlucoseMgDl,
+    bodyTempC: raw?.bodyTempC ?? DEFAULT_BIOMARKERS.bodyTempC,
+    hydrationPercent: raw?.hydrationPercent ?? DEFAULT_BIOMARKERS.hydrationPercent,
+    cortisolIndex: raw?.cortisolIndex ?? DEFAULT_BIOMARKERS.cortisolIndex,
+    melatoninIndex: raw?.melatoninIndex ?? DEFAULT_BIOMARKERS.melatoninIndex,
+    physicalFatigue: raw?.physicalFatigue ?? DEFAULT_BIOMARKERS.physicalFatigue,
+    boneDensityIndex: raw?.boneDensityIndex ?? DEFAULT_BIOMARKERS.boneDensityIndex,
+    dailyRadiationMsv: raw?.dailyRadiationMsv ?? DEFAULT_BIOMARKERS.dailyRadiationMsv,
+    cumulativeRadiationMsv:
+      raw?.cumulativeRadiationMsv ?? DEFAULT_BIOMARKERS.cumulativeRadiationMsv,
+    mentalFatigue: raw?.mentalFatigue ?? DEFAULT_BIOMARKERS.mentalFatigue,
+    reactionTimeMs: raw?.reactionTimeMs ?? DEFAULT_BIOMARKERS.reactionTimeMs,
+    stressLevel: raw?.stressLevel ?? DEFAULT_BIOMARKERS.stressLevel,
+    depressionRisk: raw?.depressionRisk ?? DEFAULT_BIOMARKERS.depressionRisk,
+    lonelinessLevel: raw?.lonelinessLevel ?? DEFAULT_BIOMARKERS.lonelinessLevel,
+    boredomLevel: raw?.boredomLevel ?? DEFAULT_BIOMARKERS.boredomLevel,
+    stimulationIndex: raw?.stimulationIndex ?? DEFAULT_BIOMARKERS.stimulationIndex,
+    sleepHours: raw?.sleepHours ?? DEFAULT_BIOMARKERS.sleepHours,
+    moodScore: raw?.moodScore ?? DEFAULT_BIOMARKERS.moodScore,
+    postureScore: raw?.postureScore ?? DEFAULT_BIOMARKERS.postureScore,
+    facialTension: raw?.facialTension ?? DEFAULT_BIOMARKERS.facialTension,
+    spo2Percent: raw?.spo2Percent ?? DEFAULT_BIOMARKERS.spo2Percent,
+    respiratoryRateRpm:
+      raw?.respiratoryRateRpm ?? DEFAULT_BIOMARKERS.respiratoryRateRpm,
+    minuteVentilationLpm:
+      raw?.minuteVentilationLpm ?? DEFAULT_BIOMARKERS.minuteVentilationLpm,
+    hrvRmssdMs: raw?.hrvRmssdMs ?? DEFAULT_BIOMARKERS.hrvRmssdMs,
+    pttMs: raw?.pttMs ?? DEFAULT_BIOMARKERS.pttMs,
+    perfusionIndex: raw?.perfusionIndex ?? DEFAULT_BIOMARKERS.perfusionIndex,
+    skinTempC: raw?.skinTempC ?? DEFAULT_BIOMARKERS.skinTempC,
+    lastOscillometricCalHours:
+      raw?.lastOscillometricCalHours ?? DEFAULT_BIOMARKERS.lastOscillometricCalHours,
+    pttCalibrationRequired:
+      raw?.pttCalibrationRequired ?? DEFAULT_BIOMARKERS.pttCalibrationRequired,
+  };
+}
+
 export function recalculateForEnvironment(
   state: AstronautDashboardState,
   newEnvId: MissionEnvironmentId
@@ -324,6 +469,8 @@ export function recalculateForEnvironment(
   const prevCumulFactor = 0.65 + prevEnv.dailyRadiationMsv * 0.35;
   const nextCumulFactor = 0.65 + nextEnv.dailyRadiationMsv * 0.35;
   const ratio = nextCumulFactor / prevCumulFactor;
+  const co2Delta = nextEnv.co2MmHg - prevEnv.co2MmHg;
+  const gravityDelta = nextEnv.gravityG - prevEnv.gravityG;
 
   const b = state.biomarkers;
   const updatedBiomarkers: BiomarkerData = {
@@ -338,10 +485,37 @@ export function recalculateForEnvironment(
     stressLevel: clamp(Math.round(b.stressLevel + isolationDelta * 0.45), 5, 99),
     boneDensityIndex: clamp(Math.round((b.boneDensityIndex + boneDelta) * 10) / 10, 78, 100),
     physicalFatigue: clamp(
-      Math.round(b.physicalFatigue + (nextEnv.gravityG - prevEnv.gravityG) * 14),
+      Math.round(b.physicalFatigue + gravityDelta * 14),
       10,
       98
     ),
+    spo2Percent: clamp(
+      Math.round(b.spo2Percent - (prevEnv.cabinPressureKpa - nextEnv.cabinPressureKpa) * 0.025),
+      88,
+      99
+    ),
+    respiratoryRateRpm: clamp(
+      Math.round(b.respiratoryRateRpm + co2Delta * 1.4),
+      10,
+      30
+    ),
+    minuteVentilationLpm: clamp(
+      Number((b.minuteVentilationLpm + co2Delta * 0.65).toFixed(1)),
+      4.2,
+      14.0
+    ),
+    hrvRmssdMs: clamp(Math.round(b.hrvRmssdMs - isolationDelta * 0.45), 12, 85),
+    pttMs: clamp(Math.round(b.pttMs - gravityDelta * 26), 135, 260),
+    perfusionIndex: clamp(
+      Number((b.perfusionIndex - isolationDelta * 0.03 + gravityDelta * 0.5).toFixed(1)),
+      0.4,
+      10.0
+    ),
+    skinTempC: clamp(Number((b.skinTempC + co2Delta * 0.15).toFixed(1)), 30.5, 37.5),
+    pttCalibrationRequired:
+      newEnvId === "luna" ||
+      newEnvId === "marte" ||
+      b.lastOscillometricCalHours >= 24,
   };
 
   return {
@@ -349,6 +523,37 @@ export function recalculateForEnvironment(
     environmentId: newEnvId,
     previousBiomarkers: state.biomarkers,
     biomarkers: updatedBiomarkers,
+  };
+}
+
+export function calibrateOscillometricCuff(
+  state: AstronautDashboardState
+): AstronautDashboardState {
+  const env = MISSION_ENVIRONMENTS[state.environmentId];
+  const calibratedPtt = Math.round(194 - env.gravityG * 22);
+  const utc = new Date().toISOString().slice(11, 16);
+
+  const nextBiomarkers: BiomarkerData = {
+    ...state.biomarkers,
+    lastOscillometricCalHours: 0,
+    pttCalibrationRequired: false,
+    pttMs: calibratedPtt,
+  };
+
+  return {
+    ...state,
+    previousBiomarkers: state.biomarkers,
+    biomarkers: nextBiomarkers,
+    xp: state.xp + 15,
+    scanLogs: [
+      {
+        id: `log-cal-${Date.now()}`,
+        timestamp: `${utc} UTC`,
+        modality: "wearable",
+        summary: `Calibración oscilométrica CSA BP Reg completada (30 s): PTT sincronizado a ${calibratedPtt} ms en ${env.shortName} (+15 XP).`,
+      },
+      ...state.scanLogs.slice(0, 7),
+    ],
   };
 }
 
@@ -381,6 +586,15 @@ export function buildEmergencyState(
     moodScore: 32,
     postureScore: 38,
     facialTension: 84,
+    spo2Percent: 90,
+    respiratoryRateRpm: 27,
+    minuteVentilationLpm: 11.4,
+    hrvRmssdMs: 13,
+    pttMs: 142,
+    perfusionIndex: 0.4,
+    skinTempC: 31.4,
+    lastOscillometricCalHours: 28,
+    pttCalibrationRequired: true,
   };
 
   const emergencyRoutine: RoutineTracking = {
@@ -432,7 +646,7 @@ export function buildEmergencyState(
         timestamp: "AHORA (DEMO)",
         modality: "emergencia",
         summary:
-          "Simulación de emergencia activada: hipoglucemia (58 mg/dL), deshidratación (61%), pico de cortisol y desfase de rutina.",
+          "Simulación de emergencia activada: SpO₂ 90%, taquipnea 27 rpm, hipoglucemia (58 mg/dL), deshidratación (61%) e hipoperfusión (PI 0.4%).",
       },
       ...state.scanLogs.slice(0, 6),
     ],
@@ -443,6 +657,8 @@ export function restoreNominalFromEmergency(
   state: AstronautDashboardState
 ): AstronautDashboardState {
   const env = MISSION_ENVIRONMENTS[state.environmentId];
+  const isPartialGravity =
+    state.environmentId === "luna" || state.environmentId === "marte";
   const nominalBiomarkers: BiomarkerData = {
     ...DEFAULT_BIOMARKERS,
     dailyRadiationMsv: env.dailyRadiationMsv,
@@ -450,6 +666,8 @@ export function restoreNominalFromEmergency(
     boredomLevel: clamp(DEFAULT_BIOMARKERS.boredomLevel + Math.round(env.isolationRiskBonus * 0.7), 10, 80),
     stimulationIndex: clamp(100 - (DEFAULT_BIOMARKERS.boredomLevel + Math.round(env.isolationRiskBonus * 0.7)), 20, 95),
     stressLevel: clamp(DEFAULT_BIOMARKERS.stressLevel + Math.round(env.isolationRiskBonus * 0.5), 10, 80),
+    pttMs: Math.round(194 - env.gravityG * 22),
+    pttCalibrationRequired: isPartialGravity,
   };
 
   return {

@@ -459,6 +459,15 @@ export const DEFAULT_BIOMARKERS: BiomarkerData = {
   moodScore: 84,
   postureScore: 85,
   facialTension: 22,
+  spo2Percent: 98,
+  respiratoryRateRpm: 15,
+  minuteVentilationLpm: 6.4,
+  hrvRmssdMs: 42,
+  pttMs: 194,
+  perfusionIndex: 3.8,
+  skinTempC: 33.8,
+  lastOscillometricCalHours: 4,
+  pttCalibrationRequired: false,
 };
 
 export const DEFAULT_ROUTINE: RoutineTracking = {

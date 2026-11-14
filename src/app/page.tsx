@@ -14,6 +14,7 @@ import OverviewBentoGrid from "@/components/OverviewBentoGrid";
 import ScientificReferencesModal from "@/components/ScientificReferencesModal";
 import TelemetryCharts from "@/components/TelemetryCharts";
 import TopMissionBar from "@/components/TopMissionBar";
+import WearableHarnessPanel from "@/components/WearableHarnessPanel";
 import { INITIAL_DASHBOARD_STATE } from "@/data/missionData";
 import {
   AstronautDashboardState,
@@ -26,10 +27,12 @@ import {
 } from "@/types/astronaut";
 import {
   buildEmergencyState,
+  calibrateOscillometricCuff,
   clamp,
   computeMissionReadiness,
   computeRoutineDeviations,
   evaluateAllZoneStatuses,
+  hydrateBiomarkers,
   recalculateForEnvironment,
   restoreNominalFromEmergency,
 } from "@/utils/healthEngine";
@@ -67,10 +70,10 @@ function getDashboardSnapshot(): AstronautDashboardState {
       cachedParsed = {
         ...INITIAL_DASHBOARD_STATE,
         ...parsed,
-        biomarkers: {
-          ...INITIAL_DASHBOARD_STATE.biomarkers,
-          ...parsed.biomarkers,
-        },
+        biomarkers: hydrateBiomarkers(parsed.biomarkers),
+        previousBiomarkers: hydrateBiomarkers(
+          parsed.previousBiomarkers ?? parsed.biomarkers
+        ),
         routine: {
           ...INITIAL_DASHBOARD_STATE.routine,
           ...parsed.routine,
@@ -163,6 +166,7 @@ export default function HomePage() {
     const idMap: Record<NavSectionId, string> = {
       resumen: "resumen-bento",
       escaner: "scanner-section",
+      wearable: "wearable-harness",
       biomarcadores: "biomarkers-section",
       informes: "informes-section",
     };
@@ -181,8 +185,13 @@ export default function HomePage() {
   };
 
   const zoneStatuses = useMemo(
-    () => evaluateAllZoneStatuses(state.biomarkers, state.routine),
-    [state.biomarkers, state.routine]
+    () =>
+      evaluateAllZoneStatuses(
+        state.biomarkers,
+        state.routine,
+        state.environmentId
+      ),
+    [state.biomarkers, state.routine, state.environmentId]
   );
 
   const routineSummary = useMemo(
@@ -197,6 +206,10 @@ export default function HomePage() {
 
   const handleSelectEnvironment = (envId: MissionEnvironmentId) => {
     setState((prev) => recalculateForEnvironment(prev, envId));
+  };
+
+  const handleCalibrateOscillometric = () => {
+    setState((prev) => calibrateOscillometricCuff(prev));
   };
 
   const handleToggleTelemedicine = () => {
@@ -519,6 +532,14 @@ export default function HomePage() {
             onOpenScanTab={handleOpenScanTab}
           />
 
+          {/* Prototype 2: CSA Bio-Monitor Wearable Body Area Network (13 Continuous Signs) */}
+          <WearableHarnessPanel
+            environmentId={state.environmentId}
+            biomarkers={state.biomarkers}
+            onCalibrateOscillometric={handleCalibrateOscillometric}
+            onSelectSystemZone={handleSelectZoneAndScroll}
+          />
+
           {/* Module 2: Comprehensive Biomarkers, Mental/Behavioral Health & Routine Change Detector */}
           <BiomarkersDashboard
             biomarkers={state.biomarkers}
@@ -528,6 +549,7 @@ export default function HomePage() {
             lastUltrasoundFinding={state.lastUltrasoundFinding}
             onSelectSystemZone={handleSelectZoneAndScroll}
             onOpenManualEdit={() => handleOpenScanTab("manual")}
+            onJumpToWearable={() => handleNavigateSection("wearable")}
           />
 
           {/* Module 4: Dynamic Recharts Telemetry + Gamification Action Plan */}
