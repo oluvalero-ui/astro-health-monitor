@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { BookOpen, ExternalLink, Radiation, ShieldCheck } from "lucide-react";
+import { BookOpen, ExternalLink, Radiation } from "lucide-react";
 import {
   CSA_RADIATION_LIMITS,
   SCIENTIFIC_REFERENCES,
@@ -328,16 +328,6 @@ export default function ScientificReferencesContent({
             </a>
           ))}
         </div>
-      </div>
-
-      {/* Nota de Operación Autónoma Offline */}
-      <div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-800">
-        <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-600" />
-        <span>
-          Arquitectura 100% Autónoma Offline: Toda la base científica, telemetría
-          del Arnés 3N, flujos bajo demanda y almacenamiento local operan sin
-          conexión a internet ni dependencias externas.
-        </span>
       </div>
     </div>
   );

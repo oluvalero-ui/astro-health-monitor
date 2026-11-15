@@ -3,10 +3,11 @@
 import React, { useEffect, useState } from "react";
 import {
   Activity,
+  AlertTriangle,
   Compass,
-  Download,
   Globe,
   Orbit,
+  Radio,
   Rocket,
   RotateCcw,
   ScanLine,
@@ -15,12 +16,11 @@ import {
   Volume2,
   VolumeX,
 } from "lucide-react";
-import { CSA_RADIATION_LIMITS, MISSION_ENVIRONMENTS } from "@/data/missionData";
+import { MISSION_ENVIRONMENTS } from "@/data/missionData";
 import {
   BiomarkerData,
   HealthStatus,
   MissionEnvironmentId,
-  RoutineTracking,
   SystemZoneId,
 } from "@/types/astronaut";
 
@@ -29,21 +29,26 @@ interface TopMissionBarProps {
   telemedicineEnabled: boolean;
   missionDay: number;
   astronautName: string;
-  crewRole: string;
   dailyRadiationMsv: number;
-  cumulativeRadiationMsv: number;
   readinessScore: number;
   emergencyMode: boolean;
   zoneStatuses: Record<SystemZoneId, HealthStatus>;
   biomarkers?: BiomarkerData;
-  routine?: RoutineTracking;
   onSelectEnvironment: (envId: MissionEnvironmentId) => void;
   onToggleTelemedicine: () => void;
   onOpenScanModal: () => void;
-  onToggleEmergency: () => void;
-  onOpenReferences: () => void;
+  onInspectProtocol: (zone: SystemZoneId) => void;
   onResetMission: () => void;
 }
+
+const ZONE_FRIENDLY_NAMES: Record<SystemZoneId, string> = {
+  cerebro: "Mente y Descanso",
+  rostro: "Rostro y Postura",
+  corazon: "Corazón y Aire",
+  endocrino: "Defensas y Sueño",
+  abdomen: "Agua y Energía",
+  musculo: "Músculos y Huesos",
+};
 
 const ENV_SHORT_LABELS: Record<MissionEnvironmentId, string> = {
   iss: "Estación (0g)",
@@ -65,21 +70,42 @@ export default function TopMissionBar({
   missionDay,
   astronautName,
   dailyRadiationMsv,
-  cumulativeRadiationMsv,
   readinessScore,
   emergencyMode,
   zoneStatuses,
   biomarkers,
-  routine,
   onSelectEnvironment,
   onToggleTelemedicine,
   onOpenScanModal,
-  onToggleEmergency,
+  onInspectProtocol,
   onResetMission,
 }: TopMissionBarProps) {
   const env = MISSION_ENVIRONMENTS[environmentId];
   const [utcTime, setUtcTime] = useState<string>("08:42:19 UTC");
   const [speaking, setSpeaking] = useState(false);
+
+  const criticalZones = (
+    Object.entries(zoneStatuses) as [SystemZoneId, HealthStatus][]
+  )
+    .filter(([, status]) => status === "critical")
+    .map(([zone]) => zone);
+
+  const warningZones = (
+    Object.entries(zoneStatuses) as [SystemZoneId, HealthStatus][]
+  )
+    .filter(([, status]) => status === "warning")
+    .map(([zone]) => zone);
+
+  const overallRiskStatus: HealthStatus =
+    emergencyMode || criticalZones.length > 0
+      ? "critical"
+      : warningZones.length > 0
+      ? "warning"
+      : "optimal";
+
+  const isLowLatency = env.commLatencySeconds < 60;
+  const primaryCriticalZone: SystemZoneId = criticalZones[0] ?? "corazon";
+  const primaryWarningZone: SystemZoneId = warningZones[0] ?? "cerebro";
 
   useEffect(() => {
     const updateClock = () => {
@@ -114,43 +140,14 @@ export default function TopMissionBar({
     window.speechSynthesis.speak(utterance);
   };
 
-  const handleDownloadDtn = () => {
-    const payload = {
-      protocol: "NASA-DTN-TELEMETRY-V2",
-      timestampUtc: new Date().toISOString(),
-      missionDay,
-      astronautName,
-      environment: {
-        id: env.id,
-        name: env.name,
-        gravityG: env.gravityG,
-        latencySec: env.commLatencySeconds,
-      },
-      readinessScore,
-      zoneStatuses,
-      biomarkers,
-      routine,
-      radiationCsa: {
-        instrument: CSA_RADIATION_LIMITS.instrumentName,
-        dailyMsv: dailyRadiationMsv,
-        cumulativeMsv: cumulativeRadiationMsv,
-      },
-    };
-    const blob = new Blob([JSON.stringify(payload, null, 2)], {
-      type: "application/json",
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `ASTROMED-SOL${missionDay}-${env.id.toUpperCase()}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
   return (
     <header
       className={`border-b bg-[#050a14] text-white transition-colors ${
-        emergencyMode ? "border-red-500 bg-red-950" : "border-[#182742]"
+        overallRiskStatus === "critical"
+          ? "border-red-500 bg-red-950/90"
+          : overallRiskStatus === "warning"
+          ? "border-amber-500/60 bg-[#050a14]"
+          : "border-[#182742]"
       }`}
     >
       <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-2.5 px-4 py-2.5 sm:px-6">
@@ -159,8 +156,10 @@ export default function TopMissionBar({
           <div className="flex items-center gap-2">
             <span
               className={`flex h-8 w-8 items-center justify-center rounded-lg border ${
-                emergencyMode
+                overallRiskStatus === "critical"
                   ? "animate-pulse border-red-400 bg-red-600 text-white"
+                  : overallRiskStatus === "warning"
+                  ? "border-amber-400/50 bg-amber-500/20 text-amber-300"
                   : "border-sky-400/40 bg-sky-500/20 text-sky-300"
               }`}
             >
@@ -260,16 +259,6 @@ export default function TopMissionBar({
 
           <button
             type="button"
-            onClick={handleDownloadDtn}
-            className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-white/15 bg-white/10 px-2.5 py-1.5 text-xs font-semibold text-white transition hover:bg-white/20"
-            title="Guardar archivo con tus datos de salud para enviar a Tierra"
-          >
-            <Download className="h-3.5 w-3.5 text-emerald-300" />
-            <span className="hidden md:inline">Guardar Reporte</span>
-          </button>
-
-          <button
-            type="button"
             onClick={onOpenScanModal}
             className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-[#1a73e8] px-3 py-1.5 text-xs font-bold text-white transition hover:bg-blue-600"
           >
@@ -277,27 +266,40 @@ export default function TopMissionBar({
             <span>Revisar / Ajustar</span>
           </button>
 
-          <button
-            type="button"
-            onClick={onToggleEmergency}
-            className={`inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition ${
-              emergencyMode
-                ? "animate-pulse bg-emerald-600 text-white hover:bg-emerald-700"
-                : "bg-red-600 text-white hover:bg-red-700"
-            }`}
-          >
-            {emergencyMode ? (
-              <>
-                <ShieldCheck className="h-3.5 w-3.5" />
-                <span>Volver a Calma</span>
-              </>
-            ) : (
-              <>
-                <ShieldAlert className="h-3.5 w-3.5" />
-                <span>Ayuda SOS</span>
-              </>
-            )}
-          </button>
+          {/* Indicador Clínico Automático de Nivel de Peligro */}
+          {overallRiskStatus === "optimal" && (
+            <div
+              className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/35 bg-emerald-500/10 px-2.5 py-1.5 text-xs font-semibold text-emerald-300"
+              title="Detección automática: todos los signos dentro de rango seguro"
+            >
+              <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
+              <span>Estado: Normal</span>
+            </div>
+          )}
+
+          {overallRiskStatus === "warning" && (
+            <button
+              type="button"
+              onClick={() => onInspectProtocol(primaryWarningZone)}
+              className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-amber-400/60 bg-amber-500/20 px-3 py-1.5 text-xs font-bold text-amber-300 transition hover:bg-amber-500/30"
+              title="Parámetros en precaución detectados automáticamente"
+            >
+              <AlertTriangle className="h-3.5 w-3.5 text-amber-400" />
+              <span>Precaución ({warningZones.length})</span>
+            </button>
+          )}
+
+          {overallRiskStatus === "critical" && (
+            <button
+              type="button"
+              onClick={() => onInspectProtocol(primaryCriticalZone)}
+              className="inline-flex animate-pulse cursor-pointer items-center gap-1.5 rounded-lg border border-red-400 bg-red-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm transition hover:bg-red-700"
+              title="Nivel crítico detectado automáticamente"
+            >
+              <ShieldAlert className="h-3.5 w-3.5" />
+              <span>Peligro Crítico ({Math.max(1, criticalZones.length)})</span>
+            </button>
+          )}
 
           <button
             type="button"
@@ -309,6 +311,90 @@ export default function TopMissionBar({
           </button>
         </div>
       </div>
+
+      {/* Banner Automático en Estado Precaución (Warning) */}
+      {overallRiskStatus === "warning" && (
+        <div
+          role="status"
+          className="border-t border-amber-500/40 bg-amber-500/10 px-4 py-2 text-xs text-amber-200 sm:px-6"
+        >
+          <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 shrink-0 text-amber-400" />
+              <span>
+                <strong className="text-amber-300">
+                  Alerta Preventiva Automática:
+                </strong>{" "}
+                Se detectaron parámetros en precaución en{" "}
+                <strong>
+                  {warningZones.map((z) => ZONE_FRIENDLY_NAMES[z]).join(", ")}
+                </strong>{" "}
+                que requieren revisión temprana.
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => onInspectProtocol(primaryWarningZone)}
+              className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-amber-400/50 bg-amber-500/20 px-2.5 py-1 text-[11px] font-bold text-amber-200 transition hover:bg-amber-500/30"
+            >
+              <ScanLine className="h-3.5 w-3.5" />
+              Revisar Protocolo en Escáner
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Banner Automático Prioritario en Estado Muy Peligroso / Crítico */}
+      {overallRiskStatus === "critical" && (
+        <div
+          role="alert"
+          className="border-t border-red-500/60 bg-red-950/95 px-4 py-2.5 text-xs text-red-100 sm:px-6"
+        >
+          <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-3">
+            <div className="flex items-start gap-2.5">
+              <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-red-400" />
+              <div className="space-y-0.5">
+                <div>
+                  <strong className="text-red-300">
+                    ALERTA CLÍNICA CRÍTICA AUTOMÁTICA (
+                    {criticalZones.length > 0
+                      ? criticalZones.map((z) => ZONE_FRIENDLY_NAMES[z]).join(", ")
+                      : "Riesgo General"}
+                    ):
+                  </strong>{" "}
+                  Se recomienda <strong>contactar a un médico de vuelo de inmediato</strong>.
+                </div>
+                <div className="text-[11px] text-red-200/90">
+                  {isLowLatency && telemedicineEnabled
+                    ? `Enlace de baja latencia activo (${env.commLatencyLabel}): comunica tus lecturas al Cirujano de Vuelo ahora mismo.`
+                    : `Si no puedes comunicarte con Tierra (${env.commLatencyLabel} o sin señal), consulta de inmediato las recomendaciones autónomas en la vista "Escáner → 1. Protocolo de Examen y Acción".`}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              {isLowLatency && !telemedicineEnabled && (
+                <button
+                  type="button"
+                  onClick={onToggleTelemedicine}
+                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-emerald-400/50 bg-emerald-600 px-2.5 py-1 text-[11px] font-bold text-white transition hover:bg-emerald-500"
+                >
+                  <Radio className="h-3.5 w-3.5" />
+                  Activar Enlace Médico ({env.commLatencyLabel.split(" ")[0]})
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => onInspectProtocol(primaryCriticalZone)}
+                className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-red-300/60 bg-red-600 px-3 py-1 text-[11px] font-bold text-white transition hover:bg-red-500"
+              >
+                <ScanLine className="h-3.5 w-3.5" />
+                Ir a Protocolo y Recomendaciones Autónomas (Escáner)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

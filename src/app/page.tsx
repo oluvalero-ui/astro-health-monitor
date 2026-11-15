@@ -451,19 +451,15 @@ export default function HomePage() {
           telemedicineEnabled={state.telemedicineEnabled}
           missionDay={state.missionDay}
           astronautName={state.astronautName}
-          crewRole={state.crewRole}
           dailyRadiationMsv={state.biomarkers.dailyRadiationMsv}
-          cumulativeRadiationMsv={state.biomarkers.cumulativeRadiationMsv}
           readinessScore={readinessScore}
           emergencyMode={state.emergencyMode}
           zoneStatuses={zoneStatuses}
           biomarkers={state.biomarkers}
-          routine={state.routine}
           onSelectEnvironment={handleSelectEnvironment}
           onToggleTelemedicine={handleToggleTelemedicine}
           onOpenScanModal={() => handleOpenScanTab("camara")}
-          onToggleEmergency={handleToggleEmergency}
-          onOpenReferences={() => handleNavigateSection("referencias")}
+          onInspectProtocol={handleSelectZoneAndScroll}
           onResetMission={handleResetMission}
         />
 

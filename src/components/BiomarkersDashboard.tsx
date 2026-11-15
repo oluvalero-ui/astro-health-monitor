@@ -15,13 +15,9 @@ import {
   Flame,
   Gauge,
   HeartPulse,
-  Moon,
   Radiation,
-  Smile,
-  Sun,
   Thermometer,
   UserCheck,
-  Users,
   Watch,
   Wind,
 } from "lucide-react";
@@ -35,15 +31,11 @@ import {
 } from "@/types/astronaut";
 import {
   computeRoutineDeviations,
-  evaluateBoredomStatus,
   evaluateBpStatus,
   evaluateBpmStatus,
-  evaluateDepressionStatus,
   evaluateHrvStatus,
-  evaluateLonelinessStatus,
   evaluateMentalFatigueStatus,
   evaluateMinuteVentilationStatus,
-  evaluateMoodStatus,
   evaluatePerfusionIndexStatus,
   evaluatePostureStatus,
   evaluateRadiationStatus,
@@ -237,13 +229,6 @@ export default function BiomarkersDashboard({
     evaluateSleepStatus(b.sleepHours),
   ]);
 
-  const moodDescription =
-    b.moodScore >= 72
-      ? "Positivo / Enfocado"
-      : b.moodScore >= 50
-      ? "Fatiga / Apatía Leve"
-      : "Ánimo Deprimido";
-
   const [subView, setSubView] = useState<
     "fisicos" | "mental" | "rutina" | "todos"
   >("fisicos");
@@ -276,7 +261,7 @@ export default function BiomarkersDashboard({
             }`}
           >
             <Brain className="h-4 w-4" />
-            2. Tu Ánimo y Descanso (8)
+            2. Tu Ánimo y Descanso (4)
           </button>
 
           <button
@@ -574,39 +559,6 @@ export default function BiomarkersDashboard({
             onClick={() => onSelectSystemZone("cerebro")}
           />
           <MetricCard
-            title="Tristeza o Desánimo"
-            value={`${b.depressionRisk}%`}
-            unit=""
-            subtitle="Señal de ánimo bajo o pocas ganas de hacer actividades"
-            status={evaluateDepressionStatus(b.depressionRisk)}
-            trend={getTrend(b.depressionRisk, prev.depressionRisk, 2)}
-            progressPercent={b.depressionRisk}
-            icon={<Moon className="h-4 w-4" />}
-            onClick={() => onSelectSystemZone("cerebro")}
-          />
-          <MetricCard
-            title="Sensación de Soledad"
-            value={`${b.lonelinessLevel}%`}
-            unit=""
-            subtitle="Cuánto te afecta estar lejos de casa y de tu familia"
-            status={evaluateLonelinessStatus(b.lonelinessLevel)}
-            trend={getTrend(b.lonelinessLevel, prev.lonelinessLevel, 2)}
-            progressPercent={b.lonelinessLevel}
-            icon={<Users className="h-4 w-4" />}
-            onClick={() => onSelectSystemZone("cerebro")}
-          />
-          <MetricCard
-            title="Aburrimiento / Rutina Igual"
-            value={`${b.boredomLevel}%`}
-            unit=""
-            subtitle={`Variedad de actividades en tu día: ${b.stimulationIndex}%`}
-            status={evaluateBoredomStatus(b.boredomLevel)}
-            trend={getTrend(b.boredomLevel, prev.boredomLevel, 2)}
-            progressPercent={b.boredomLevel}
-            icon={<Sun className="h-4 w-4" />}
-            onClick={() => onSelectSystemZone("cerebro")}
-          />
-          <MetricCard
             title="Horas de Sueño"
             value={b.sleepHours.toFixed(1)}
             unit={`h (${Math.min(100, Math.round((b.sleepHours / 8) * 100))}%)`}
@@ -616,18 +568,6 @@ export default function BiomarkersDashboard({
             trendPositiveIsGood
             progressPercent={(b.sleepHours / 9) * 100}
             icon={<BedDouble className="h-4 w-4" />}
-            onClick={() => onSelectSystemZone("cerebro")}
-          />
-          <MetricCard
-            title="Buen Ánimo y Energía"
-            value={`${b.moodScore}%`}
-            unit=""
-            subtitle={`Cómo te sientes hoy: ${moodDescription}`}
-            status={evaluateMoodStatus(b.moodScore)}
-            trend={getTrend(b.moodScore, prev.moodScore, 2)}
-            trendPositiveIsGood
-            progressPercent={b.moodScore}
-            icon={<Smile className="h-4 w-4" />}
             onClick={() => onSelectSystemZone("cerebro")}
           />
           <MetricCard
