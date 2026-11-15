@@ -508,11 +508,11 @@ export default function HomePage() {
                 <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
                   <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-700">
                     <ClipboardList className="h-4 w-4 text-[#1a73e8]" />
-                    Bitácora Local de Autoevaluaciones (Offline)
+                    Historial de tus Revisiones Recientes (Guardado en la Nave)
                   </h3>
                   <span className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-700">
                     <ShieldCheck className="h-3.5 w-3.5" />
-                    Persistencia local activa
+                    Guardado sin internet
                   </span>
                 </div>
                 <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-4">

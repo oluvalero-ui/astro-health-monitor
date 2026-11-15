@@ -46,8 +46,8 @@ interface TopMissionBarProps {
 }
 
 const ENV_SHORT_LABELS: Record<MissionEnvironmentId, string> = {
-  iss: "ISS (0g)",
-  nave: "Tránsito (0g)",
+  iss: "Estación (0g)",
+  nave: "Viaje (0g)",
   luna: "Luna (0.16g)",
   marte: "Marte (0.38g)",
 };
@@ -101,8 +101,8 @@ export default function TopMissionBar({
       (s) => s === "critical"
     ).length;
     const text = biomarkers
-      ? `Consola ASTRO-MED. ${astronautName}, Sol ${missionDay} en ${env.shortName}. Aptitud operativa ${readinessScore} por ciento. Frecuencia cardíaca ${biomarkers.bpm} latidos por minuto, saturación ${biomarkers.spo2Percent} por ciento, presión ${biomarkers.systolicBP} sobre ${biomarkers.diastolicBP}, radiación ${dailyRadiationMsv.toFixed(2)} milisieverts por día. ${criticalCount > 0 ? `Alerta: ${criticalCount} sistema en estado crítico.` : "Sistemas nominales."}`
-      : `Consola ASTRO-MED. Sol ${missionDay}, aptitud ${readinessScore} por ciento.`;
+      ? `Resumen de salud para ${astronautName}, día ${missionDay} en ${env.shortName}. Tu bienestar general está al ${readinessScore} por ciento. Tu corazón late a ${biomarkers.bpm} por minuto, tu oxígeno está al ${biomarkers.spo2Percent} por ciento, tu presión es ${biomarkers.systolicBP} sobre ${biomarkers.diastolicBP}, y el escudo de radiación marca ${dailyRadiationMsv.toFixed(2)} por día. ${criticalCount > 0 ? `Atención: hay ${criticalCount} zona que necesita cuidado urgente.` : "Todo tu cuerpo está en buen estado."}`
+      : `Resumen de salud. Día ${missionDay}, bienestar general ${readinessScore} por ciento.`;
 
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
@@ -169,13 +169,15 @@ export default function TopMissionBar({
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-mono-hud text-sm font-bold tracking-wider text-slate-100">
-                  ASTRO-MED <span className="text-sky-400">HRP</span>
+                  ASTRO-MED <span className="text-sky-400">SALUD</span>
                 </span>
                 <span className="rounded border border-sky-500/30 bg-sky-500/10 px-1.5 py-0.5 font-mono-hud text-[10px] font-semibold text-sky-300">
-                  SOL {missionDay}
+                  DÍA {missionDay}
                 </span>
               </div>
-              <div className="text-[11px] text-slate-400">{astronautName}</div>
+              <div className="text-[11px] text-slate-400">
+                {astronautName} · Monitoreo fácil en vivo
+              </div>
             </div>
           </div>
 
@@ -213,15 +215,15 @@ export default function TopMissionBar({
               type="button"
               onClick={onToggleTelemedicine}
               className="cursor-pointer hover:text-white"
-              title="Conmutar enlace de telemedicina con Tierra"
+              title="Cambiar conexión con médicos en Tierra"
             >
-              Enlace:{" "}
+              Tierra:{" "}
               <strong
                 className={
                   telemedicineEnabled ? "text-emerald-300" : "text-amber-300"
                 }
               >
-                {telemedicineEnabled ? env.commLatencyLabel.split(" ")[0] : "AUTÓNOMO"}
+                {telemedicineEnabled ? env.commLatencyLabel.split(" ")[0] : "SIN SEÑAL (LOCAL)"}
               </strong>
             </button>
           </div>
@@ -241,17 +243,17 @@ export default function TopMissionBar({
                 ? "border-cyan-400 bg-cyan-500 text-slate-950"
                 : "border-white/15 bg-white/10 text-white hover:bg-white/20"
             }`}
-            title="Asistente manos libres: lee signos vitales en voz alta (0g)"
+            title="Escuchar un resumen hablado y sencillo de cómo estás hoy"
           >
             {speaking ? (
               <>
                 <VolumeX className="h-3.5 w-3.5" />
-                <span>Silenciar Voz</span>
+                <span>Callar Voz</span>
               </>
             ) : (
               <>
                 <Volume2 className="h-3.5 w-3.5 text-cyan-300" />
-                <span>Voz 0g</span>
+                <span>Escuchar Resumen</span>
               </>
             )}
           </button>
@@ -260,10 +262,10 @@ export default function TopMissionBar({
             type="button"
             onClick={handleDownloadDtn}
             className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-white/15 bg-white/10 px-2.5 py-1.5 text-xs font-semibold text-white transition hover:bg-white/20"
-            title="Descargar paquete clínico comprimido JSON (Delay-Tolerant Networking)"
+            title="Guardar archivo con tus datos de salud para enviar a Tierra"
           >
             <Download className="h-3.5 w-3.5 text-emerald-300" />
-            <span className="hidden md:inline">Paquete DTN</span>
+            <span className="hidden md:inline">Guardar Reporte</span>
           </button>
 
           <button
@@ -272,7 +274,7 @@ export default function TopMissionBar({
             className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-[#1a73e8] px-3 py-1.5 text-xs font-bold text-white transition hover:bg-blue-600"
           >
             <ScanLine className="h-3.5 w-3.5" />
-            <span>Capturar / Manual</span>
+            <span>Revisar / Ajustar</span>
           </button>
 
           <button
@@ -287,12 +289,12 @@ export default function TopMissionBar({
             {emergencyMode ? (
               <>
                 <ShieldCheck className="h-3.5 w-3.5" />
-                <span>Restaurar</span>
+                <span>Volver a Calma</span>
               </>
             ) : (
               <>
                 <ShieldAlert className="h-3.5 w-3.5" />
-                <span>SOS</span>
+                <span>Ayuda SOS</span>
               </>
             )}
           </button>

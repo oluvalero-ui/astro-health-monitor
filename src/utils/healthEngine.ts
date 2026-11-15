@@ -25,9 +25,9 @@ export const STATUS_HEX: Record<HealthStatus, string> = {
 };
 
 export const STATUS_LABELS: Record<HealthStatus, string> = {
-  optimal: "Óptimo",
-  warning: "Precaución",
-  critical: "Crítico",
+  optimal: "Bien",
+  warning: "Cuidar",
+  critical: "Urgente",
 };
 
 export function worstStatus(statuses: HealthStatus[]): HealthStatus {
