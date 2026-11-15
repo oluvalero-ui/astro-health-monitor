@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
+  Activity,
   Camera,
   CheckCircle2,
   Cpu,
@@ -16,7 +17,7 @@ import {
 } from "@/types/astronaut";
 import { clamp } from "@/utils/healthEngine";
 
-export type ScanModalTab = "camara" | "manual";
+export type ScanModalTab = "camara" | "ultrasonido" | "manual";
 
 interface MultimodalScanModalProps {
   isOpen: boolean;
@@ -71,6 +72,10 @@ export default function MultimodalScanModal({
   // Manual Entry state
   const [draftBio, setDraftBio] = useState<BiomarkerData>(biomarkers);
   const [draftRoutine, setDraftRoutine] = useState<RoutineTracking>(routine);
+
+  // Ultrasound B-Mode state (on-demand cabin portable ultrasound)
+  const [usTarget, setUsTarget] = useState<"ocular" | "cardiaco" | "renal" | "muscular">("ocular");
+  const [usAppliedMsg, setUsAppliedMsg] = useState<string | null>(null);
 
   const stopWebcam = useCallback(() => {
     if (streamRef.current) {
@@ -338,20 +343,20 @@ export default function MultimodalScanModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-3 backdrop-blur-sm sm:p-5"
+      className="crew-dragon-theme fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 p-3 backdrop-blur-sm sm:p-5"
       role="dialog"
       aria-modal="true"
-      aria-label="Nueva Evaluación y Escaneo Multimodal"
+      aria-label="Flujos de Software Bajo Demanda · Escaneo Multimodal"
     >
       <div className="flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-5 py-3.5">
           <div>
             <h2 className="text-base font-bold text-slate-900 sm:text-lg">
-              Módulo 3 · Nueva Evaluación y Escaneo Multimodal
+              Flujos de Software Bajo Demanda (Complementarios al Arnés 3N)
             </h2>
             <p className="text-xs text-slate-500">
-              Reúne tus indicadores mediante cámara postural/facial o registro manual.
+              Utilizan equipamiento estándar ya presente en cabina (cámara de tableta o ecógrafo portátil de a bordo) cuando alguno de los 13 signos del Arnés 3N dispara una alerta clínica.
             </p>
           </div>
           <button
@@ -364,8 +369,8 @@ export default function MultimodalScanModal({
           </button>
         </div>
 
-        {/* 2 Modal Tabs */}
-        <div className="grid grid-cols-2 border-b border-slate-200 bg-slate-50/70 text-xs sm:text-sm">
+        {/* 3 Modal Tabs */}
+        <div className="grid grid-cols-3 border-b border-slate-200 bg-slate-50/70 text-xs sm:text-sm">
           <button
             type="button"
             onClick={() => setActiveTab("camara")}
@@ -376,7 +381,19 @@ export default function MultimodalScanModal({
             }`}
           >
             <Camera className="h-4 w-4 shrink-0" />
-            <span className="truncate">Cámara: Lenguaje Corporal</span>
+            <span className="truncate">Cámara IA (Tableta)</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("ultrasonido")}
+            className={`flex cursor-pointer items-center justify-center gap-2 border-b-2 px-3 py-3 font-semibold transition ${
+              activeTab === "ultrasonido"
+                ? "border-[#1a73e8] bg-white text-[#1a73e8]"
+                : "border-transparent text-slate-500 hover:text-slate-800"
+            }`}
+          >
+            <Activity className="h-4 w-4 shrink-0" />
+            <span className="truncate">Ultrasonido B-Mode</span>
           </button>
           <button
             type="button"
@@ -574,7 +591,152 @@ export default function MultimodalScanModal({
             </div>
           )}
 
-          {/* TAB 2: MANUAL ENTRY WITH SLIDERS */}
+          {/* TAB 2: ULTRASONIDO B-MODE (FLUJO DE SOFTWARE CON ECÓGRAFO PORTÁTIL DE CABINA) */}
+          {activeTab === "ultrasonido" && (
+            <div className="space-y-4">
+              <div className="rounded-xl border border-blue-200 bg-blue-50/70 p-3.5 text-xs text-slate-700">
+                <div className="font-bold text-slate-900">
+                  Flujo Guiado por Software · Ecógrafo Portátil Estándar de Cabina (NASA ExMC [5, 8, 9])
+                </div>
+                <p className="mt-1 leading-relaxed">
+                  Este módulo no requiere hardware vestible adicional: guía al astronauta paso a paso para usar la sonda ultrasónica estándar de la nave cuando el <strong>Arnés 3N</strong> detecta alteraciones en el PTT, hidratación o carga postural.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                {(
+                  [
+                    {
+                      id: "ocular",
+                      label: "Nervio Óptico (SANS [8])",
+                      metric: "ONSD: 5.1 mm",
+                      desc: "Evalúa edema de papila y presión intracraneal por desplazamiento cefálico en 0g.",
+                    },
+                    {
+                      id: "cardiaco",
+                      label: "Ventana Apical (BP Reg [3])",
+                      metric: `FEVI: 62% · FC ${biomarkers.bpm}`,
+                      desc: "Verifica volumen sistólico y rigidez arterial ante cambios de PTT en el Arnés 3N.",
+                    },
+                    {
+                      id: "renal",
+                      label: "Renal / Vesical [9]",
+                      metric: `Hidr: ${biomarkers.hydrationPercent}%`,
+                      desc: "Descarta nefrolitiasis por hipercalciuria debido a resorción ósea en microgravedad.",
+                    },
+                    {
+                      id: "muscular",
+                      label: "Espesor Cuádriceps [9]",
+                      metric: `Índice: ${biomarkers.boneDensityIndex}%`,
+                      desc: "Cuantifica trofismo miofascial de miembros inferiores frente a protocolo ARED.",
+                    },
+                  ] as const
+                ).map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => {
+                      setUsTarget(item.id);
+                      setUsAppliedMsg(null);
+                    }}
+                    className={`cursor-pointer rounded-xl border p-3 text-left transition ${
+                      usTarget === item.id
+                        ? "border-sky-400 bg-sky-500/15 text-slate-100"
+                        : "border-slate-200 bg-slate-50 text-slate-700"
+                    }`}
+                  >
+                    <div className="text-xs font-bold">{item.label}</div>
+                    <div className="mt-1 font-mono-hud text-[11px] text-sky-400">
+                      {item.metric}
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+                <div className="relative flex aspect-[16/9] flex-col items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-[#050a14] p-4 lg:col-span-7">
+                  <svg
+                    viewBox="0 0 320 180"
+                    className="h-full w-full"
+                    aria-label="Simulación acústica B-Mode"
+                  >
+                    <path
+                      d="M 160 12 L 35 168 Q 160 182 285 168 Z"
+                      fill="#0c192e"
+                      stroke="#1e3a5f"
+                      strokeWidth="1.5"
+                    />
+                    <circle
+                      cx="160"
+                      cy="95"
+                      r={usTarget === "ocular" ? 28 : usTarget === "cardiaco" ? 36 : 32}
+                      fill="#060d1a"
+                      stroke="#38bdf8"
+                      strokeWidth="1.5"
+                      strokeDasharray="4 2"
+                    />
+                    <line
+                      x1="125"
+                      y1="95"
+                      x2="195"
+                      y2="95"
+                      stroke="#22c55e"
+                      strokeWidth="1.5"
+                    />
+                    <text
+                      x="160"
+                      y="30"
+                      textAnchor="middle"
+                      fill="#38bdf8"
+                      fontSize="10"
+                      fontFamily="monospace"
+                    >
+                      SONDA B-MODE CABINA · {usTarget.toUpperCase()} · 7.5 MHz
+                    </text>
+                  </svg>
+                </div>
+
+                <div className="flex flex-col justify-between rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs lg:col-span-5">
+                  <div>
+                    <div className="font-mono-hud text-[11px] font-bold uppercase text-sky-400">
+                      Protocolo de Adquisición Guiada
+                    </div>
+                    <p className="mt-2 leading-relaxed text-slate-700">
+                      {usTarget === "ocular" &&
+                        "Aplica gel acústico sobre párpado cerrado sin presión. Mide el diámetro de la vaina del nervio óptico (ONSD) a 3 mm detrás de la retina (Umbral SANS < 5.8 mm)."}
+                      {usTarget === "cardiaco" &&
+                        "Coloca el transductor en 4.º espacio intercostal izquierdo. Confirma contractilidad ventricular para validar el PTT del Arnés 3N."}
+                      {usTarget === "renal" &&
+                        "Explora flanco derecho e hipogastrio para descartar microcálculos cálcicos y retención urinaria en microgravedad."}
+                      {usTarget === "muscular" &&
+                        "Mide el corte transversal del recto femoral en tercio medio del muslo para ajustar carga en máquina ARED."}
+                    </p>
+                  </div>
+
+                  {usAppliedMsg && (
+                    <div className="my-2 rounded-lg border border-emerald-200 bg-emerald-50 p-2 text-[11px] text-emerald-700">
+                      {usAppliedMsg}
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const msg = `Ultrasonido B-Mode (${usTarget.toUpperCase()}) registrado en bitácora local offline.`;
+                      setUsAppliedMsg(msg);
+                      onApplyCameraResults({}, msg);
+                    }}
+                    className="mt-3 flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-[#1a73e8] px-3 py-2.5 text-xs font-bold text-white hover:bg-blue-700"
+                  >
+                    <CheckCircle2 className="h-4 w-4" />
+                    Registrar Captura B-Mode en Bitácora
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: MANUAL ENTRY WITH SLIDERS */}
           {activeTab === "manual" && (
             <div className="space-y-4">
               {/* Quick Presets */}
