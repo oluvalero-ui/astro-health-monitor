@@ -318,28 +318,44 @@ export default function TopMissionBar({
           role="status"
           className="border-t border-amber-500/40 bg-amber-500/10 px-4 py-2 text-xs text-amber-200 sm:px-6"
         >
-          <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 shrink-0 text-amber-400" />
-              <span>
+          <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-2.5">
+            <div className="flex items-start gap-2">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
+              <div>
                 <strong className="text-amber-300">
-                  Alerta Preventiva Automática:
-                </strong>{" "}
-                Se detectaron parámetros en precaución en{" "}
-                <strong>
+                  Aviso Preventivo Automático (
                   {warningZones.map((z) => ZONE_FRIENDLY_NAMES[z]).join(", ")}
+                  ):
                 </strong>{" "}
-                que requieren revisión temprana.
-              </span>
+                Se recomienda <strong>consultar a Tierra</strong> (
+                {telemedicineEnabled
+                  ? `enlace activo · ${env.commLatencyLabel}`
+                  : `modo sin red · ${env.commLatencyLabel}`}
+                ) o revisar el{" "}
+                <strong>Manual de Instrucciones Clínico autónomo</strong> en el
+                Escáner [5].
+              </div>
             </div>
-            <button
-              type="button"
-              onClick={() => onInspectProtocol(primaryWarningZone)}
-              className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-amber-400/50 bg-amber-500/20 px-2.5 py-1 text-[11px] font-bold text-amber-200 transition hover:bg-amber-500/30"
-            >
-              <ScanLine className="h-3.5 w-3.5" />
-              Revisar Protocolo en Escáner
-            </button>
+            <div className="flex flex-wrap items-center gap-2">
+              {!telemedicineEnabled && (
+                <button
+                  type="button"
+                  onClick={onToggleTelemedicine}
+                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-amber-400/50 bg-amber-500/15 px-2.5 py-1 text-[11px] font-bold text-amber-200 transition hover:bg-amber-500/25"
+                >
+                  <Radio className="h-3.5 w-3.5" />
+                  Consultar a Tierra ({env.commLatencyLabel.split(" ")[0]})
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => onInspectProtocol(primaryWarningZone)}
+                className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-amber-400/60 bg-amber-500/25 px-2.5 py-1 text-[11px] font-bold text-amber-100 transition hover:bg-amber-500/35"
+              >
+                <ScanLine className="h-3.5 w-3.5" />
+                Ver Manual de Instrucciones Clínico (Escáner)
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -356,18 +372,20 @@ export default function TopMissionBar({
               <div className="space-y-0.5">
                 <div>
                   <strong className="text-red-300">
-                    ALERTA CLÍNICA CRÍTICA AUTOMÁTICA (
+                    PELIGRO CRÍTICO AUTOMÁTICO (
                     {criticalZones.length > 0
                       ? criticalZones.map((z) => ZONE_FRIENDLY_NAMES[z]).join(", ")
                       : "Riesgo General"}
                     ):
                   </strong>{" "}
-                  Se recomienda <strong>contactar a un médico de vuelo de inmediato</strong>.
+                  Se recomienda <strong>contactar a un médico de inmediato</strong>{" "}
+                  si hay enlace activo (ISS/Luna) o seguir los{" "}
+                  <strong>protocolos autónomos del Escáner Anatómico</strong> [5].
                 </div>
                 <div className="text-[11px] text-red-200/90">
                   {isLowLatency && telemedicineEnabled
-                    ? `Enlace de baja latencia activo (${env.commLatencyLabel}): comunica tus lecturas al Cirujano de Vuelo ahora mismo.`
-                    : `Si no puedes comunicarte con Tierra (${env.commLatencyLabel} o sin señal), consulta de inmediato las recomendaciones autónomas en la vista "Escáner → 1. Protocolo de Examen y Acción".`}
+                    ? `Enlace activo con Tierra (${env.commLatencyLabel}): comunica tus signos al Cirujano de Vuelo ahora mismo.`
+                    : `Sin comunicación directa con Tierra (${env.commLatencyLabel} o modo sin red): abre el Manual de Instrucciones Clínico en "Escáner → 1. Protocolo de Examen y Acción".`}
                 </div>
               </div>
             </div>
@@ -389,7 +407,7 @@ export default function TopMissionBar({
                 className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-red-300/60 bg-red-600 px-3 py-1 text-[11px] font-bold text-white transition hover:bg-red-500"
               >
                 <ScanLine className="h-3.5 w-3.5" />
-                Ir a Protocolo y Recomendaciones Autónomas (Escáner)
+                Ver Manual Clínico y Protocolos Autónomos (Escáner)
               </button>
             </div>
           </div>

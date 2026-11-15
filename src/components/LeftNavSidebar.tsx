@@ -8,7 +8,6 @@ import {
   Camera,
   Monitor,
   ScanLine,
-  ShieldAlert,
   Watch,
 } from "lucide-react";
 
@@ -22,10 +21,8 @@ export type NavSectionId =
 
 interface LeftNavSidebarProps {
   activeSection: NavSectionId;
-  emergencyMode: boolean;
   onNavigate: (section: NavSectionId) => void;
   onOpenScanModal: () => void;
-  onToggleEmergency: () => void;
 }
 
 const NAV_ITEMS: {
@@ -74,10 +71,8 @@ const NAV_ITEMS: {
 
 export default function LeftNavSidebar({
   activeSection,
-  emergencyMode,
   onNavigate,
   onOpenScanModal,
-  onToggleEmergency,
 }: LeftNavSidebarProps) {
   return (
     <>
@@ -119,25 +114,6 @@ export default function LeftNavSidebar({
             <span>Cámara</span>
           </button>
         </div>
-
-        {/* Bottom Emergency Shield Trigger */}
-        <button
-          type="button"
-          title={
-            emergencyMode
-              ? "Restaurar Estado Nominal"
-              : "Simular Emergencia (SOS)"
-          }
-          onClick={onToggleEmergency}
-          className={`flex w-full cursor-pointer flex-col items-center justify-center gap-1 rounded-xl py-2 text-[10px] font-bold transition ${
-            emergencyMode
-              ? "animate-pulse bg-red-600 text-white shadow-lg shadow-red-900/50"
-              : "text-red-300/80 hover:bg-red-500/20 hover:text-red-200"
-          }`}
-        >
-          <ShieldAlert className="h-4 w-4" />
-          <span>SOS</span>
-        </button>
       </aside>
 
       {/* Mobile Compact Bar */}

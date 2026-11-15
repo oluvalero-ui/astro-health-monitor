@@ -437,10 +437,8 @@ export default function HomePage() {
       {/* Barra Lateral Izquierda */}
       <LeftNavSidebar
         activeSection={activeNavSection}
-        emergencyMode={state.emergencyMode}
         onNavigate={handleNavigateSection}
         onOpenScanModal={() => handleOpenScanTab("camara")}
-        onToggleEmergency={handleToggleEmergency}
       />
 
       {/* Right Main Scrollable Area */}
