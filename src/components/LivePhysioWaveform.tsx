@@ -21,8 +21,12 @@ interface LivePhysioWaveformProps {
 }
 
 /**
- * Evaluates the normalized physiological signal [-1, +1] at time `tSec` (seconds)
- * for each biomedical waveform modality.
+ * Evaluates the normalized physiological signal [-1, +1] at exact 1:1 real-time
+ * `tSec` (wall-clock seconds) matching true human physiology:
+ * - Cardiac (ECG, PPG, ABP): exact `bpm / 60` beats per real second (e.g., 68 BPM = 1 beat every 0.882 s)
+ * - Respiration (RESP): exact `respiratoryRateRpm / 60` breaths per real second (e.g., 15 RPM = 1 breath every 4.0 s)
+ * - Metabolic / Thermal (METAB): true microvascular Mayer wave (~0.15 Hz, 1 slow wave every ~6.5 s)
+ * - Radiation Dosimeter (RAD): realistic cosmic-ray particle scintillation hits
  */
 function evaluatePhysioSignal(
   mode: PhysioWaveMode,
@@ -47,22 +51,25 @@ function evaluatePhysioSignal(
     phaseOffset,
   } = params;
 
-  const beatFreqHz = Math.max(0.65, Math.min(2.8, bpm / 60));
+  // True 1:1 cardiac frequency in Hz (beats per real second)
+  const beatFreqHz = Math.max(0.5, Math.min(3.0, bpm / 60));
+  // True 1:1 respiratory frequency in Hz (breaths per real second)
+  const respFreqHz = Math.max(0.1, Math.min(0.7, respiratoryRateRpm / 60));
 
   switch (mode) {
     case "ecg": {
-      // Subtle respiratory sinus arrhythmia modulation from HRV
+      // Natural respiratory sinus arrhythmia (RSA) coupled to real breathing rate
       const rsaShift =
-        0.02 *
-        Math.min(1.4, hrvMs / 40) *
-        Math.sin(2 * Math.PI * 0.25 * tSec);
+        0.015 *
+        Math.min(1.3, hrvMs / 42) *
+        Math.sin(2 * Math.PI * respFreqHz * tSec);
       const rawPhase = (tSec * beatFreqHz + phaseOffset + rsaShift) % 1;
       const p = rawPhase < 0 ? rawPhase + 1 : rawPhase;
 
-      // Authentic P-QRS-T clinical morphology (Lead II / Lead I / V5)
+      // Authentic P-QRS-T clinical morphology (1 beat per cardiac cycle)
       const pWave = 0.22 * Math.exp(-Math.pow((p - 0.14) / 0.032, 2));
       const qDip = -0.26 * Math.exp(-Math.pow((p - 0.238) / 0.009, 2));
-      const rPeak = 1.12 * Math.exp(-Math.pow((p - 0.262) / 0.012, 2));
+      const rPeak = 1.15 * Math.exp(-Math.pow((p - 0.262) / 0.012, 2));
       const sDip = -0.36 * Math.exp(-Math.pow((p - 0.288) / 0.012, 2));
       const tWave = 0.34 * Math.exp(-Math.pow((p - 0.49) / 0.05, 2));
 
@@ -70,13 +77,13 @@ function evaluatePhysioSignal(
     }
 
     case "ppg": {
-      // Optical pulse wave delayed by chest-to-finger Pulse Transit Time (PTT)
-      const pttDelaySec = (pttMs || 190) / 1000;
+      // Distal finger PPG delayed behind ECG by exact Pulse Transit Time (pttMs in seconds)
+      const pttDelaySec = (pttMs || 194) / 1000;
       const rawPhase =
         ((tSec - pttDelaySec) * beatFreqHz + phaseOffset) % 1;
       const p = rawPhase < 0 ? rawPhase + 1 : rawPhase;
 
-      // Steep systolic upstroke + characteristic dicrotic notch + diastolic runoff
+      // Systolic upstroke + dicrotic notch + diastolic runoff
       const systolicPeak = 0.96 * Math.exp(-Math.pow((p - 0.22) / 0.078, 2));
       const dicroticNotch = -0.22 * Math.exp(-Math.pow((p - 0.36) / 0.025, 2));
       const diastolicWave = 0.52 * Math.exp(-Math.pow((p - 0.46) / 0.11, 2));
@@ -85,8 +92,8 @@ function evaluatePhysioSignal(
     }
 
     case "abp": {
-      // Continuous Arterial Blood Pressure waveform (systolic crest + sharp dicrotic incisure)
-      const rawPhase = ((tSec - 0.08) * beatFreqHz + phaseOffset) % 1;
+      // Continuous Arterial Blood Pressure wave (1:1 with heart rate, delayed 90 ms after R-peak)
+      const rawPhase = ((tSec - 0.09) * beatFreqHz + phaseOffset) % 1;
       const p = rawPhase < 0 ? rawPhase + 1 : rawPhase;
 
       const systolicCrest = 1.04 * Math.exp(-Math.pow((p - 0.19) / 0.064, 2));
@@ -99,48 +106,32 @@ function evaluatePhysioSignal(
     }
 
     case "resp": {
-      // Thoracic impedance / capnography wave (slower asymmetric inspiration/expiration)
-      const respHz = Math.max(
-        0.28,
-        Math.min(0.95, (respiratoryRateRpm / 60) * 1.55)
-      );
-      const theta = 2 * Math.PI * respHz * tSec + phaseOffset;
-      return (
-        0.74 * Math.sin(theta) -
-        0.24 * Math.sin(2 * theta + 0.45) +
-        0.08 * Math.cos(3 * theta)
-      );
+      // True 1:1 human breathing cycle (e.g. 15 RPM = 4.0 seconds per breath: ~1.6s inhale, ~2.4s exhale)
+      const theta = 2 * Math.PI * respFreqHz * tSec + phaseOffset;
+      return 0.78 * Math.sin(theta) - 0.22 * Math.sin(2 * theta + 0.4);
     }
 
     case "metab": {
-      // Zero-Heat-Flux cranial & microvascular vasomotion wave
-      const theta = 2 * Math.PI * 0.62 * tSec + phaseOffset;
-      return (
-        0.54 * Math.sin(theta) +
-        0.28 * Math.sin(2.4 * theta + 0.9) +
-        0.16 * Math.cos(4.2 * theta)
-      );
+      // True slow microvascular Mayer vasomotion (~0.16 Hz) + gentle arterial perfusion ripple
+      const slowMayer = 0.58 * Math.sin(2 * Math.PI * 0.16 * tSec + phaseOffset);
+      const perfusionRipple = 0.22 * Math.sin(2 * Math.PI * 0.38 * tSec + 0.7);
+      return slowMayer + perfusionRipple;
     }
 
     case "rad": {
-      // Silicon MOSFET dosimeter scintillation pulse train (GCR / SPE particle hits)
-      const intensity = Math.max(0.35, Math.min(2.2, radiationMsv / 0.65));
-      const p1 = (tSec * (0.95 + intensity * 0.4)) % 1;
-      const p2 = (tSec * (1.65 + intensity * 0.55) + 0.37) % 1;
-      const p3 = (tSec * (2.4 + intensity * 0.7) + 0.71) % 1;
+      // Real-time cosmic ray MOSFET scintillation counter (isolated GCR particle hits)
+      const intensity = Math.max(0.3, Math.min(2.2, radiationMsv / 0.65));
+      const p1 = (tSec * (0.28 + intensity * 0.14)) % 1;
+      const p2 = (tSec * (0.47 + intensity * 0.22) + 0.41) % 1;
 
-      const spike1 = 0.98 * Math.exp(-Math.pow((p1 - 0.22) / 0.016, 2));
+      const spike1 = 0.96 * Math.exp(-Math.pow((p1 - 0.35) / 0.012, 2));
       const spike2 =
-        0.68 *
-        Math.min(1.3, intensity) *
-        Math.exp(-Math.pow((p2 - 0.58) / 0.014, 2));
-      const spike3 =
-        intensity > 0.85
-          ? 0.88 * Math.exp(-Math.pow((p3 - 0.81) / 0.013, 2))
+        intensity > 0.75
+          ? 0.78 * Math.exp(-Math.pow((p2 - 0.72) / 0.011, 2))
           : 0;
-      const ripple = 0.06 * Math.sin(2 * Math.PI * 6.0 * tSec);
+      const baselineNoise = 0.04 * Math.sin(2 * Math.PI * 1.2 * tSec);
 
-      return spike1 + spike2 + spike3 + ripple - 0.38;
+      return spike1 + spike2 + baselineNoise - 0.36;
     }
   }
 }
@@ -199,12 +190,20 @@ export default function LivePhysioWaveform({
   ]);
 
   useEffect(() => {
-    const numSamples = Math.max(84, Math.floor(width / 1.6));
+    const numSamples = Math.max(96, Math.floor(width / 1.5));
     const usableWidth = width - 5;
+
+    // Realistic hospital monitor time window in true wall-clock seconds:
+    // - Cardiac strips (ECG/PPG/ABP): 4.4 seconds visible (~5 real heartbeats at 68 BPM)
+    // - Respiration / Metabolic / Radiation: 7.5 seconds visible (~2 full breaths at 15 RPM)
     const windowDurationSec =
-      mode === "resp" ? 4.2 : width > 220 ? 3.4 : 2.6;
-    // Calm bedside ICU monitor sweep speed (25 mm/s equivalent visual cadence)
-    const timeSpeedFactor = 0.42;
+      mode === "resp" || mode === "metab"
+        ? 7.5
+        : mode === "rad"
+        ? 6.0
+        : width > 220
+        ? 5.2
+        : 4.4;
 
     const mapSignalToY = (sig: number): number => {
       const center = height * 0.58;
@@ -216,7 +215,8 @@ export default function LivePhysioWaveform({
     let animId = 0;
 
     const renderFrame = (nowMs: number) => {
-      const nowSec = (nowMs / 1000) * timeSpeedFactor;
+      // Exact 1:1 real-time wall-clock seconds (1 second = 1000 ms)
+      const nowSec = nowMs / 1000;
       const stepX = usableWidth / (numSamples - 1);
 
       let pathD = "";
@@ -295,12 +295,12 @@ export default function LivePhysioWaveform({
         opacity="0.06"
       />
 
-      {/* Continuous real-time scrolling physiological waveform */}
+      {/* Continuous 1:1 real-time scrolling physiological waveform */}
       <path
         ref={wavePathRef}
         fill="none"
         stroke={`url(#${gradId})`}
-        strokeWidth="1.95"
+        strokeWidth="1.85"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
