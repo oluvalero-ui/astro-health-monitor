@@ -124,11 +124,12 @@ export default function TopMissionBar({
   const [listening, setListening] = useState(false);
   const [astroInput, setAstroInput] = useState("");
   const [lastUserQuery, setLastUserQuery] = useState<string>(
-    "Astro, ¿cómo están mis signos vitales?"
+    "Hola Astro, ¿cómo estás?"
   );
   const [astroReply, setAstroReply] = useState<string>(
-    "Hola, soy ASTRO, tu asistente de voz a bordo. Pregúntame por tus signos vitales (corazón, oxígeno, presión, temperatura, radiación) o pídeme cambiar de sección (Monitor, Escáner, Arnés 3N, Signos, Hábitos o Ciencia)."
+    `¡Hola ${astronautName}! Estoy muy bien, con todos los sensores del Arnés 3N activos y cuidando tu salud en ${env.shortName}. Puedes decirme "Astro dime el estado de mis signos", preguntarme por un signo en específico para darte recomendaciones o pedirme ir a cualquier sección. ¿Qué necesitas el día de hoy?`
   );
+  const [astroTargetZone, setAstroTargetZone] = useState<SystemZoneId>("corazon");
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
 
   const criticalZones = (
@@ -192,7 +193,95 @@ export default function TopMissionBar({
       Math.min(100, Math.round(100 - (dailyRadiationMsv / 2.2) * 100))
     );
 
-    // 1. Navegación por secciones o zonas cuando el usuario pide ir/abrir/mostrar/cambiar
+    // 0. Conversación racional y saludo amable ("Hola Astro, ¿cómo estás?", "Buenos días", "Gracias")
+    const hasSignOrNavKeyword =
+      q.includes("signo") ||
+      q.includes("corazon") ||
+      q.includes("latido") ||
+      q.includes("pulso") ||
+      q.includes("oxigeno") ||
+      q.includes("presion") ||
+      q.includes("respiracion") ||
+      q.includes("temperatura") ||
+      q.includes("fiebre") ||
+      q.includes("agua") ||
+      q.includes("hidratacion") ||
+      q.includes("glucosa") ||
+      q.includes("radiacion") ||
+      q.includes("escudo") ||
+      q.includes("sueno") ||
+      q.includes("estres") ||
+      q.includes("mente") ||
+      q.includes("arnes") ||
+      q.includes("escaner") ||
+      q.includes("ciencia") ||
+      q.includes("habito") ||
+      q.includes("monitor") ||
+      q.includes("camara");
+
+    if (
+      !hasSignOrNavKeyword &&
+      (q.includes("como estas") ||
+        q.includes("que tal") ||
+        q.includes("hola") ||
+        q.includes("buenos dias") ||
+        q.includes("buenas tardes") ||
+        q.includes("buenas noches") ||
+        q.includes("quien eres"))
+    ) {
+      speakAstroText(
+        `¡Hola ${astronautName}! Estoy muy bien, con mis sistemas de telemetría al 100 por ciento en ${env.shortName}. Tu bienestar general se encuentra al ${readinessScore} por ciento. ¿Qué necesitas el día de hoy?`
+      );
+      return;
+    }
+
+    if (
+      !hasSignOrNavKeyword &&
+      (q.includes("gracias") || q.includes("perfecto") || q.includes("listo"))
+    ) {
+      speakAstroText(
+        `Con todo gusto, ${astronautName}. Sigo monitoreando tu Arnés 3N en tiempo real. ¿Qué necesitas el día de hoy?`
+      );
+      return;
+    }
+
+    // 1. Comando clave: "Astro dime el estado de mis signos" (y variantes de resumen de signos)
+    if (
+      q.includes("estado de mis signos") ||
+      q.includes("como estan mis signos") ||
+      q.includes("dime mis signos") ||
+      q.includes("resumen de mis signos") ||
+      q.includes("mis signos vitales") ||
+      q.includes("estado general")
+    ) {
+      const criticalCount = criticalZones.length;
+      const warningCount = warningZones.length;
+
+      if (criticalCount > 0) {
+        setAstroTargetZone(primaryCriticalZone);
+        onInspectProtocol(primaryCriticalZone);
+      } else {
+        setAstroTargetZone(primaryWarningZone);
+        onNavigateSection("biomarcadores");
+      }
+
+      const summaryText = b
+        ? `Claro ${astronautName}, te traslado a la sección de Signos. En el día ${missionDay} (${env.shortName}), tu estado general es del ${readinessScore} por ciento. Corazón: ${b.bpm} latidos por minuto. Oxígeno: ${b.spo2Percent} por ciento. Presión: ${b.systolicBP} sobre ${b.diastolicBP}. Respiración: ${b.respiratoryRateRpm} por minuto. Temperatura: ${b.bodyTempC.toFixed(
+            1
+          )} grados. Hidratación: ${b.hydrationPercent} por ciento y Escudo de Radiación al ${shieldPct} por ciento. ${
+            criticalCount > 0
+              ? `Atención: detecto ${criticalCount} zona en peligro crítico (${ZONE_FRIENDLY_NAMES[primaryCriticalZone]}); te abrí el protocolo de emergencia en el Escáner y te recomiendo contactar al médico de inmediato.`
+              : warningCount > 0
+              ? `Nota preventiva: tienes ${warningCount} zona en precaución (${ZONE_FRIENDLY_NAMES[primaryWarningZone]}). Te recomiendo hidratarte con 300 mililitros de agua, hacer 5 minutos de respiración lenta y revisar el manual clínico.`
+              : `Todos tus signos están en rango óptimo; te recomiendo mantener tu hidratación constante y tu sesión diaria de ejercicio.`
+          } ¿Qué necesitas el día de hoy?`
+        : `Tu estado general es del ${readinessScore} por ciento y te he trasladado a la sección de Signos. ¿Qué necesitas el día de hoy?`;
+
+      speakAstroText(summaryText);
+      return;
+    }
+
+    // 2. Navegación explícita por secciones cuando el usuario pide ir/abrir/mostrar/cambiar
     if (
       q.includes("arnes") ||
       q.includes("traje") ||
@@ -202,7 +291,7 @@ export default function TopMissionBar({
     ) {
       onNavigateSection("wearable");
       speakAstroText(
-        `Claro, abriendo la sección de tu Traje de Sensores Arnés 3N. Aquí ves los 13 signos continuos en tus 3 nodos corporales.`
+        `Claro, te traslado a la sección de tu Traje de Sensores Arnés 3N. Aquí puedes revisar los 13 signos continuos en tus 3 nodos corporales. ¿Qué necesitas el día de hoy?`
       );
       return;
     }
@@ -215,7 +304,7 @@ export default function TopMissionBar({
     ) {
       onNavigateSection("referencias");
       speakAstroText(
-        `Abriendo la sección de Ciencia con los 5 peligros espaciales de la NASA y las 16 fuentes verificadas.`
+        `Te traslado a la sección de Ciencia con los 5 peligros espaciales de la NASA y las 16 fuentes clínicas verificadas. ¿Qué necesitas el día de hoy?`
       );
       return;
     }
@@ -229,7 +318,7 @@ export default function TopMissionBar({
     ) {
       onNavigateSection("informes");
       speakAstroText(
-        `Mostrando la sección de Hábitos y gráficas de evolución para mantener tu cuerpo fuerte en el espacio.`
+        `Abriendo la sección de Hábitos y evolución clínica para mantener tu cuerpo fuerte en el espacio. ¿Qué necesitas el día de hoy?`
       );
       return;
     }
@@ -237,7 +326,7 @@ export default function TopMissionBar({
     if (q.includes("camara") || q.includes("manual") || q.includes("ajustar")) {
       onOpenScanModal();
       speakAstroText(
-        `Abriendo la ventana de Cámara y Registro Manual para que actualices tu evaluación.`
+        `Abriendo la ventana de Cámara y Registro Manual para que actualices tu evaluación. ¿Qué necesitas el día de hoy?`
       );
       return;
     }
@@ -250,20 +339,25 @@ export default function TopMissionBar({
       q.includes("anatom")
     ) {
       if (q.includes("corazon")) {
+        setAstroTargetZone("corazon");
         onInspectProtocol("corazon");
       } else if (q.includes("rostro") || q.includes("cara")) {
+        setAstroTargetZone("rostro");
         onInspectProtocol("rostro");
       } else if (q.includes("abdomen") || q.includes("energia")) {
+        setAstroTargetZone("abdomen");
         onInspectProtocol("abdomen");
       } else if (q.includes("musculo") || q.includes("hueso")) {
+        setAstroTargetZone("musculo");
         onInspectProtocol("musculo");
       } else if (q.includes("defensa") || q.includes("endocrino")) {
+        setAstroTargetZone("endocrino");
         onInspectProtocol("endocrino");
       } else {
         onNavigateSection("escaner");
       }
       speakAstroText(
-        `Abriendo el Escáner Anatómico y el Manual de Instrucciones Clínico paso a paso.`
+        `Te he trasladado al Escáner Anatómico con el Manual de Instrucciones Clínico y recomendaciones paso a paso. ¿Qué necesitas el día de hoy?`
       );
       return;
     }
@@ -276,7 +370,7 @@ export default function TopMissionBar({
     ) {
       onNavigateSection("resumen");
       speakAstroText(
-        `Volviendo al Monitor Principal de misión. Tu bienestar general es del ${readinessScore} por ciento.`
+        `Volviendo al Monitor Principal de misión. Tu bienestar general es del ${readinessScore} por ciento. ¿Qué necesitas el día de hoy?`
       );
       return;
     }
@@ -297,85 +391,114 @@ export default function TopMissionBar({
     ) {
       onNavigateSection("biomarcadores");
       speakAstroText(
-        `Abriendo la sección de Signos, Ánimo y Horarios del día.`
+        `Te traslado a la sección de Signos, Ánimo y Horarios del día. ¿Qué necesitas el día de hoy?`
       );
       return;
     }
 
-    // 2. Cambio de entorno gravitatorio por voz
+    // 3. Cambio de entorno gravitatorio por voz
     if (q.includes("marte")) {
       onSelectEnvironment("marte");
       speakAstroText(
-        `Entorno cambiado a Marte con gravedad de 0.38 g. Recuerda calibrar el medidor de presión del Arnés 3N.`
+        `Entorno cambiado a Marte con gravedad de 0.38 g. Te recomiendo calibrar el nodo de muñeca del Arnés 3N al nivel del corazón. ¿Qué necesitas el día de hoy?`
       );
       return;
     }
     if (q.includes("luna")) {
       onSelectEnvironment("luna");
       speakAstroText(
-        `Entorno cambiado a la Luna con gravedad de 0.16 g.`
+        `Entorno cambiado a la Luna con gravedad de 0.16 g. ¿Qué necesitas el día de hoy?`
       );
       return;
     }
     if (q.includes("estacion") || q.includes("iss")) {
       onSelectEnvironment("iss");
       speakAstroText(
-        `Entorno cambiado a la Estación Espacial en microgravedad cero g.`
+        `Entorno cambiado a la Estación Espacial en microgravedad cero g. ¿Qué necesitas el día de hoy?`
       );
       return;
     }
     if (q.includes("viaje") || q.includes("transito")) {
       onSelectEnvironment("nave");
       speakAstroText(
-        `Entorno cambiado a Viaje espacial profundo en cero g.`
+        `Entorno cambiado a Viaje espacial profundo en cero g. ¿Qué necesitas el día de hoy?`
       );
       return;
     }
 
-    // 3. Consultas de signos vitales específicos
+    // 4. Consultas de signos vitales específicos: lectura + recomendación + traslado automático a la sección
     if (b) {
       if (
         q.includes("corazon") ||
         q.includes("latido") ||
         q.includes("pulso") ||
-        q.includes("cardiac")
+        q.includes("cardiac") ||
+        q.includes("hrv")
       ) {
         const restPct = Math.min(100, Math.round((b.hrvRmssdMs / 60) * 100));
+        setAstroTargetZone("corazon");
+        if (zoneStatuses.corazon !== "optimal") {
+          onInspectProtocol("corazon");
+        } else {
+          onNavigateSection("biomarcadores");
+        }
+        const rec =
+          b.bpm <= 92 && b.bpm >= 52 && b.hrvRmssdMs >= 38
+            ? "Estado Bien: tu ritmo es tranquilo y parejo. Recomendación: mantén tu rutina aeróbica de 30 minutos y evita estimulantes antes de dormir."
+            : "Estado a Cuidar: notamos mayor carga cardíaca. Recomendación: haz 5 minutos de respiración lenta (inhalando 4 segundos y exhalando 6), bebe 250 mililitros de agua y revisa el protocolo de Corazón.";
         speakAstroText(
-          `Soy ASTRO. Tu corazón late a ${b.bpm} latidos por minuto y su nivel de descanso está al ${restPct} por ciento (${b.hrvRmssdMs} milisegundos). ${
-            b.bpm <= 92 && b.bpm >= 52
-              ? "El ritmo es tranquilo y parejo."
-              : "Te recomiendo respirar lento y descansar unos minutos."
-          }`
+          `Tu corazón late a ${b.bpm} latidos por minuto y su descanso cardíaco está al ${restPct} por ciento (${b.hrvRmssdMs} milisegundos). ${rec} Te he trasladado a la sección donde se encuentra este signo. ¿Qué necesitas el día de hoy?`
         );
         return;
       }
 
       if (
         q.includes("oxigeno") ||
-        q.includes("aire") ||
-        q.includes("saturacion")
+        q.includes("saturacion") ||
+        q.includes("spo2")
       ) {
+        setAstroTargetZone("corazon");
+        onNavigateSection("biomarcadores");
+        const rec =
+          b.spo2Percent >= 95
+            ? "Estado Bien: llega suficiente aire a tu cuerpo. Recomendación: mantén la banda frontal limpia y continúa tus actividades con normalidad."
+            : "Estado a Cuidar: oxigenación por debajo de lo ideal. Recomendación: realiza 10 respiraciones profundas, verifica la ventilación del módulo y consulta el protocolo cardiorrespiratorio.";
         speakAstroText(
-          `Soy ASTRO. Tu oxígeno en sangre medido en la frente es del ${b.spo2Percent} por ciento, con una fuerza de pulso de ${b.perfusionIndex.toFixed(
+          `Tu oxígeno en sangre medido en la frente es del ${b.spo2Percent} por ciento, con fuerza de pulso de ${b.perfusionIndex.toFixed(
             1
-          )} por ciento. Llega suficiente aire a tu cuerpo.`
+          )} por ciento. ${rec} Te he llevado a la sección de Signos para que lo veas en detalle. ¿Qué necesitas el día de hoy?`
         );
         return;
       }
 
       if (q.includes("presion") || q.includes("sangre") || q.includes("circulacion")) {
+        setAstroTargetZone("corazon");
+        if (b.systolicBP >= 135 || b.systolicBP < 95) {
+          onInspectProtocol("corazon");
+        } else {
+          onNavigateSection("biomarcadores");
+        }
+        const rec =
+          b.systolicBP < 135 && b.systolicBP >= 95
+            ? "Estado Bien: la sangre circula con fuerza normal hacia tu cabeza y cuerpo. Recomendación: mantén buena hidratación y bajo consumo de sodio liofilizado."
+            : "Estado a Cuidar: presión fuera del rango ideal. Recomendación: reposa 10 minutos en postura neutra, hidrátate y verifica la calibración del nodo de muñeca al nivel del corazón.";
         speakAstroText(
-          `Soy ASTRO. Tu presión arterial medida sin manguito por el Arnés 3N es de ${b.systolicBP} sobre ${b.diastolicBP} milímetros de mercurio, con paso de pulso de ${b.pttMs} milisegundos.`
+          `Tu presión arterial sin manguito es de ${b.systolicBP} sobre ${b.diastolicBP} milímetros de mercurio (velocidad de pulso ${b.pttMs} milisegundos). ${rec} Ya te trasladé a la sección correspondiente. ¿Qué necesitas el día de hoy?`
         );
         return;
       }
 
       if (q.includes("respiracion") || q.includes("respiro") || q.includes("pulmon")) {
+        setAstroTargetZone("corazon");
+        onNavigateSection("biomarcadores");
+        const rec =
+          b.respiratoryRateRpm >= 10 && b.respiratoryRateRpm <= 19
+            ? "Estado Bien: respiración tranquila y constante. Recomendación: conserva tu ritmo respiratorio nasal durante las tareas de cabina."
+            : "Estado a Cuidar: respiración acelerada. Recomendación: practica respiración cuadrada de 4 segundos por fase durante 3 minutos y verifica el nivel de CO2 ambiental.";
         speakAstroText(
-          `Soy ASTRO. Estás respirando ${b.respiratoryRateRpm} veces por minuto y entran ${b.minuteVentilationLpm.toFixed(
+          `Estás respirando ${b.respiratoryRateRpm} veces por minuto y entran ${b.minuteVentilationLpm.toFixed(
             1
-          )} litros de aire por minuto a tu pecho.`
+          )} litros de aire por minuto a tu pecho. ${rec} Te trasladé a la sección de Signos donde puedes monitorearlo. ¿Qué necesitas el día de hoy?`
         );
         return;
       }
@@ -383,50 +506,121 @@ export default function TopMissionBar({
       if (
         q.includes("temperatura") ||
         q.includes("calor") ||
-        q.includes("fiebre") ||
-        q.includes("agua") ||
-        q.includes("hidratacion")
+        q.includes("fiebre")
       ) {
+        setAstroTargetZone("endocrino");
+        onNavigateSection("biomarcadores");
+        const rec =
+          b.bodyTempC >= 36.0 && b.bodyTempC <= 37.4
+            ? "Estado Bien: temperatura corporal en equilibrio óptimo. Recomendación: mantén la ventilación térmica de tu traje e hidrátate cada 2 horas."
+            : "Estado a Cuidar: variación térmica detectada. Recomendación: bebe 400 mililitros de agua fresca, disminuye la carga física por 20 minutos y vuelve a medir.";
         speakAstroText(
-          `Soy ASTRO. Tu temperatura interna es de ${b.bodyTempC.toFixed(
+          `Tu temperatura interna es de ${b.bodyTempC.toFixed(
             1
-          )} grados centígrados y en la piel de ${b.skinTempC.toFixed(
+          )} grados centígrados y en la piel es de ${b.skinTempC.toFixed(
             1
-          )} grados. Tu hidratación está al ${b.hydrationPercent} por ciento.`
+          )} grados. ${rec} Te he trasladado a la sección de Signos. ¿Qué necesitas el día de hoy?`
+        );
+        return;
+      }
+
+      if (
+        q.includes("agua") ||
+        q.includes("hidratacion") ||
+        q.includes("glucosa") ||
+        q.includes("azucar") ||
+        q.includes("energia") ||
+        q.includes("abdomen")
+      ) {
+        setAstroTargetZone("abdomen");
+        if (b.hydrationPercent < 72 || b.bloodGlucoseMgDl > 125) {
+          onInspectProtocol("abdomen");
+        } else {
+          onNavigateSection("biomarcadores");
+        }
+        const rec =
+          b.hydrationPercent >= 75 &&
+          b.bloodGlucoseMgDl >= 75 &&
+          b.bloodGlucoseMgDl <= 115
+            ? "Estado Bien: excelente reserva de agua y energía estable. Recomendación: continúa tomando pequeños sorbos de agua con electrolitos cada hora."
+            : "Estado a Cuidar: requiere ajuste metabólico. Recomendación: bebe 350 mililitros de solución hidratante ahora mismo para proteger tus riñones en microgravedad y prioriza carbohidratos complejos.";
+        speakAstroText(
+          `Tu nivel de agua en el cuerpo está al ${b.hydrationPercent} por ciento y tu energía en sangre (glucosa) es de ${b.bloodGlucoseMgDl} miligramos por decilitro. ${rec} Te trasladé a la vista donde se encuentra este indicador. ¿Qué necesitas el día de hoy?`
         );
         return;
       }
 
       if (q.includes("radiacion") || q.includes("escudo")) {
+        setAstroTargetZone("endocrino");
+        onNavigateSection("wearable");
+        const rec =
+          dailyRadiationMsv <= 0.8
+            ? "Estado Bien: el blindaje de la nave te protege adecuadamente. Recomendación: mantén tu dosímetro activo en el nodo torácico."
+            : "Estado a Cuidar: flujo radiológico elevado. Recomendación: permanece en el sector con blindaje de agua/polietileno, evita actividades extravehiculares y consume antioxidantes de tu ración.";
         speakAstroText(
-          `Soy ASTRO. El escudo de la nave te da un ${shieldPct} por ciento de protección hoy, con una lectura de ${dailyRadiationMsv.toFixed(
+          `El escudo de radiación te brinda un ${shieldPct} por ciento de protección hoy, con lectura de ${dailyRadiationMsv.toFixed(
             2
-          )} milisieverts por día.`
+          )} milisieverts por día. ${rec} Te he trasladado a la sección del Arnés 3N donde se monitorea el dosímetro. ¿Qué necesitas el día de hoy?`
         );
         return;
       }
 
-      if (q.includes("sueno") || q.includes("dormir") || q.includes("descanso")) {
+      if (
+        q.includes("sueno") ||
+        q.includes("dormir") ||
+        q.includes("descanso") ||
+        q.includes("postura") ||
+        q.includes("musculo") ||
+        q.includes("hueso")
+      ) {
+        setAstroTargetZone("musculo");
+        onNavigateSection("informes");
+        const rec =
+          b.sleepHours >= 6.8 && b.postureScore >= 75
+            ? "Estado Bien: buen descanso reparador y soporte muscular firme. Recomendación: mantén tus 8 horas de bloque nocturno y tu rutina de resistencia ARED."
+            : "Estado a Cuidar: déficit de sueño o fatiga postural. Recomendación: atenúa las luces azules de cabina 60 minutos antes de dormir, usa antifaz y realiza estiramientos de descarga.";
         speakAstroText(
-          `Soy ASTRO. Dormiste ${b.sleepHours.toFixed(
+          `Dormiste ${b.sleepHours.toFixed(
             1
-          )} horas y tu postura corporal está al ${b.postureScore} por ciento.`
+          )} horas, tu postura corporal está al ${b.postureScore} por ciento y el orden de tu reloj de sueño al ${b.melatoninIndex} por ciento. ${rec} Te trasladé a la sección de Hábitos y Evolución. ¿Qué necesitas el día de hoy?`
+        );
+        return;
+      }
+
+      if (
+        q.includes("estres") ||
+        q.includes("mente") ||
+        q.includes("mental") ||
+        q.includes("calma") ||
+        q.includes("animo") ||
+        q.includes("voz") ||
+        q.includes("cerebro")
+      ) {
+        setAstroTargetZone("cerebro");
+        onNavigateSection("biomarcadores");
+        const rec =
+          b.stressLevel <= 45 && b.mentalFatigue <= 50
+            ? "Estado Bien: mente despejada, enfocada y voz tranquila. Recomendación: conserva tus pausas de 5 minutos cada 2 horas de trabajo técnico."
+            : "Estado a Cuidar: tensión o fatiga mental acumulada. Recomendación: toma una pausa activa de 15 minutos, practica respiración diafragmática y conversa con Tierra o con tu tripulación.";
+        speakAstroText(
+          `Tu nivel de tensión es del ${b.stressLevel} por ciento, cansancio mental del ${b.mentalFatigue} por ciento y tus reflejos están en ${b.reactionTimeMs} milisegundos. ${rec} Te he trasladado a la sección de Signos y Salud Mental. ¿Qué necesitas el día de hoy?`
         );
         return;
       }
     }
 
-    // 4. Respuesta general de signos vitales (por defecto o cuando pregunta "¿cómo están mis signos?")
-    const criticalCount = Object.values(zoneStatuses).filter(
-      (s) => s === "critical"
-    ).length;
+    // 5. Respuesta general racional por defecto: informa el estado de signos y traslada a Signos
+    onNavigateSection("biomarcadores");
+    const criticalCount = criticalZones.length;
     const summaryText = b
-      ? `Hola ${astronautName}, soy ASTRO. En el día ${missionDay} en ${env.shortName}, tu salud general está al ${readinessScore} por ciento. Corazón: ${b.bpm} latidos por minuto. Oxígeno: ${b.spo2Percent} por ciento. Presión: ${b.systolicBP} sobre ${b.diastolicBP}. Temperatura: ${b.bodyTempC.toFixed(1)} grados. Escudo de radiación: ${shieldPct} por ciento seguro. ${
+      ? `Hola ${astronautName}, soy ASTRO. Te muestro la sección de Signos: en el día ${missionDay} en ${env.shortName}, tu bienestar general está al ${readinessScore} por ciento. Corazón: ${b.bpm} latidos por minuto. Oxígeno: ${b.spo2Percent} por ciento. Presión: ${b.systolicBP} sobre ${b.diastolicBP}. Temperatura: ${b.bodyTempC.toFixed(
+          1
+        )} grados. Escudo de radiación: ${shieldPct} por ciento seguro. ${
           criticalCount > 0
-            ? `Atención: hay ${criticalCount} zona en nivel crítico; te recomiendo abrir el Escáner.`
-            : "Todos tus sistemas principales están en buen estado."
-        }`
-      : `Hola, soy ASTRO. Día ${missionDay}, salud general al ${readinessScore} por ciento.`;
+            ? `Atención: hay ${criticalCount} zona en nivel crítico; te recomiendo abrir el Escáner y contactar al médico.`
+            : "Todos tus sistemas principales están en buen estado; te recomiendo mantener tu hidratación y rutina del día."
+        } ¿Qué necesitas el día de hoy?`
+      : `Hola ${astronautName}, soy ASTRO. Día ${missionDay}, salud general al ${readinessScore} por ciento. ¿Qué necesitas el día de hoy?`;
 
     speakAstroText(summaryText);
   };
@@ -743,16 +937,26 @@ export default function TopMissionBar({
             {/* Respuesta en vivo de ASTRO + Entrada de voz/texto */}
             <div className="grid grid-cols-1 gap-3 lg:grid-cols-12">
               <div className="rounded-xl border border-[#1b3154] bg-[#0c1830] p-3 lg:col-span-7">
-                <div className="flex items-center justify-between text-[11px] font-mono-hud text-slate-400">
+                <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono-hud text-slate-400">
                   <span>TÚ: &ldquo;{lastUserQuery}&rdquo;</span>
-                  <button
-                    type="button"
-                    onClick={() => speakAstroText(astroReply)}
-                    className="inline-flex cursor-pointer items-center gap-1 text-cyan-300 hover:underline"
-                  >
-                    <Volume2 className="h-3.5 w-3.5" />
-                    Repetir en voz alta
-                  </button>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => onInspectProtocol(astroTargetZone)}
+                      className="inline-flex cursor-pointer items-center gap-1 rounded border border-sky-400/40 bg-sky-500/15 px-2 py-0.5 text-[10px] font-semibold text-sky-200 hover:bg-sky-500/25"
+                    >
+                      <ScanLine className="h-3 w-3" />
+                      Protocolo ({ZONE_FRIENDLY_NAMES[astroTargetZone]})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => speakAstroText(astroReply)}
+                      className="inline-flex cursor-pointer items-center gap-1 text-cyan-300 hover:underline"
+                    >
+                      <Volume2 className="h-3.5 w-3.5" />
+                      Repetir en voz alta
+                    </button>
+                  </div>
                 </div>
                 <p className="mt-1.5 text-xs leading-relaxed font-medium text-cyan-100">
                   <strong className="text-cyan-300">ASTRO:</strong> {astroReply}
@@ -769,7 +973,7 @@ export default function TopMissionBar({
                 className="flex flex-col justify-between gap-2 rounded-xl border border-[#1b3154] bg-[#0c1830] p-3 lg:col-span-5"
               >
                 <label className="text-[11px] font-semibold text-slate-300">
-                  Pregúntale a ASTRO (ej. &ldquo;Astro, ¿cómo está mi corazón?&rdquo; o &ldquo;Astro, abre Arnés 3N&rdquo;):
+                  Conversa con ASTRO (ej. &ldquo;Hola Astro, ¿cómo estás?&rdquo;, &ldquo;Astro dime el estado de mis signos&rdquo; o pregunta un signo):
                 </label>
                 <div className="flex items-center gap-2">
                   <input
@@ -790,26 +994,64 @@ export default function TopMissionBar({
               </form>
             </div>
 
-            {/* Comandos rápidos de voz en 1 clic: Signos Vitales y Navegación de Secciones */}
+            {/* Comandos rápidos de voz en 1 clic: Conversación, Signos Vitales + Recomendaciones y Secciones */}
             <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
               <span className="mr-1 font-mono-hud text-[10px] font-bold uppercase text-cyan-400">
-                Preguntar Signos:
+                Consultas a ASTRO:
               </span>
               {[
-                "Astro, ¿cómo están mis signos vitales?",
-                "Astro, ¿cómo está mi corazón?",
-                "Astro, ¿cuál es mi oxígeno?",
-                "Astro, ¿cómo está mi presión?",
-                "Astro, ¿cuál es mi temperatura?",
-                "Astro, ¿cómo está el escudo de radiación?",
-              ].map((cmd) => (
+                {
+                  label: "Hola Astro, ¿cómo estás?",
+                  cmd: "Hola Astro, ¿cómo estás?",
+                },
+                {
+                  label: "Astro dime el estado de mis signos",
+                  cmd: "Astro dime el estado de mis signos",
+                },
+                {
+                  label: "Corazón y Descanso",
+                  cmd: "Astro, ¿cómo está mi corazón?",
+                },
+                {
+                  label: "Oxígeno en Sangre",
+                  cmd: "Astro, ¿cuál es mi oxígeno?",
+                },
+                {
+                  label: "Presión Arterial",
+                  cmd: "Astro, ¿cómo está mi presión?",
+                },
+                {
+                  label: "Respiración",
+                  cmd: "Astro, ¿cómo está mi respiración?",
+                },
+                {
+                  label: "Temperatura",
+                  cmd: "Astro, ¿cuál es mi temperatura?",
+                },
+                {
+                  label: "Agua y Glucosa",
+                  cmd: "Astro, ¿cómo está mi agua y glucosa?",
+                },
+                {
+                  label: "Escudo Radiación",
+                  cmd: "Astro, ¿cómo está el escudo de radiación?",
+                },
+                {
+                  label: "Sueño y Postura",
+                  cmd: "Astro, ¿cómo está mi sueño y postura?",
+                },
+                {
+                  label: "Estrés y Mente",
+                  cmd: "Astro, ¿cómo está mi estrés y mente?",
+                },
+              ].map((item) => (
                 <button
-                  key={cmd}
+                  key={item.label}
                   type="button"
-                  onClick={() => processAstroCommand(cmd)}
+                  onClick={() => processAstroCommand(item.cmd)}
                   className="cursor-pointer rounded-lg border border-cyan-500/30 bg-cyan-500/10 px-2.5 py-1 text-[11px] font-medium text-cyan-200 transition hover:bg-cyan-500/25"
                 >
-                  {cmd.replace("Astro, ", "")}
+                  {item.label}
                 </button>
               ))}
             </div>
