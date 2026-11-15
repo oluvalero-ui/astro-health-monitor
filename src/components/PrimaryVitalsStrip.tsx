@@ -127,7 +127,7 @@ export default function PrimaryVitalsStrip({
       aria-label="Tus 6 signos principales en tiempo real"
       className="grid grid-cols-2 gap-2.5 lg:grid-cols-6"
     >
-      {/* 1. Corazón */}
+      {/* 1. Frecuencia Cardíaca (ECG) */}
       <button
         type="button"
         onClick={() => onSelectZone("corazon")}
@@ -136,7 +136,7 @@ export default function PrimaryVitalsStrip({
         <div className="flex items-center justify-between gap-1">
           <span className="flex items-center gap-1.5 text-xs font-bold text-slate-200">
             <HeartPulse className="h-3.5 w-3.5 shrink-0" style={{ color: hrColor }} />
-            Corazón
+            Frec. Cardíaca (ECG)
           </span>
           <span
             className="rounded-full px-2 py-0.5 font-mono-hud text-[10px] font-bold"
@@ -157,7 +157,7 @@ export default function PrimaryVitalsStrip({
             {b.bpm}
           </span>
           <span className="text-[11px] font-medium text-slate-400">
-            latidos/min
+            lat/min · HRV {b.hrvRmssdMs}ms
           </span>
         </div>
 
@@ -174,7 +174,7 @@ export default function PrimaryVitalsStrip({
         </p>
       </button>
 
-      {/* 2. Oxígeno */}
+      {/* 2. Saturación Arterial (SpO₂) */}
       <button
         type="button"
         onClick={onOpenWearable}
@@ -183,7 +183,7 @@ export default function PrimaryVitalsStrip({
         <div className="flex items-center justify-between gap-1">
           <span className="flex items-center gap-1.5 text-xs font-bold text-slate-200">
             <Activity className="h-3.5 w-3.5 shrink-0" style={{ color: spo2Color }} />
-            Oxígeno
+            Saturación (SpO₂)
           </span>
           <span
             className="rounded-full px-2 py-0.5 font-mono-hud text-[10px] font-bold"
@@ -204,7 +204,7 @@ export default function PrimaryVitalsStrip({
             {b.spo2Percent}%
           </span>
           <span className="text-[11px] font-medium text-slate-400">
-            en sangre
+            PI {b.perfusionIndex.toFixed(1)}%
           </span>
         </div>
 
@@ -221,7 +221,7 @@ export default function PrimaryVitalsStrip({
         </p>
       </button>
 
-      {/* 3. Presión */}
+      {/* 3. Presión Arterial Óptica (PTT) */}
       <button
         type="button"
         onClick={() => onSelectZone("corazon")}
@@ -230,7 +230,7 @@ export default function PrimaryVitalsStrip({
         <div className="flex items-center justify-between gap-1">
           <span className="flex items-center gap-1.5 text-xs font-bold text-slate-200">
             <Gauge className="h-3.5 w-3.5 shrink-0 text-sky-400" />
-            Presión
+            Presión Óptica (PTT)
           </span>
           <span
             className="rounded-full px-2 py-0.5 font-mono-hud text-[10px] font-bold"
@@ -251,7 +251,7 @@ export default function PrimaryVitalsStrip({
             {b.systolicBP}/{b.diastolicBP}
           </span>
           <span className="text-[11px] font-medium text-slate-400">
-            fuerza
+            mmHg · {b.pttMs}ms
           </span>
         </div>
 
@@ -268,7 +268,7 @@ export default function PrimaryVitalsStrip({
         </p>
       </button>
 
-      {/* 4. Respiración */}
+      {/* 4. Frecuencia Respiratoria (RIP) */}
       <button
         type="button"
         onClick={onOpenWearable}
@@ -277,7 +277,7 @@ export default function PrimaryVitalsStrip({
         <div className="flex items-center justify-between gap-1">
           <span className="flex items-center gap-1.5 text-xs font-bold text-slate-200">
             <Wind className="h-3.5 w-3.5 shrink-0" style={{ color: respColor }} />
-            Respiración
+            Ventilación (RIP)
           </span>
           <span
             className="rounded-full px-2 py-0.5 font-mono-hud text-[10px] font-bold"
@@ -298,7 +298,7 @@ export default function PrimaryVitalsStrip({
             {b.respiratoryRateRpm}
           </span>
           <span className="text-[11px] font-medium text-slate-400">
-            veces/min
+            rpm · {b.minuteVentilationLpm.toFixed(1)} L/m
           </span>
         </div>
 
@@ -314,7 +314,7 @@ export default function PrimaryVitalsStrip({
         </p>
       </button>
 
-      {/* 5. Temperatura */}
+      {/* 5. Temperatura Central (Core) */}
       <button
         type="button"
         onClick={() => onSelectZone("abdomen")}
@@ -323,7 +323,7 @@ export default function PrimaryVitalsStrip({
         <div className="flex items-center justify-between gap-1">
           <span className="flex items-center gap-1.5 text-xs font-bold text-slate-200">
             <Thermometer className="h-3.5 w-3.5 shrink-0" style={{ color: tempColor }} />
-            Temperatura
+            Temp. Central (Core)
           </span>
           <span
             className="rounded-full px-2 py-0.5 font-mono-hud text-[10px] font-bold"
@@ -344,7 +344,7 @@ export default function PrimaryVitalsStrip({
             {b.bodyTempC.toFixed(1)}°C
           </span>
           <span className="text-[11px] font-medium text-slate-400">
-            calor cuerpo
+            Piel {b.skinTempC.toFixed(1)}°C
           </span>
         </div>
 
@@ -359,7 +359,7 @@ export default function PrimaryVitalsStrip({
         </p>
       </button>
 
-      {/* 6. Escudo Radiación */}
+      {/* 6. Dosimetría Activa (RAD) */}
       <button
         type="button"
         onClick={() => onSelectZone("endocrino")}
@@ -368,7 +368,7 @@ export default function PrimaryVitalsStrip({
         <div className="flex items-center justify-between gap-1">
           <span className="flex items-center gap-1.5 text-xs font-bold text-slate-200">
             <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-amber-400" />
-            Escudo Nave
+            Dosimetría (RAD)
           </span>
           <span
             className="rounded-full px-2 py-0.5 font-mono-hud text-[10px] font-bold"
@@ -389,7 +389,7 @@ export default function PrimaryVitalsStrip({
             {radShieldPercent}%
           </span>
           <span className="text-[11px] font-medium text-slate-400">
-            protección
+            {b.dailyRadiationMsv.toFixed(2)} mSv/d
           </span>
         </div>
 

@@ -89,12 +89,12 @@ const ZONE_RADAR_LABELS: Record<SystemZoneId, string> = {
 };
 
 const ZONE_SIMPLE_NAMES: Record<SystemZoneId, string> = {
-  cerebro: "Mente y Descanso",
-  rostro: "Rostro y Postura",
-  corazon: "Corazón y Aire",
-  endocrino: "Defensas y Sueño",
-  abdomen: "Agua y Energía",
-  musculo: "Músculos y Huesos",
+  cerebro: "Neuro-Cognitivo (BHP)",
+  rostro: "Oculomotor y Postura",
+  corazon: "Cardiovascular y Ventilación",
+  endocrino: "Inmuno-Endocrino y Sueño",
+  abdomen: "Metabólico e Hidratación",
+  musculo: "Músculo-Esquelético (ARED)",
 };
 
 function getZoneScore(zone: SystemZoneId, b: BiomarkerData): number {
@@ -182,7 +182,7 @@ export default function OverviewBentoGrid({
     onClick: () => void;
   }[] = [
     {
-      label: "Escudo de Radiación",
+      label: "Blindaje Radiológico (GCR / SPE)",
       metric: `${b.dailyRadiationMsv.toFixed(2)} mSv/d`,
       pct: shieldProtectionPct,
       status:
@@ -200,7 +200,7 @@ export default function OverviewBentoGrid({
       onClick: onNavigateWearable,
     },
     {
-      label: "Fuerza en Huesos",
+      label: "Densidad Ósea y Carga ARED",
       metric: `Índice ${b.boneDensityIndex.toFixed(0)}%`,
       pct: Math.round(b.boneDensityIndex),
       status:
@@ -218,7 +218,7 @@ export default function OverviewBentoGrid({
       onClick: () => onSelectZoneAndScroll("musculo"),
     },
     {
-      label: "Calma y Enfoque",
+      label: "Salud Conductual (NASA BHP)",
       metric: `Estrés ${b.stressLevel}%`,
       pct: calmPct,
       status: calmPct < 45 ? "critical" : calmPct < 68 ? "warning" : "optimal",
@@ -226,7 +226,7 @@ export default function OverviewBentoGrid({
       onClick: () => onSelectZoneAndScroll("cerebro"),
     },
     {
-      label: "Aire Limpio en Cabina",
+      label: "Control de CO₂ (Sistema CDRA)",
       metric: `CO₂ ${env.co2MmHg.toFixed(1)} mmHg`,
       pct: cleanAirPct,
       status:
@@ -244,7 +244,7 @@ export default function OverviewBentoGrid({
       onClick: () => onSelectZoneAndScroll("corazon"),
     },
     {
-      label: "Orden en tu Rutina",
+      label: "Sincronía Circadiana (Fase Solar)",
       metric: `Sueño ${b.sleepHours.toFixed(1)}h`,
       pct: routineAnalysis.stabilityScore,
       status:
@@ -277,12 +277,12 @@ export default function OverviewBentoGrid({
       : "#38bdf8";
 
   const reportSummaryRows = [
-    { label: "Ritmo del corazón", val: `${b.bpm} lat/min`, pct: Math.min(100, Math.round((b.bpm / 140) * 100)), color: "#22c55e" },
-    { label: "Fuerza de la sangre", val: `${b.systolicBP}/${b.diastolicBP}`, pct: Math.min(100, Math.round((b.systolicBP / 160) * 100)), color: "#38bdf8" },
-    { label: "Oxígeno en el cuerpo", val: `${b.spo2Percent}%`, pct: b.spo2Percent, color: "#0ea5e9" },
-    { label: "Horas de sueño", val: `${b.sleepHours.toFixed(1)} h (${Math.min(100, Math.round((b.sleepHours / 8) * 100))}%)`, pct: Math.min(100, Math.round((b.sleepHours / 9) * 100)), color: "#2dd4bf" },
-    { label: "Postura de espalda", val: `${b.postureScore}%`, pct: b.postureScore, color: "#10b981" },
-    { label: "Calma al hablar", val: `${100 - b.facialTension}%`, pct: 100 - b.facialTension, color: "#38bdf8" },
+    { label: "Frecuencia Cardíaca (ECG)", val: `${b.bpm} lat/min`, pct: Math.min(100, Math.round((b.bpm / 140) * 100)), color: "#22c55e" },
+    { label: "Presión Arterial (PTT)", val: `${b.systolicBP}/${b.diastolicBP} mmHg`, pct: Math.min(100, Math.round((b.systolicBP / 160) * 100)), color: "#38bdf8" },
+    { label: "Saturación Arterial (SpO₂)", val: `${b.spo2Percent}%`, pct: b.spo2Percent, color: "#0ea5e9" },
+    { label: "Ciclo de Sueño (BHP)", val: `${b.sleepHours.toFixed(1)} h (${Math.min(100, Math.round((b.sleepHours / 8) * 100))}%)`, pct: Math.min(100, Math.round((b.sleepHours / 9) * 100)), color: "#2dd4bf" },
+    { label: "Alineación Postural (0g)", val: `${b.postureScore}%`, pct: b.postureScore, color: "#10b981" },
+    { label: "Estabilidad Vocal / Facial", val: `${100 - b.facialTension}%`, pct: 100 - b.facialTension, color: "#38bdf8" },
   ];
 
   return (
@@ -293,17 +293,17 @@ export default function OverviewBentoGrid({
     >
       {/* CARD 1 (Top-Left): Estado de Sistemas Corporales */}
       <div className="rounded-2xl border border-[#1b2d4b] bg-[#0c1426] p-5">
-        <div className="mb-3 flex items-center justify-between">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div>
             <h2 className="text-base font-bold text-slate-100">
-              Estado de tu Cuerpo (6 Zonas)
+              Estado de Subsistemas Fisiológicos (NASA HRP)
             </h2>
             <p className="text-[11px] text-slate-400">
-              Si una barra pasa del 80%, esa parte de tu cuerpo está trabajando bien.
+              Evaluación integral de las 6 zonas anatómicas (umbral nominal ≥ 80%).
             </p>
           </div>
           <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 font-mono-hud text-xs font-semibold text-emerald-400">
-            Salud: {readinessScore}%
+            Flight Readiness: {readinessScore}% NOMINAL
           </span>
         </div>
 
@@ -460,15 +460,15 @@ export default function OverviewBentoGrid({
         </div>
       </div>
 
-      {/* CARD 2 (Top-Right): Ambiente de la Nave y Cuidados (Telemetría ECLSS & 5 Riesgos) */}
+      {/* CARD 2 (Top-Right): Soporte Vital ECLSS y Riesgos NASA HRP */}
       <div className="rounded-2xl border border-[#1b2d4b] bg-[#0c1426] p-5">
-        <div className="mb-3 flex items-center justify-between">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div>
             <h2 className="text-base font-bold text-slate-100">
-              Ambiente de la Nave y Cuidados
+              Soporte Vital ECLSS y Riesgos NASA HRP
             </h2>
             <p className="text-[11px] text-slate-400">
-              Soporte vital de cabina (ECLSS), escudo radiológico y estabilidad del día.
+              Control ambiental de cabina (ECLSS), blindaje radiológico y sincronía de misión.
             </p>
           </div>
           <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-500/30 bg-sky-500/10 px-2.5 py-1 font-mono-hud text-xs font-semibold text-sky-300">
@@ -478,7 +478,7 @@ export default function OverviewBentoGrid({
         </div>
 
         <div className="grid grid-cols-1 items-center gap-4 sm:grid-cols-12">
-          {/* Izquierda: Anillo Radial de Seguridad de Cabina + Telemetría Física */}
+          {/* Izquierda: Anillo Radial ECLSS + Telemetría Física */}
           <div className="flex flex-col items-center justify-between rounded-xl border border-[#172846] bg-[#081020] p-3 sm:col-span-5">
             <div className="relative flex h-32 w-32 items-center justify-center">
               <svg className="h-full w-full -rotate-90" viewBox="0 0 112 112">
@@ -514,7 +514,7 @@ export default function OverviewBentoGrid({
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
                 <span className="font-mono-hud text-[9px] font-semibold uppercase tracking-wider text-slate-400">
-                  Hábitat
+                  ECLSS
                 </span>
                 <span className="font-mono-hud text-2xl font-extrabold text-slate-100">
                   {cabinSafetyScore}%
@@ -524,29 +524,29 @@ export default function OverviewBentoGrid({
                   style={{ color: cabinRingColor }}
                 >
                   {cabinSafetyScore >= 75
-                    ? "SEGURO"
+                    ? "NOMINAL"
                     : cabinSafetyScore >= 55
-                    ? "CUIDAR"
-                    : "ALERTA"}
+                    ? "PRECAUCIÓN"
+                    : "CRÍTICO"}
                 </span>
               </div>
             </div>
 
             <div className="mt-2 grid w-full grid-cols-3 gap-1.5 border-t border-[#162642] pt-2 text-center font-mono-hud">
               <div className="rounded-lg bg-[#0c162b] px-1.5 py-1">
-                <div className="text-[9px] uppercase text-slate-400">Gravedad</div>
+                <div className="text-[9px] uppercase text-slate-400">Carga-G</div>
                 <div className="text-[11px] font-bold text-sky-300">
                   {env.gravityLabel.split(" ")[0]}
                 </div>
               </div>
               <div className="rounded-lg bg-[#0c162b] px-1.5 py-1">
-                <div className="text-[9px] uppercase text-slate-400">Presión</div>
+                <div className="text-[9px] uppercase text-slate-400">Cabina ECLSS</div>
                 <div className="text-[11px] font-bold text-slate-200">
                   {env.cabinPressureKpa} kPa
                 </div>
               </div>
               <div className="rounded-lg bg-[#0c162b] px-1.5 py-1">
-                <div className="text-[9px] uppercase text-slate-400">Enlace</div>
+                <div className="text-[9px] uppercase text-slate-400">Enlace DSN</div>
                 <div className="text-[11px] font-bold text-emerald-300">
                   {env.commLatencyLabel.split(" ")[0]}
                 </div>
@@ -634,19 +634,19 @@ export default function OverviewBentoGrid({
         </div>
       </div>
 
-      {/* CARD 3 (Bottom-Left): Revisiones Rápidas */}
+      {/* CARD 3 (Bottom-Left): Módulos de Diagnóstico a Bordo (In-Flight Medical) */}
       <div className="rounded-2xl border border-[#1b2d4b] bg-[#0c1426] p-5">
-        <div className="mb-3 flex items-center justify-between">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div>
             <h2 className="text-base font-bold text-slate-100">
-              Revisiones Rápidas
+              Módulos de Diagnóstico a Bordo (In-Flight Medical)
             </h2>
             <p className="text-[11px] text-slate-400">
-              Toca cualquier tarjeta para revisar una parte de tu cuerpo o anotar cómo te sientes.
+              Acceso directo al Bio-Escáner HRP, telemetría del Arnés 3N y registro clínico.
             </p>
           </div>
-          <span className="font-mono-hud text-xs font-medium text-slate-400">
-            Fácil de usar
+          <span className="font-mono-hud text-xs font-medium text-sky-400">
+            NASA-STD-3001
           </span>
         </div>
 
@@ -659,16 +659,16 @@ export default function OverviewBentoGrid({
           >
             <div className="flex items-center justify-between">
               <span className="rounded border border-sky-500/30 bg-sky-500/10 px-1.5 py-0.5 font-mono-hud text-[10px] font-bold uppercase tracking-wider text-sky-300">
-                MAPA DEL CUERPO
+                BIO-ESCÁNER HRP
               </span>
               <ScanLine className="h-5 w-5 text-sky-400 transition group-hover:scale-110" />
             </div>
             <div className="mt-3">
               <div className="text-sm font-bold text-slate-100">
-                Ver las 6 Zonas
+                Protocolos (6 Subsistemas)
               </div>
               <div className="mt-0.5 text-[11px] text-slate-400">
-                Qué hacer paso a paso si algo molesta
+                Guía de examen y contramedidas clínicas
               </div>
             </div>
           </button>
@@ -681,16 +681,16 @@ export default function OverviewBentoGrid({
           >
             <div className="flex items-center justify-between">
               <span className="rounded border border-teal-500/30 bg-teal-500/10 px-1.5 py-0.5 font-mono-hud text-[10px] font-bold uppercase tracking-wider text-teal-300">
-                CÁMARA DE ROSTRO
+                VISIÓN COMPUTACIONAL
               </span>
               <Camera className="h-5 w-5 text-teal-400 transition group-hover:scale-110" />
             </div>
             <div className="mt-3">
               <div className="text-sm font-bold text-slate-100">
-                Postura {b.postureScore}% · Rostro
+                Postura {b.postureScore}% · Biometría
               </div>
               <div className="mt-0.5 text-[11px] text-slate-400">
-                Mide cansancio en tus ojos y gestos
+                Evaluación oculomotora y tensión facial
               </div>
             </div>
           </button>
@@ -703,16 +703,16 @@ export default function OverviewBentoGrid({
           >
             <div className="flex items-center justify-between">
               <span className="rounded border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 font-mono-hud text-[10px] font-bold uppercase tracking-wider text-emerald-300">
-                TRAJE DE SENSORES
+                BIO-MONITOR CSA
               </span>
               <Watch className="h-5 w-5 text-emerald-400 transition group-hover:scale-110" />
             </div>
             <div className="mt-3">
               <div className="text-sm font-bold text-slate-100">
-                Arnés 3N (13 Signos)
+                Arnés 3N (13 Canales)
               </div>
               <div className="mt-0.5 text-[11px] text-slate-400">
-                Chaleco en pecho, banda en frente y pulsera
+                Nodos Torácico, Cefálico y Radial
               </div>
             </div>
           </button>
@@ -725,35 +725,35 @@ export default function OverviewBentoGrid({
           >
             <div className="flex items-center justify-between">
               <span className="rounded border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 font-mono-hud text-[10px] font-bold uppercase tracking-wider text-amber-300">
-                ANOTAR DATOS
+                BITÁCORA MÉDICA
               </span>
               <Sliders className="h-5 w-5 text-amber-400 transition group-hover:scale-110" />
             </div>
             <div className="mt-3">
               <div className="text-sm font-bold text-slate-100">
-                Ajuste Manual
+                Registro Clínico Manual
               </div>
               <div className="mt-0.5 text-[11px] text-slate-400">
-                Cambia tus horas de sueño, agua o comida
+                Actualización de biomarcadores y rutina
               </div>
             </div>
           </button>
         </div>
       </div>
 
-      {/* CARD 4 (Bottom-Right): Tu Evolución Reciente */}
+      {/* CARD 4 (Bottom-Right): Telemetría Longitudinal de Misión */}
       <div className="rounded-2xl border border-[#1b2d4b] bg-[#0c1426] p-5">
-        <div className="mb-3 flex items-center justify-between">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div>
             <h2 className="text-base font-bold text-slate-100">
-              Tu Evolución en los Últimos Días
+              Telemetría Longitudinal de Misión
             </h2>
             <p className="text-[11px] text-slate-400">
-              Cómo se han mantenido tu corazón, tu agua y tu descanso.
+              Tendencia cardiovascular, balance hídrico y estabilidad neuro-vestibular.
             </p>
           </div>
           <span className="font-mono-hud text-xs font-semibold text-sky-400">
-            Últimos {history.length} días
+            Ventana: {history.length} Soles
           </span>
         </div>
 

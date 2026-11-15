@@ -707,14 +707,14 @@ export default function TopMissionBar({
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-mono-hud text-sm font-bold tracking-wider text-slate-100">
-                  ASTRO-MED <span className="text-sky-400">SALUD</span>
+                  ASTRO-MED <span className="text-sky-400">HRP · CONSOLA BIOMÉDICA</span>
                 </span>
                 <span className="rounded border border-sky-500/30 bg-sky-500/10 px-1.5 py-0.5 font-mono-hud text-[10px] font-semibold text-sky-300">
-                  DÍA {missionDay}
+                  MET · DÍA {missionDay}
                 </span>
               </div>
               <div className="text-[11px] text-slate-400">
-                {astronautName} · Monitoreo fácil en vivo
+                {astronautName} · Telemetría Bio-Monitor 3N (NASA-STD-3001)
               </div>
             </div>
           </div>
@@ -816,10 +816,10 @@ export default function TopMissionBar({
           {overallRiskStatus === "optimal" && (
             <div
               className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/35 bg-emerald-500/10 px-2.5 py-1.5 text-xs font-semibold text-emerald-300"
-              title="Detección automática: todos los signos dentro de rango seguro"
+              title="Detección automática: todos los subsistemas en rango nominal"
             >
               <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
-              <span>Estado: Normal</span>
+              <span>Estado: NOMINAL</span>
             </div>
           )}
 
@@ -831,7 +831,7 @@ export default function TopMissionBar({
               title="Parámetros en precaución detectados automáticamente"
             >
               <AlertTriangle className="h-3.5 w-3.5 text-amber-400" />
-              <span>Precaución ({warningZones.length})</span>
+              <span>PRECAUCIÓN ({warningZones.length})</span>
             </button>
           )}
 
@@ -843,7 +843,7 @@ export default function TopMissionBar({
               title="Nivel crítico detectado automáticamente"
             >
               <ShieldAlert className="h-3.5 w-3.5" />
-              <span>Peligro Crítico ({Math.max(1, criticalZones.length)})</span>
+              <span>CRÍTICO ({Math.max(1, criticalZones.length)})</span>
             </button>
           )}
 

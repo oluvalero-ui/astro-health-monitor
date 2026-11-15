@@ -40,7 +40,7 @@ export default function RecommendedHabitsPanel({
         <div className="mb-3.5 border-b border-slate-100 pb-3">
           <h2 className="flex items-center gap-2 text-base font-bold text-slate-900">
             <ClipboardCheck className="h-5 w-5 text-[#1a73e8]" />
-            Hábitos Recomendados
+            Protocolo de Contramedidas Diarias (NASA HRP)
           </h2>
         </div>
 
