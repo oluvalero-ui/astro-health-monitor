@@ -17,14 +17,14 @@ export type NavSectionId =
   | "escaner"
   | "wearable"
   | "biomarcadores"
-  | "informes";
+  | "informes"
+  | "referencias";
 
 interface LeftNavSidebarProps {
   activeSection: NavSectionId;
   emergencyMode: boolean;
   onNavigate: (section: NavSectionId) => void;
   onOpenScanModal: () => void;
-  onOpenReferences: () => void;
   onToggleEmergency: () => void;
 }
 
@@ -33,7 +33,6 @@ export default function LeftNavSidebar({
   emergencyMode,
   onNavigate,
   onOpenScanModal,
-  onOpenReferences,
   onToggleEmergency,
 }: LeftNavSidebarProps) {
   const navBtnClass = (isActive: boolean) =>
@@ -116,9 +115,9 @@ export default function LeftNavSidebar({
           {/* Referencias NASA HRP / CSA */}
           <button
             type="button"
-            title="Referencias Científicas NASA HRP / CSA"
-            onClick={onOpenReferences}
-            className={navBtnClass(false)}
+            title="Base Científica · NASA HRP y CSA"
+            onClick={() => onNavigate("referencias")}
+            className={navBtnClass(activeSection === "referencias")}
           >
             <BookOpen className="h-5 w-5" />
           </button>
@@ -207,6 +206,18 @@ export default function LeftNavSidebar({
           aria-label="Informes"
         >
           <BarChart3 className="h-4 w-4" />
+        </button>
+        <button
+          type="button"
+          onClick={() => onNavigate("referencias")}
+          className={`rounded-lg p-2 ${
+            activeSection === "referencias"
+              ? "bg-[#1a73e8]"
+              : "text-blue-100/80"
+          }`}
+          aria-label="Base Científica NASA HRP y CSA"
+        >
+          <BookOpen className="h-4 w-4" />
         </button>
       </nav>
     </>

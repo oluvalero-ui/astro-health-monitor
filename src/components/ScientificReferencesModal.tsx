@@ -1,11 +1,8 @@
 "use client";
 
 import React from "react";
-import { BookOpen, Radiation, ShieldCheck, X } from "lucide-react";
-import {
-  CSA_RADIATION_LIMITS,
-  SCIENTIFIC_REFERENCES,
-} from "@/data/missionData";
+import { BookOpen, X } from "lucide-react";
+import ScientificReferencesContent from "@/components/ScientificReferencesContent";
 
 interface ScientificReferencesModalProps {
   isOpen: boolean;
@@ -34,7 +31,8 @@ export default function ScientificReferencesModal({
                 Referencias Científicas Oficiales · NASA HRP & CSA
               </h2>
               <p className="text-xs text-slate-500">
-                Base biomédica del desafío: 5 Peligros del Espacio Humano y Dosimetría de Radiación Canadiense.
+                Base biomédica del desafío: 5 Peligros del Espacio Humano y
+                Dosimetría de Radiación Canadiense.
               </p>
             </div>
           </div>
@@ -48,80 +46,8 @@ export default function ScientificReferencesModal({
           </button>
         </div>
 
-        <div className="flex-1 space-y-5 overflow-y-auto p-5">
-          {/* CSA Thresholds Summary Strip */}
-          <div className="rounded-xl border border-blue-200 bg-blue-50/70 p-4">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#1a73e8]">
-              <Radiation className="h-4 w-4" />
-              Parámetros de Referencia Radiológica ({CSA_RADIATION_LIMITS.instrumentName})
-            </div>
-            <div className="mt-2.5 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
-              <div className="rounded-lg border border-slate-200 bg-white p-2.5 text-xs">
-                <div className="text-slate-500">Tasa Diaria Nominal (Órbita)</div>
-                <div className="mt-0.5 font-mono-hud text-sm font-bold text-emerald-600">
-                  ≤ {CSA_RADIATION_LIMITS.dailyNominalMsv} mSv/día
-                </div>
-              </div>
-              <div className="rounded-lg border border-slate-200 bg-white p-2.5 text-xs">
-                <div className="text-slate-500">Umbral de Alerta Diaria</div>
-                <div className="mt-0.5 font-mono-hud text-sm font-bold text-red-600">
-                  ≥ {CSA_RADIATION_LIMITS.dailyAlertMsv} mSv/día
-                </div>
-              </div>
-              <div className="rounded-lg border border-slate-200 bg-white p-2.5 text-xs">
-                <div className="text-slate-500">Límite Acumulado de Carrera</div>
-                <div className="mt-0.5 font-mono-hud text-sm font-bold text-amber-600">
-                  {CSA_RADIATION_LIMITS.careerLimitMsv} mSv (Anual: {CSA_RADIATION_LIMITS.annualLimitMsv} mSv)
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {SCIENTIFIC_REFERENCES.map((section) => (
-            <div
-              key={section.id}
-              className="rounded-xl border border-slate-200 bg-slate-50/60 p-4"
-            >
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <span className="rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-[11px] font-bold text-[#1a73e8]">
-                  {section.agency}
-                </span>
-                <span className="font-mono-hud text-[11px] text-slate-500">
-                  {section.badge}
-                </span>
-              </div>
-              <h3 className="mt-2 text-sm font-bold text-slate-900 sm:text-base">
-                {section.title}
-              </h3>
-              <p className="mt-1 text-xs leading-relaxed text-slate-600">
-                {section.description}
-              </p>
-
-              <div className="mt-3 space-y-2.5">
-                {section.items.map((item) => (
-                  <div
-                    key={item.name}
-                    className="rounded-lg border border-slate-200 bg-white p-3 text-xs"
-                  >
-                    <div className="font-bold text-slate-900">{item.name}</div>
-                    <p className="mt-1 leading-relaxed text-slate-600">
-                      {item.detail}
-                    </p>
-                    <p className="mt-1.5 text-[11px] font-medium text-[#1a73e8]">
-                      Integración en ASTRO-MED: {item.appMapping}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-
-          <div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-800">
-            <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-600" />
-            <span>
-              Arquitectura 100% Autónoma Offline: Toda la base científica, telemetría vestible, análisis facial y almacenamiento local operan sin conexión a internet ni dependencias externas.
-            </span>
-          </div>
+        <div className="flex-1 overflow-y-auto p-5">
+          <ScientificReferencesContent />
         </div>
       </div>
     </div>

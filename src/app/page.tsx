@@ -19,6 +19,7 @@ import MultimodalScanModal, {
 } from "@/components/MultimodalScanModal";
 import OverviewBentoGrid from "@/components/OverviewBentoGrid";
 import RecommendedHabitsPanel from "@/components/RecommendedHabitsPanel";
+import ScientificFrameworkSection from "@/components/ScientificFrameworkSection";
 import ScientificReferencesModal from "@/components/ScientificReferencesModal";
 import SectionPagerControls from "@/components/SectionPagerControls";
 import TelemetryCharts from "@/components/TelemetryCharts";
@@ -198,6 +199,7 @@ export default function HomePage() {
       wearable: "wearable-harness",
       biomarcadores: "biomarkers-section",
       informes: "informes-section",
+      referencias: "referencias-section",
     };
     const target = document.getElementById(idMap[section]);
     target?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -213,6 +215,7 @@ export default function HomePage() {
       ["wearable", "wearable-harness"],
       ["biomarcadores", "biomarkers-section"],
       ["informes", "informes-section"],
+      ["referencias", "referencias-section"],
     ];
     const elementToSection = new Map<Element, NavSectionId>();
     sectionPairs.forEach(([sec, id]) => {
@@ -486,7 +489,6 @@ export default function HomePage() {
         emergencyMode={state.emergencyMode}
         onNavigate={handleNavigateSection}
         onOpenScanModal={() => handleOpenScanTab("camara")}
-        onOpenReferences={() => setReferencesOpen(true)}
         onToggleEmergency={handleToggleEmergency}
       />
 
@@ -543,7 +545,6 @@ export default function HomePage() {
             onSelectZoneAndScroll={handleSelectZoneAndScroll}
             onNavigateWearable={() => handleNavigateSection("wearable")}
             onOpenScanTab={handleOpenScanTab}
-            onOpenReferences={() => setReferencesOpen(true)}
           />
 
           {/* Module 1: Interactive Anatomical & Psychological SVG Scanner */}
@@ -628,6 +629,13 @@ export default function HomePage() {
               ))}
             </div>
           </section>
+
+          {/* Module 6: Base Científica Dedicada · NASA HRP & Dosimetría CSA */}
+          <ScientificFrameworkSection
+            environmentId={state.environmentId}
+            dailyRadiationMsv={state.biomarkers.dailyRadiationMsv}
+            cumulativeRadiationMsv={state.biomarkers.cumulativeRadiationMsv}
+          />
         </main>
       </div>
 

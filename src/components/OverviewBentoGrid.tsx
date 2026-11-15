@@ -17,8 +17,8 @@ import {
 import {
   Camera,
   Globe,
-  Radiation,
   ScanLine,
+  Sliders,
   Watch,
 } from "lucide-react";
 import {
@@ -51,7 +51,6 @@ interface OverviewBentoGridProps {
   onSelectZoneAndScroll: (zone: SystemZoneId) => void;
   onNavigateWearable: () => void;
   onOpenScanTab: (tab: ScanModalTab) => void;
-  onOpenReferences: () => void;
 }
 
 const emptySubscribe = () => () => {};
@@ -107,7 +106,6 @@ export default function OverviewBentoGrid({
   onSelectZoneAndScroll,
   onNavigateWearable,
   onOpenScanTab,
-  onOpenReferences,
 }: OverviewBentoGridProps) {
   const mounted = useSyncExternalStore(
     emptySubscribe,
@@ -381,25 +379,25 @@ export default function OverviewBentoGrid({
             </div>
           </button>
 
-          {/* Thumbnail 4: CSA Dosimetry & NASA HRP */}
+          {/* Thumbnail 4: Manual Entry & Self-Report */}
           <button
             type="button"
-            onClick={onOpenReferences}
+            onClick={() => onOpenScanTab("manual")}
             className="group cursor-pointer overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-left transition hover:border-blue-400 hover:bg-blue-50/40"
           >
             <div className="flex h-20 items-center justify-between rounded-lg bg-gradient-to-br from-blue-600 to-indigo-700 px-3 text-white">
               <div>
                 <div className="text-[10px] font-semibold uppercase tracking-wider text-blue-100">
-                  CSA / NASA HRP
+                  Autoevaluación
                 </div>
                 <div className="mt-0.5 text-xs font-bold">
-                  {b.dailyRadiationMsv.toFixed(2)} mSv/d
+                  Registro Manual
                 </div>
               </div>
-              <Radiation className="h-8 w-8 text-white/90 transition group-hover:scale-110" />
+              <Sliders className="h-8 w-8 text-white/90 transition group-hover:scale-110" />
             </div>
             <div className="mt-1.5 text-[11px] font-medium text-slate-600">
-              5 Peligros y referencias
+              Signos vitales y rutina
             </div>
           </button>
         </div>
