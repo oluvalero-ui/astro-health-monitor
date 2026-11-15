@@ -9,23 +9,21 @@ import {
   ArrowUpRight,
   BatteryCharging,
   BedDouble,
-  Bone,
   Brain,
   CalendarClock,
   CheckCircle2,
-  Droplets,
   Flame,
   Gauge,
   HeartPulse,
   Moon,
   Radiation,
   Smile,
-  Sparkles,
   Sun,
   Thermometer,
   UserCheck,
   Users,
   Watch,
+  Wind,
 } from "lucide-react";
 import { CSA_RADIATION_LIMITS } from "@/data/missionData";
 import {
@@ -37,24 +35,20 @@ import {
 } from "@/types/astronaut";
 import {
   computeRoutineDeviations,
-  evaluateBoneDensityStatus,
   evaluateBoredomStatus,
   evaluateBpStatus,
   evaluateBpmStatus,
-  evaluateCortisolStatus,
   evaluateDepressionStatus,
-  evaluateGlucoseStatus,
   evaluateHrvStatus,
-  evaluateHydrationStatus,
   evaluateLonelinessStatus,
-  evaluateMelatoninStatus,
   evaluateMentalFatigueStatus,
+  evaluateMinuteVentilationStatus,
   evaluateMoodStatus,
   evaluatePerfusionIndexStatus,
-  evaluatePhysicalFatigueStatus,
   evaluatePostureStatus,
   evaluateRadiationStatus,
   evaluateRespiratoryRateStatus,
+  evaluateSkinTempStatus,
   evaluateSleepStatus,
   evaluateSpo2Status,
   evaluateStressStatus,
@@ -223,23 +217,24 @@ export default function BiomarkersDashboard({
   const radStatus = evaluateRadiationStatus(b.dailyRadiationMsv);
   const careerRadPct = getCareerRadiationPct(b.cumulativeRadiationMsv);
 
-  const hormonalStatus = worstStatus([
-    evaluateCortisolStatus(b.cortisolIndex),
-    evaluateMelatoninStatus(b.melatoninIndex),
-  ]);
-
-  const cardioStatus = worstStatus([
-    evaluateBpmStatus(b.bpm),
-    evaluateBpStatus(b.systolicBP, b.diastolicBP),
+  const spo2PiStatus = worstStatus([
     evaluateSpo2Status(b.spo2Percent),
-    evaluateRespiratoryRateStatus(b.respiratoryRateRpm),
-    evaluateHrvStatus(b.hrvRmssdMs),
     evaluatePerfusionIndexStatus(b.perfusionIndex),
   ]);
 
-  const physicalBoneStatus = worstStatus([
-    evaluatePhysicalFatigueStatus(b.physicalFatigue),
-    evaluateBoneDensityStatus(b.boneDensityIndex),
+  const respRipStatus = worstStatus([
+    evaluateRespiratoryRateStatus(b.respiratoryRateRpm),
+    evaluateMinuteVentilationStatus(b.minuteVentilationLpm),
+  ]);
+
+  const thermalZhfStatus = worstStatus([
+    evaluateTempStatus(b.bodyTempC),
+    evaluateSkinTempStatus(b.skinTempC),
+  ]);
+
+  const postureSleepStatus = worstStatus([
+    evaluatePostureStatus(b.postureScore),
+    evaluateSleepStatus(b.sleepHours),
   ]);
 
   const moodDescription =
@@ -268,7 +263,7 @@ export default function BiomarkersDashboard({
             }`}
           >
             <HeartPulse className="h-4 w-4" />
-            1. Signos Vitales Físicos (8)
+            1. Signos Fisiológicos Arnés 3N (13)
           </button>
 
           <button
@@ -414,17 +409,17 @@ export default function BiomarkersDashboard({
       </div>
       )}
 
-      {/* Biomarker Group A */}
+      {/* Biomarker Group A: Los 13 Signos Fisiológicos Continuos del Arnés 3N */}
       {(subView === "fisicos" || subView === "todos") && (
       <div className="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-[0_6px_24px_rgba(15,23,42,0.04)] sm:p-5">
         <div className="mb-3.5 flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
           <div>
             <h3 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-[#1a73e8] sm:text-base">
               <HeartPulse className="h-4 w-4" />
-              Módulo 2A · Signos Vitales, Hormonas y Radiación (CSA)
+              Módulo 2A · 13 Signos Fisiológicos Continuos del Arnés 3N (Nodos 1, 2 y 3)
             </h3>
             <p className="text-xs text-slate-500">
-              Haz clic en cualquier tarjeta para abrir su guía anatómica y contramedidas.
+              Adquisición 100% mediante el hardware único Arnés 3N (Chaleco Torácico · Vincha Cefálica Frontal · Pulsera/Collar).
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2.5">
@@ -435,7 +430,7 @@ export default function BiomarkersDashboard({
                 className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-[#1a73e8] transition hover:bg-blue-100"
               >
                 <Watch className="h-3.5 w-3.5" />
-                Arnés Vestible: SpO₂ {b.spo2Percent}% · FR {b.respiratoryRateRpm} rpm · HRV {b.hrvRmssdMs} ms
+                Abrir Vista Hardware Arnés 3N (7 + 4 + 2 = 13 Signos)
               </button>
             )}
           </div>
@@ -443,21 +438,33 @@ export default function BiomarkersDashboard({
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <MetricCard
-            title="Pulsaciones por Minuto"
+            title="FC + ECG 3 Derivaciones (Nodo 1)"
             value={`${b.bpm}`}
             unit="BPM"
-            subtitle={`HRV ${b.hrvRmssdMs} ms · SpO₂ ${b.spo2Percent}% · FR ${b.respiratoryRateRpm} rpm`}
-            status={cardioStatus}
+            subtitle="Signos #1 y #3 · ECG Textil 256 Hz (DI · DII · V5)"
+            status={evaluateBpmStatus(b.bpm)}
             trend={getTrend(b.bpm, prev.bpm, 1.5)}
             progressPercent={(b.bpm / 150) * 100}
             icon={<HeartPulse className="h-4 w-4" />}
             onClick={() => onSelectSystemZone("corazon")}
           />
           <MetricCard
-            title="Presión Arterial"
+            title="Variabilidad HRV rMSSD (Nodo 1)"
+            value={`${b.hrvRmssdMs}`}
+            unit="ms"
+            subtitle="Signo #2 · Tono vagal autónomo (Nominal > 20 ms)"
+            status={evaluateHrvStatus(b.hrvRmssdMs)}
+            trend={getTrend(b.hrvRmssdMs, prev.hrvRmssdMs, 1.5)}
+            trendPositiveIsGood
+            progressPercent={Math.min(100, (b.hrvRmssdMs / 70) * 100)}
+            icon={<Activity className="h-4 w-4" />}
+            onClick={() => onSelectSystemZone("corazon")}
+          />
+          <MetricCard
+            title="PA Continua por PTT (Nodo 2)"
             value={`${b.systolicBP}/${b.diastolicBP}`}
             unit="mmHg"
-            subtitle={`Derivada vía PTT pecho→dedo (${b.pttMs} ms)`}
+            subtitle={`Signo #8 · Vincha Cefálica PTT = ${b.pttMs} ms (150–250 ms)`}
             status={evaluateBpStatus(b.systolicBP, b.diastolicBP)}
             trend={getTrend(b.systolicBP, prev.systolicBP, 2)}
             progressPercent={(b.systolicBP / 170) * 100}
@@ -465,67 +472,56 @@ export default function BiomarkersDashboard({
             onClick={() => onSelectSystemZone("corazon")}
           />
           <MetricCard
-            title="Azúcar en la Sangre"
-            value={`${b.bloodGlucoseMgDl}`}
-            unit="mg/dL"
-            subtitle="Meta en misión: 75–118 mg/dL (Riesgo <65 o >180)"
-            status={evaluateGlucoseStatus(b.bloodGlucoseMgDl)}
-            trend={getTrend(b.bloodGlucoseMgDl, prev.bloodGlucoseMgDl, 2)}
-            trendPositiveIsGood={b.bloodGlucoseMgDl < 80}
-            progressPercent={(b.bloodGlucoseMgDl / 180) * 100}
+            title="SpO₂ Frontal + Perfusión (Nodo 2)"
+            value={`${b.spo2Percent}% · PI ${b.perfusionIndex.toFixed(1)}%`}
+            unit=""
+            subtitle="Signos #9 y #10 · PPG Supraorbitario 64 Hz (95–100%)"
+            status={spo2PiStatus}
+            trend={getTrend(b.spo2Percent, prev.spo2Percent, 0.5)}
+            trendPositiveIsGood
+            progressPercent={b.spo2Percent}
             icon={<Activity className="h-4 w-4" />}
-            onClick={() => onSelectSystemZone("abdomen")}
+            onClick={() => onSelectSystemZone("corazon")}
           />
           <MetricCard
-            title="Temperatura Corporal"
-            value={b.bodyTempC.toFixed(1)}
-            unit="°C"
-            subtitle="Rango seguro: 36.1–37.2 °C (Control térmico de traje/cabina)"
-            status={evaluateTempStatus(b.bodyTempC)}
+            title="FR + Volumen Minuto (Nodo 1)"
+            value={`${b.respiratoryRateRpm} rpm`}
+            unit={`· ${b.minuteVentilationLpm.toFixed(1)} L/m`}
+            subtitle="Signos #4 y #5 · Bandas Torácicas RIP 128 Hz (5.0–8.0 L/m)"
+            status={respRipStatus}
+            trend={getTrend(b.respiratoryRateRpm, prev.respiratoryRateRpm, 1)}
+            progressPercent={(b.respiratoryRateRpm / 28) * 100}
+            icon={<Wind className="h-4 w-4" />}
+            onClick={() => onSelectSystemZone("corazon")}
+          />
+          <MetricCard
+            title="Temp. Central ZHF + Cutánea (N1/N2)"
+            value={`${b.bodyTempC.toFixed(1)} °C`}
+            unit={`· Piel ${b.skinTempC.toFixed(1)} °C`}
+            subtitle="Signos #6 y #11 · Zero-Heat-Flux craneal (36.5–37.5 °C)"
+            status={thermalZhfStatus}
             trend={getTrend(b.bodyTempC, prev.bodyTempC, 0.15)}
             progressPercent={((b.bodyTempC - 34) / 6) * 100}
             icon={<Thermometer className="h-4 w-4" />}
             onClick={() => onSelectSystemZone("abdomen")}
           />
           <MetricCard
-            title="Hidratación Hídrica"
-            value={`${b.hydrationPercent}`}
-            unit="%"
-            subtitle={`Ingesta hoy: ${routine.hydrationLiters.toFixed(1)} L / ${routine.baselineHydrationLiters.toFixed(1)} L`}
-            status={evaluateHydrationStatus(b.hydrationPercent)}
-            trend={getTrend(b.hydrationPercent, prev.hydrationPercent, 1)}
+            title="Postura Axial + Actigrafía (Nodo 1)"
+            value={`${b.postureScore}%`}
+            unit={`· ${b.sleepHours.toFixed(1)} h`}
+            subtitle="Signo #7 · Acelerómetro 3 ejes 64 Hz (Descanso y postura)"
+            status={postureSleepStatus}
+            trend={getTrend(b.postureScore, prev.postureScore, 2)}
             trendPositiveIsGood
-            progressPercent={b.hydrationPercent}
-            icon={<Droplets className="h-4 w-4" />}
-            onClick={() => onSelectSystemZone("abdomen")}
-          />
-          <MetricCard
-            title="Cambios Hormonales"
-            value={`${b.cortisolIndex} / ${b.melatoninIndex}`}
-            unit="Cort / Mel"
-            subtitle={`Cortisol (estrés): ${b.cortisolIndex}/100 · Melatonina (sueño): ${b.melatoninIndex}/100`}
-            status={hormonalStatus}
-            trend={getTrend(b.cortisolIndex, prev.cortisolIndex, 2)}
-            progressPercent={b.melatoninIndex}
-            icon={<Sparkles className="h-4 w-4" />}
-            onClick={() => onSelectSystemZone("endocrino")}
-          />
-          <MetricCard
-            title="Cansancio Físico y Óseo"
-            value={`${b.physicalFatigue}`}
-            unit="/ 100"
-            subtitle={`Densidad ósea: ${b.boneDensityIndex.toFixed(1)}% · Carga muscular ARED`}
-            status={physicalBoneStatus}
-            trend={getTrend(b.physicalFatigue, prev.physicalFatigue, 2)}
-            progressPercent={b.physicalFatigue}
-            icon={<Bone className="h-4 w-4" />}
+            progressPercent={b.postureScore}
+            icon={<Watch className="h-4 w-4" />}
             onClick={() => onSelectSystemZone("musculo")}
           />
           <MetricCard
-            title="Exposición a Radiación (CSA)"
+            title="Radiación CSA + Voz (Nodo 3)"
             value={b.dailyRadiationMsv.toFixed(2)}
             unit="mSv/día"
-            subtitle={`Acumulada: ${b.cumulativeRadiationMsv.toFixed(1)} mSv (${careerRadPct}% de ${CSA_RADIATION_LIMITS.careerLimitMsv} mSv)`}
+            subtitle={`Signos #12 y #13 · Acum: ${b.cumulativeRadiationMsv.toFixed(1)}/${CSA_RADIATION_LIMITS.careerLimitMsv} mSv (${careerRadPct}%) · Voz ${100 - b.facialTension}%`}
             status={radStatus}
             trend={getTrend(b.dailyRadiationMsv, prev.dailyRadiationMsv, 0.05)}
             progressPercent={(b.dailyRadiationMsv / 2.0) * 100}

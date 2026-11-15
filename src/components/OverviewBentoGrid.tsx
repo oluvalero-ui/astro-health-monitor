@@ -189,12 +189,12 @@ export default function OverviewBentoGrid({
   ];
 
   const reportSummaryRows = [
-    { label: "Pulso cardíaco", val: `${b.bpm} BPM`, pct: Math.min(100, Math.round((b.bpm / 140) * 100)), color: "#22c55e" },
-    { label: "Glucosa sangre", val: `${b.bloodGlucoseMgDl} mg/dL`, pct: Math.min(100, Math.round((b.bloodGlucoseMgDl / 160) * 100)), color: "#38bdf8" },
-    { label: "Hidratación", val: `${b.hydrationPercent}%`, pct: b.hydrationPercent, color: "#0ea5e9" },
-    { label: "Sueño diario", val: `${b.sleepHours.toFixed(1)} h`, pct: Math.min(100, Math.round((b.sleepHours / 9) * 100)), color: "#2dd4bf" },
-    { label: "Ánimo general", val: `${b.moodScore}/100`, pct: b.moodScore, color: "#10b981" },
-    { label: "Postura cámara", val: `${b.postureScore}/100`, pct: b.postureScore, color: "#38bdf8" },
+    { label: "Pulso cardíaco (N1)", val: `${b.bpm} BPM`, pct: Math.min(100, Math.round((b.bpm / 140) * 100)), color: "#22c55e" },
+    { label: "PA Continua PTT (N2)", val: `${b.systolicBP}/${b.diastolicBP}`, pct: Math.min(100, Math.round((b.systolicBP / 160) * 100)), color: "#38bdf8" },
+    { label: "SpO₂ Frontal (N2)", val: `${b.spo2Percent}%`, pct: b.spo2Percent, color: "#0ea5e9" },
+    { label: "Sueño Actigrafía (N1)", val: `${b.sleepHours.toFixed(1)} h`, pct: Math.min(100, Math.round((b.sleepHours / 9) * 100)), color: "#2dd4bf" },
+    { label: "Postura Axial (N1)", val: `${b.postureScore}/100`, pct: b.postureScore, color: "#10b981" },
+    { label: "Estabilidad Vocal (N3)", val: `${100 - b.facialTension}%`, pct: 100 - b.facialTension, color: "#38bdf8" },
   ];
 
   return (

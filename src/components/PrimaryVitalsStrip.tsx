@@ -3,10 +3,10 @@
 import React from "react";
 import {
   Activity,
-  Droplets,
   Gauge,
   HeartPulse,
   Radiation,
+  Thermometer,
   Wind,
 } from "lucide-react";
 import { CSA_RADIATION_LIMITS } from "@/data/missionData";
@@ -14,10 +14,11 @@ import { BiomarkerData, HealthStatus, SystemZoneId } from "@/types/astronaut";
 import {
   evaluateBpStatus,
   evaluateBpmStatus,
-  evaluateGlucoseStatus,
-  evaluateHydrationStatus,
+  evaluateMinuteVentilationStatus,
+  evaluatePerfusionIndexStatus,
   evaluateRadiationStatus,
   evaluateRespiratoryRateStatus,
+  evaluateSkinTempStatus,
   evaluateSpo2Status,
   evaluateTempStatus,
   STATUS_HEX,
@@ -48,18 +49,22 @@ function getVitalDisplayColor(status: HealthStatus, nominalColor: string): strin
 export default function PrimaryVitalsStrip({
   biomarkers: b,
   readinessScore,
-  cabinCo2MmHg,
   onSelectZone,
   onOpenWearable,
 }: PrimaryVitalsStripProps) {
   const hrStatus = evaluateBpmStatus(b.bpm);
-  const spo2Status = evaluateSpo2Status(b.spo2Percent);
+  const spo2Status = worstStatus([
+    evaluateSpo2Status(b.spo2Percent),
+    evaluatePerfusionIndexStatus(b.perfusionIndex),
+  ]);
   const bpStatus = evaluateBpStatus(b.systolicBP, b.diastolicBP);
-  const respStatus = evaluateRespiratoryRateStatus(b.respiratoryRateRpm);
-  const metabolicStatus = worstStatus([
+  const respStatus = worstStatus([
+    evaluateRespiratoryRateStatus(b.respiratoryRateRpm),
+    evaluateMinuteVentilationStatus(b.minuteVentilationLpm),
+  ]);
+  const thermalStatus = worstStatus([
     evaluateTempStatus(b.bodyTempC),
-    evaluateGlucoseStatus(b.bloodGlucoseMgDl),
-    evaluateHydrationStatus(b.hydrationPercent),
+    evaluateSkinTempStatus(b.skinTempC),
   ]);
   const radStatus = evaluateRadiationStatus(b.dailyRadiationMsv);
 
@@ -70,24 +75,24 @@ export default function PrimaryVitalsStrip({
   const bpColor = getVitalDisplayColor(bpStatus, "#f8fafc");
   const bpWaveColor = getVitalDisplayColor(bpStatus, "#38bdf8");
   const respColor = getVitalDisplayColor(respStatus, "#2dd4bf");
-  const metabColor = getVitalDisplayColor(metabolicStatus, "#38bdf8");
+  const thermalColor = getVitalDisplayColor(thermalStatus, "#38bdf8");
   const radColor = getVitalDisplayColor(radStatus, "#34d399");
 
   return (
     <section
-      aria-label="Monitor primario de signos vitales en tiempo real"
+      aria-label="Monitor primario en vivo del Arnés 3N (13 signos continuos)"
       className="grid grid-cols-2 gap-2.5 lg:grid-cols-6"
     >
-      {/* 1. ECG / Frecuencia Cardíaca (Derivación II en Vivo) */}
+      {/* 1. NODO 1: ECG 3 Derivaciones / FC + HRV */}
       <button
         type="button"
-        onClick={() => onSelectZone("corazon")}
+        onClick={onOpenWearable}
         className={`group flex cursor-pointer flex-col justify-between rounded-xl border bg-[#091120] p-3 text-left transition ${BORDER_BY_STATUS[hrStatus]}`}
       >
         <div className="flex items-center justify-between">
           <span className="flex items-center gap-1.5 font-mono-hud text-[11px] font-bold uppercase tracking-wider text-slate-400">
             <HeartPulse className="h-3.5 w-3.5" style={{ color: hrColor }} />
-            ECG · FC
+            ECG · FC (N1)
           </span>
           <span
             className="h-2 w-2 rounded-full"
@@ -120,11 +125,11 @@ export default function PrimaryVitalsStrip({
 
         <div className="mt-1 flex items-center justify-between font-mono-hud text-[10px] text-slate-400">
           <span>HRV {b.hrvRmssdMs} ms</span>
-          <span>52–92</span>
+          <span>ECG 3D · 256Hz</span>
         </div>
       </button>
 
-      {/* 2. SpO2 / Onda Pletismográfica Arterial en Vivo */}
+      {/* 2. NODO 2: SpO2 Supraorbitario + Índice de Perfusión (PI) */}
       <button
         type="button"
         onClick={onOpenWearable}
@@ -133,7 +138,7 @@ export default function PrimaryVitalsStrip({
         <div className="flex items-center justify-between">
           <span className="flex items-center gap-1.5 font-mono-hud text-[11px] font-bold uppercase tracking-wider text-slate-400">
             <Activity className="h-3.5 w-3.5" style={{ color: spo2Color }} />
-            SpO₂ · PPG
+            SpO₂ · PI (N2)
           </span>
           <span
             className="h-2 w-2 rounded-full"
@@ -166,20 +171,20 @@ export default function PrimaryVitalsStrip({
 
         <div className="mt-1 flex items-center justify-between font-mono-hud text-[10px] text-slate-400">
           <span>PI {b.perfusionIndex.toFixed(1)}%</span>
-          <span>≥ 95%</span>
+          <span>Vincha 64Hz</span>
         </div>
       </button>
 
-      {/* 3. Presión Arterial Continua (Onda Arterial ABP / PTT en Vivo) */}
+      {/* 3. NODO 1→2: Presión Arterial Continua por PTT */}
       <button
         type="button"
-        onClick={() => onSelectZone("corazon")}
+        onClick={onOpenWearable}
         className={`group flex cursor-pointer flex-col justify-between rounded-xl border bg-[#091120] p-3 text-left transition ${BORDER_BY_STATUS[bpStatus]}`}
       >
         <div className="flex items-center justify-between">
           <span className="flex items-center gap-1.5 font-mono-hud text-[11px] font-bold uppercase tracking-wider text-slate-400">
             <Gauge className="h-3.5 w-3.5 text-sky-400" />
-            PA · PTT
+            PA · PTT (N2)
           </span>
           <span
             className="h-2 w-2 rounded-full"
@@ -216,7 +221,7 @@ export default function PrimaryVitalsStrip({
         </div>
       </button>
 
-      {/* 4. Frecuencia Respiratoria y Capnografía en Vivo */}
+      {/* 4. NODO 1: Frecuencia Respiratoria + Volumen Minuto (Bandas RIP) */}
       <button
         type="button"
         onClick={onOpenWearable}
@@ -225,7 +230,7 @@ export default function PrimaryVitalsStrip({
         <div className="flex items-center justify-between">
           <span className="flex items-center gap-1.5 font-mono-hud text-[11px] font-bold uppercase tracking-wider text-slate-400">
             <Wind className="h-3.5 w-3.5" style={{ color: respColor }} />
-            RESP · CO₂
+            RESP · RIP (N1)
           </span>
           <span
             className="h-2 w-2 rounded-full"
@@ -256,27 +261,27 @@ export default function PrimaryVitalsStrip({
         />
 
         <div className="mt-1 flex items-center justify-between font-mono-hud text-[10px] text-slate-400">
-          <span>CO₂ {cabinCo2MmHg} mmHg</span>
-          <span>10–20 rpm</span>
+          <span>Vol.Min {b.minuteVentilationLpm.toFixed(1)} L/m</span>
+          <span>RIP 128Hz</span>
         </div>
       </button>
 
-      {/* 5. Temperatura Central ZHF, Glucosa e Hidratación (Flujo Vasomotor en Vivo) */}
+      {/* 5. NODO 1 & 2: Temp. Central ZHF + Temp. Cutánea + Postura/Sueño */}
       <button
         type="button"
-        onClick={() => onSelectZone("abdomen")}
-        className={`group flex cursor-pointer flex-col justify-between rounded-xl border bg-[#091120] p-3 text-left transition ${BORDER_BY_STATUS[metabolicStatus]}`}
+        onClick={onOpenWearable}
+        className={`group flex cursor-pointer flex-col justify-between rounded-xl border bg-[#091120] p-3 text-left transition ${BORDER_BY_STATUS[thermalStatus]}`}
       >
         <div className="flex items-center justify-between">
           <span className="flex items-center gap-1.5 font-mono-hud text-[11px] font-bold uppercase tracking-wider text-slate-400">
-            <Droplets className="h-3.5 w-3.5" style={{ color: metabColor }} />
-            METAB · TEMP
+            <Thermometer className="h-3.5 w-3.5" style={{ color: thermalColor }} />
+            TEMP · ZHF (N1/2)
           </span>
           <span
             className="h-2 w-2 rounded-full"
             style={{
-              backgroundColor: STATUS_HEX[metabolicStatus],
-              boxShadow: `0 0 8px ${STATUS_HEX[metabolicStatus]}`,
+              backgroundColor: STATUS_HEX[thermalStatus],
+              boxShadow: `0 0 8px ${STATUS_HEX[thermalStatus]}`,
             }}
           />
         </div>
@@ -284,28 +289,28 @@ export default function PrimaryVitalsStrip({
         <div className="my-0.5 flex items-baseline justify-between gap-1">
           <span
             className="font-mono-hud text-2xl font-bold tracking-tight sm:text-3xl"
-            style={{ color: metabColor }}
+            style={{ color: thermalColor }}
           >
             {b.bodyTempC.toFixed(1)}
           </span>
           <span className="font-mono-hud text-[11px] font-semibold text-slate-500">
-            °C
+            °C ZHF
           </span>
         </div>
 
         <LivePhysioWaveform
           mode="metab"
-          color={metabColor}
+          color={thermalColor}
           heightClass="h-6"
         />
 
         <div className="mt-1 flex items-center justify-between font-mono-hud text-[10px] text-slate-400">
-          <span>GLUC {b.bloodGlucoseMgDl}</span>
-          <span>HIDR {b.hydrationPercent}% · Δ{(b.bodyTempC - b.skinTempC).toFixed(1)}°</span>
+          <span>Piel {b.skinTempC.toFixed(1)}°C</span>
+          <span>Post {b.postureScore}% · {b.sleepHours.toFixed(1)}h</span>
         </div>
       </button>
 
-      {/* 6. Dosimetría CSA (Centelleo de Partículas Cósmicas GCR/SPE en Vivo) */}
+      {/* 6. NODO 3: Dosimetría CSA + Biometría Acústica Vocal */}
       <button
         type="button"
         onClick={() => onSelectZone("endocrino")}
@@ -314,7 +319,7 @@ export default function PrimaryVitalsStrip({
         <div className="flex items-center justify-between">
           <span className="flex items-center gap-1.5 font-mono-hud text-[11px] font-bold uppercase tracking-wider text-slate-400">
             <Radiation className="h-3.5 w-3.5 text-amber-400" />
-            RAD CSA
+            RAD · VOZ (N3)
           </span>
           <span
             className="h-2 w-2 rounded-full"
@@ -346,7 +351,7 @@ export default function PrimaryVitalsStrip({
 
         <div className="mt-1 flex items-center justify-between font-mono-hud text-[10px] text-slate-400">
           <span>Acum {b.cumulativeRadiationMsv.toFixed(1)}/{CSA_RADIATION_LIMITS.careerLimitMsv}</span>
-          <span>Aptitud {readinessScore}%</span>
+          <span>Voz {100 - b.facialTension}% · Apt {readinessScore}%</span>
         </div>
       </button>
     </section>
