@@ -35,62 +35,42 @@ body {
    aerospace instrumentation without jarring white surfaces or purple tints.
    ============================================================================ */
 .crew-dragon-theme .bg-white,
-.crew-dragon-theme .bg-white\/95,
-.crew-dragon-theme .bg-white\/90,
-.crew-dragon-theme .bg-white\/80 {
+.crew-dragon-theme [class*="bg-white/"] {
   background-color: #0c1426 !important;
 }
 
 .crew-dragon-theme .bg-slate-50,
-.crew-dragon-theme .bg-slate-50\/90,
-.crew-dragon-theme .bg-slate-50\/80,
-.crew-dragon-theme .bg-slate-50\/70,
-.crew-dragon-theme .bg-slate-50\/60,
-.crew-dragon-theme .bg-slate-50\/50 {
+.crew-dragon-theme [class*="bg-slate-50/"] {
   background-color: #101b31 !important;
 }
 
 .crew-dragon-theme .bg-slate-100,
-.crew-dragon-theme .bg-slate-100\/80 {
+.crew-dragon-theme [class*="bg-slate-100/"],
+.crew-dragon-theme .bg-slate-200,
+.crew-dragon-theme [class*="bg-slate-200/"] {
   background-color: #162440 !important;
 }
 
 .crew-dragon-theme .bg-blue-50,
-.crew-dragon-theme .bg-blue-50\/80,
-.crew-dragon-theme .bg-blue-50\/70,
-.crew-dragon-theme .bg-blue-50\/60,
-.crew-dragon-theme .bg-blue-50\/50,
-.crew-dragon-theme .bg-blue-50\/40,
+.crew-dragon-theme [class*="bg-blue-50/"],
 .crew-dragon-theme .bg-indigo-50,
-.crew-dragon-theme .bg-indigo-50\/60 {
-  background-color: rgba(14, 165, 233, 0.12) !important;
+.crew-dragon-theme [class*="bg-indigo-50/"] {
+  background-color: #0d1b33 !important;
 }
 
 .crew-dragon-theme .bg-emerald-50,
-.crew-dragon-theme .bg-emerald-50\/80,
-.crew-dragon-theme .bg-emerald-50\/70,
-.crew-dragon-theme .bg-emerald-50\/60,
-.crew-dragon-theme .bg-emerald-50\/50,
-.crew-dragon-theme .bg-emerald-50\/40 {
-  background-color: rgba(16, 185, 129, 0.11) !important;
+.crew-dragon-theme [class*="bg-emerald-50/"] {
+  background-color: #092226 !important;
 }
 
 .crew-dragon-theme .bg-amber-50,
-.crew-dragon-theme .bg-amber-50\/80,
-.crew-dragon-theme .bg-amber-50\/70,
-.crew-dragon-theme .bg-amber-50\/60,
-.crew-dragon-theme .bg-amber-50\/50,
-.crew-dragon-theme .bg-amber-50\/40 {
-  background-color: rgba(245, 158, 11, 0.12) !important;
+.crew-dragon-theme [class*="bg-amber-50/"] {
+  background-color: #231b10 !important;
 }
 
 .crew-dragon-theme .bg-red-50,
-.crew-dragon-theme .bg-red-50\/80,
-.crew-dragon-theme .bg-red-50\/70,
-.crew-dragon-theme .bg-red-50\/60,
-.crew-dragon-theme .bg-red-50\/50,
-.crew-dragon-theme .bg-red-50\/40 {
-  background-color: rgba(239, 68, 68, 0.13) !important;
+.crew-dragon-theme [class*="bg-red-50/"] {
+  background-color: #261219 !important;
 }
 
 /* Borders */

@@ -191,7 +191,7 @@ export default function AnatomicalScanner({
           </div>
 
           {/* Interactive SVG Container (Clean Clinical Blueprint Surface) */}
-          <div className="relative flex flex-1 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-b from-slate-50 to-blue-50/40 p-3">
+          <div className="relative flex flex-1 items-center justify-center overflow-hidden rounded-2xl border border-[#1c2d4a] bg-[#091224] p-3">
             {/* Scan beam micro-animation */}
             <div className="pointer-events-none absolute inset-x-4 top-2 h-1 rounded-full bg-gradient-to-r from-transparent via-blue-500/45 to-transparent animate-scanline" />
 

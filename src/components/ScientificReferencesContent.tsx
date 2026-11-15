@@ -10,9 +10,9 @@ import { HealthStatus } from "@/types/astronaut";
 import { evaluateRadiationStatus, STATUS_HEX } from "@/utils/healthEngine";
 
 const RAD_BADGE_CLASSES: Record<HealthStatus, string> = {
-  optimal: "border-emerald-200 bg-emerald-50 text-emerald-700",
-  warning: "border-amber-200 bg-amber-50 text-amber-800",
-  critical: "border-red-200 bg-red-50 text-red-700",
+  optimal: "border-emerald-500/35 bg-emerald-500/10 text-emerald-300",
+  warning: "border-amber-500/40 bg-amber-500/15 text-amber-300",
+  critical: "border-red-500/45 bg-red-500/15 text-red-300",
 };
 
 interface VerifiedCitation {
@@ -194,9 +194,9 @@ export default function ScientificReferencesContent({
   return (
     <div className="space-y-4">
       {/* Parámetros Radiológicos CSA Radi-N2 / EVARM */}
-      <div className="rounded-xl border border-blue-200 bg-blue-50/65 p-4">
+      <div className="rounded-xl border border-[#1e3458] bg-[#0a1324] p-4 shadow-inner">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#1a73e8]">
+          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-sky-400">
             <Radiation className="h-4 w-4" />
             Parámetros de Referencia Radiológica ({CSA_RADIATION_LIMITS.instrumentName} [11])
           </div>
@@ -217,21 +217,21 @@ export default function ScientificReferencesContent({
         </div>
 
         <div className="mt-2.5 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
-          <div className="rounded-lg border border-slate-200 bg-white p-2.5 text-xs">
-            <div className="text-slate-500">Tasa Diaria Nominal (Órbita)</div>
-            <div className="mt-0.5 font-mono-hud text-sm font-bold text-emerald-600">
+          <div className="rounded-lg border border-[#1b2d4b] bg-[#0e192f] p-2.5 text-xs">
+            <div className="text-slate-400">Tasa Diaria Nominal (Órbita)</div>
+            <div className="mt-0.5 font-mono-hud text-sm font-bold text-emerald-400">
               ≤ {CSA_RADIATION_LIMITS.dailyNominalMsv} mSv/día
             </div>
           </div>
-          <div className="rounded-lg border border-slate-200 bg-white p-2.5 text-xs">
-            <div className="text-slate-500">Umbral de Alerta Diaria</div>
-            <div className="mt-0.5 font-mono-hud text-sm font-bold text-red-600">
+          <div className="rounded-lg border border-[#1b2d4b] bg-[#0e192f] p-2.5 text-xs">
+            <div className="text-slate-400">Umbral de Alerta Diaria</div>
+            <div className="mt-0.5 font-mono-hud text-sm font-bold text-red-400">
               ≥ {CSA_RADIATION_LIMITS.dailyAlertMsv} mSv/día
             </div>
           </div>
-          <div className="rounded-lg border border-slate-200 bg-white p-2.5 text-xs">
-            <div className="text-slate-500">Límite Acumulado de Carrera</div>
-            <div className="mt-0.5 font-mono-hud text-sm font-bold text-amber-600">
+          <div className="rounded-lg border border-[#1b2d4b] bg-[#0e192f] p-2.5 text-xs">
+            <div className="text-slate-400">Límite Acumulado de Carrera</div>
+            <div className="mt-0.5 font-mono-hud text-sm font-bold text-amber-400">
               {CSA_RADIATION_LIMITS.careerLimitMsv} mSv (Anual:{" "}
               {CSA_RADIATION_LIMITS.annualLimitMsv} mSv)
             </div>
