@@ -123,11 +123,9 @@ export default function TopMissionBar({
   const [astroOpen, setAstroOpen] = useState(false);
   const [listening, setListening] = useState(false);
   const [astroInput, setAstroInput] = useState("");
-  const [lastUserQuery, setLastUserQuery] = useState<string>(
-    "Hola Astro, ¿cómo estás?"
-  );
+  const [lastUserQuery, setLastUserQuery] = useState<string>("");
   const [astroReply, setAstroReply] = useState<string>(
-    `¡Hola ${astronautName}! Estoy muy bien, con todos los sensores del Arnés 3N activos y cuidando tu salud en ${env.shortName}. Puedes decirme "Astro dime el estado de mis signos", preguntarme por un signo en específico para darte recomendaciones o pedirme ir a cualquier sección. ¿Qué necesitas el día de hoy?`
+    `¡Hola ${astronautName}! Soy ASTRO. ¿Qué necesitas el día de hoy?`
   );
   const [astroTargetZone, setAstroTargetZone] = useState<SystemZoneId>("corazon");
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
@@ -641,7 +639,7 @@ export default function TopMissionBar({
 
     if (!SpeechRec) {
       speakAstroText(
-        "Tu navegador no tiene micrófono de voz directo, pero puedes tocar cualquiera de las preguntas rápidas o escribirme aquí abajo."
+        "Tu navegador no tiene micrófono directo, pero puedes escribirme aquí al lado. ¿Qué necesitas el día de hoy?"
       );
       return;
     }
@@ -869,18 +867,13 @@ export default function TopMissionBar({
                 <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-cyan-400/40 bg-cyan-500/20 text-cyan-300">
                   <Sparkles className="h-4 w-4" />
                 </span>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono-hud text-xs font-bold tracking-wider text-cyan-300">
-                      ASTRO · ASISTENTE DE VOZ DE CABINA (0g)
-                    </span>
-                    <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 font-mono-hud text-[10px] text-emerald-300">
-                      Sección actual: {activeSection.toUpperCase()}
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-slate-400">
-                    Háblale con el micrófono, escribe tu consulta o toca un comando rápido para escuchar tus signos o cambiar de sección.
-                  </p>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono-hud text-xs font-bold tracking-wider text-cyan-300">
+                    ASTRO · ASISTENTE DE VOZ
+                  </span>
+                  <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 font-mono-hud text-[10px] text-emerald-300">
+                    Sección actual: {activeSection.toUpperCase()}
+                  </span>
                 </div>
               </div>
 
@@ -938,7 +931,9 @@ export default function TopMissionBar({
             <div className="grid grid-cols-1 gap-3 lg:grid-cols-12">
               <div className="rounded-xl border border-[#1b3154] bg-[#0c1830] p-3 lg:col-span-7">
                 <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono-hud text-slate-400">
-                  <span>TÚ: &ldquo;{lastUserQuery}&rdquo;</span>
+                  <span>
+                    {lastUserQuery ? `TÚ: "${lastUserQuery}"` : "RESPUESTA DE ASTRO"}
+                  </span>
                   <div className="flex flex-wrap items-center gap-2">
                     <button
                       type="button"
@@ -970,113 +965,23 @@ export default function TopMissionBar({
                   processAstroCommand(astroInput);
                   setAstroInput("");
                 }}
-                className="flex flex-col justify-between gap-2 rounded-xl border border-[#1b3154] bg-[#0c1830] p-3 lg:col-span-5"
+                className="flex items-center gap-2 rounded-xl border border-[#1b3154] bg-[#0c1830] p-3 lg:col-span-5"
               >
-                <label className="text-[11px] font-semibold text-slate-300">
-                  Conversa con ASTRO (ej. &ldquo;Hola Astro, ¿cómo estás?&rdquo;, &ldquo;Astro dime el estado de mis signos&rdquo; o pregunta un signo):
-                </label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={astroInput}
-                    onChange={(e) => setAstroInput(e.target.value)}
-                    placeholder="Escribe o usa el micrófono..."
-                    className="flex-1 rounded-lg border border-[#233b63] bg-[#070e1d] px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:border-cyan-400 focus:outline-none"
-                  />
-                  <button
-                    type="submit"
-                    className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-[#1a73e8] px-3 py-1.5 text-xs font-bold text-white hover:bg-blue-600"
-                  >
-                    <Send className="h-3.5 w-3.5" />
-                    <span>Enviar</span>
-                  </button>
-                </div>
+                <input
+                  type="text"
+                  value={astroInput}
+                  onChange={(e) => setAstroInput(e.target.value)}
+                  placeholder="Habla o escribe a ASTRO..."
+                  className="flex-1 rounded-lg border border-[#233b63] bg-[#070e1d] px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:border-cyan-400 focus:outline-none"
+                />
+                <button
+                  type="submit"
+                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-[#1a73e8] px-3 py-1.5 text-xs font-bold text-white hover:bg-blue-600"
+                >
+                  <Send className="h-3.5 w-3.5" />
+                  <span>Enviar</span>
+                </button>
               </form>
-            </div>
-
-            {/* Comandos rápidos de voz en 1 clic: Conversación, Signos Vitales + Recomendaciones y Secciones */}
-            <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-              <span className="mr-1 font-mono-hud text-[10px] font-bold uppercase text-cyan-400">
-                Consultas a ASTRO:
-              </span>
-              {[
-                {
-                  label: "Hola Astro, ¿cómo estás?",
-                  cmd: "Hola Astro, ¿cómo estás?",
-                },
-                {
-                  label: "Astro dime el estado de mis signos",
-                  cmd: "Astro dime el estado de mis signos",
-                },
-                {
-                  label: "Corazón y Descanso",
-                  cmd: "Astro, ¿cómo está mi corazón?",
-                },
-                {
-                  label: "Oxígeno en Sangre",
-                  cmd: "Astro, ¿cuál es mi oxígeno?",
-                },
-                {
-                  label: "Presión Arterial",
-                  cmd: "Astro, ¿cómo está mi presión?",
-                },
-                {
-                  label: "Respiración",
-                  cmd: "Astro, ¿cómo está mi respiración?",
-                },
-                {
-                  label: "Temperatura",
-                  cmd: "Astro, ¿cuál es mi temperatura?",
-                },
-                {
-                  label: "Agua y Glucosa",
-                  cmd: "Astro, ¿cómo está mi agua y glucosa?",
-                },
-                {
-                  label: "Escudo Radiación",
-                  cmd: "Astro, ¿cómo está el escudo de radiación?",
-                },
-                {
-                  label: "Sueño y Postura",
-                  cmd: "Astro, ¿cómo está mi sueño y postura?",
-                },
-                {
-                  label: "Estrés y Mente",
-                  cmd: "Astro, ¿cómo está mi estrés y mente?",
-                },
-              ].map((item) => (
-                <button
-                  key={item.label}
-                  type="button"
-                  onClick={() => processAstroCommand(item.cmd)}
-                  className="cursor-pointer rounded-lg border border-cyan-500/30 bg-cyan-500/10 px-2.5 py-1 text-[11px] font-medium text-cyan-200 transition hover:bg-cyan-500/25"
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
-
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className="mr-1 font-mono-hud text-[10px] font-bold uppercase text-sky-400">
-                Cambiar Sección:
-              </span>
-              {[
-                { label: "Ir a Monitor", cmd: "Astro, ir a Monitor" },
-                { label: "Ir a Escáner", cmd: "Astro, abre el Escáner" },
-                { label: "Ir a Arnés 3N", cmd: "Astro, abre el Arnés 3N" },
-                { label: "Ir a Signos", cmd: "Astro, ver sección Signos" },
-                { label: "Ir a Hábitos", cmd: "Astro, abre Hábitos" },
-                { label: "Ir a Ciencia", cmd: "Astro, abre Ciencia" },
-              ].map((item) => (
-                <button
-                  key={item.label}
-                  type="button"
-                  onClick={() => processAstroCommand(item.cmd)}
-                  className="cursor-pointer rounded-lg border border-[#233b63] bg-[#0e1b33] px-2.5 py-1 text-[11px] font-semibold text-slate-200 transition hover:border-sky-400/50 hover:text-sky-200"
-                >
-                  {item.label}
-                </button>
-              ))}
             </div>
           </div>
         </div>
