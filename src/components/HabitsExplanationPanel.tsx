@@ -14,7 +14,6 @@ interface HabitsExplanationPanelProps {
 export default function HabitsExplanationPanel({
   habits,
   highlightedHabitId,
-  onOpenReferences,
 }: HabitsExplanationPanelProps) {
   return (
     <section
@@ -26,15 +25,6 @@ export default function HabitsExplanationPanel({
           <BookOpenCheck className="h-5 w-5 text-sky-400" />
           Fundamento Clínico de las Contramedidas (NASA HRP)
         </h3>
-        {onOpenReferences && (
-          <button
-            type="button"
-            onClick={onOpenReferences}
-            className="cursor-pointer rounded-lg border border-sky-500/35 bg-sky-500/10 px-2.5 py-1 text-xs font-semibold text-sky-300 transition hover:bg-sky-500/20"
-          >
-            Ver fuentes científicas
-          </button>
-        )}
       </div>
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">

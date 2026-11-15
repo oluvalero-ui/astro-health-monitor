@@ -178,10 +178,13 @@ export default function HomePage() {
 
   const handleInspectHabit = (habitId: string) => {
     setHighlightedHabitId(habitId);
-    if (typeof document !== "undefined") {
-      document
-        .getElementById("explicacion-habitos")
-        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    setActiveNavSection("referencias");
+    if (typeof window !== "undefined") {
+      window.setTimeout(() => {
+        document
+          .getElementById("explicacion-habitos")
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 80);
     }
   };
 
@@ -568,38 +571,36 @@ export default function HomePage() {
             />
           )}
 
-          {/* SECCIÓN 5: Gráficas de Tendencia + Hábitos Recomendados + Explicación NASA */}
+          {/* SECCIÓN 5: Gráficas de Tendencia + Hábitos Recomendados */}
           {activeNavSection === "informes" && (
-            <>
-              <div className="grid grid-cols-1 gap-5 xl:grid-cols-12">
-                <div className="xl:col-span-7">
-                  <TelemetryCharts history={state.history} />
-                </div>
-                <div className="xl:col-span-5">
-                  <RecommendedHabitsPanel
-                    habits={state.quests}
-                    onToggleHabit={handleToggleHabit}
-                    onAddCustomHabit={handleAddCustomHabit}
-                    onInspectHabit={handleInspectHabit}
-                  />
-                </div>
+            <div className="grid grid-cols-1 gap-5 xl:grid-cols-12">
+              <div className="xl:col-span-7">
+                <TelemetryCharts history={state.history} />
               </div>
+              <div className="xl:col-span-5">
+                <RecommendedHabitsPanel
+                  habits={state.quests}
+                  onToggleHabit={handleToggleHabit}
+                  onAddCustomHabit={handleAddCustomHabit}
+                  onInspectHabit={handleInspectHabit}
+                />
+              </div>
+            </div>
+          )}
 
+          {/* SECCIÓN 6: Manual Clínico y Técnico a Bordo · NASA-STD-3001 */}
+          {activeNavSection === "referencias" && (
+            <div className="space-y-5">
               <HabitsExplanationPanel
                 habits={state.quests}
                 highlightedHabitId={highlightedHabitId}
-                onOpenReferences={() => setReferencesOpen(true)}
               />
-            </>
-          )}
-
-          {/* SECCIÓN 6: Base Científica Dedicada · NASA HRP & Dosimetría CSA */}
-          {activeNavSection === "referencias" && (
-            <ScientificFrameworkSection
-              environmentId={state.environmentId}
-              dailyRadiationMsv={state.biomarkers.dailyRadiationMsv}
-              cumulativeRadiationMsv={state.biomarkers.cumulativeRadiationMsv}
-            />
+              <ScientificFrameworkSection
+                environmentId={state.environmentId}
+                dailyRadiationMsv={state.biomarkers.dailyRadiationMsv}
+                cumulativeRadiationMsv={state.biomarkers.cumulativeRadiationMsv}
+              />
+            </div>
           )}
         </main>
       </div>

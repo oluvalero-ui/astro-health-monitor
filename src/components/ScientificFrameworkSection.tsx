@@ -31,11 +31,12 @@ export default function ScientificFrameworkSection({
           </span>
           <div>
             <h2 className="text-base font-bold text-slate-100 sm:text-lg">
-              Estándares NASA-STD-3001 · Human Research Program & Dosimetría CSA
+              Manual Clínico y Técnico a Bordo · NASA-STD-3001 (Memoria Local)
             </h2>
             <p className="text-xs text-slate-400">
-              Marco oficial de los 5 Peligros del Espacio Humano y monitoreo
-              radiológico {env.shortName}.
+              Protocolos médicos, fundamento de sensores y límites radiológicos{" "}
+              {env.shortName} almacenados localmente sin requerir conexión a
+              Tierra.
             </p>
           </div>
         </div>

@@ -5,7 +5,6 @@ import {
   Activity,
   AlertTriangle,
   CheckCircle2,
-  Cpu,
   Gauge,
   HeartPulse,
   Mic,
@@ -14,7 +13,6 @@ import {
   Stethoscope,
   Thermometer,
   Watch,
-  Wind,
 } from "lucide-react";
 import { CSA_RADIATION_LIMITS, MISSION_ENVIRONMENTS } from "@/data/missionData";
 import {
@@ -332,17 +330,6 @@ export default function WearableHarnessPanel({
               </div>
             </div>
 
-            {/* Explicación sencilla de por qué va en la frente */}
-            <div className="mt-3 rounded-xl border border-sky-500/25 bg-[#091528] p-2.5 text-[11px] leading-relaxed text-slate-300">
-              <div className="flex items-center gap-1.5 font-bold text-sky-300">
-                <Wind className="h-3.5 w-3.5 text-sky-400" />
-                ¿Por qué se mide en la frente en el espacio?
-              </div>
-              <p className="mt-1 text-slate-300">
-                Sin gravedad, la sangre sube hacia la cabeza y las manos se enfrían. La banda en la frente mide tu <strong>oxígeno y tu presión sin usar brazalete</strong> con mucha más precisión.
-              </p>
-            </div>
-
             {/* Onda de Pulso en la Frente en Vivo */}
             <div className="mt-3 rounded-xl border border-[#182742] bg-[#091120] p-2.5">
               <div className="mb-1 flex items-center justify-between font-mono-hud text-[10px]">
@@ -508,9 +495,6 @@ export default function WearableHarnessPanel({
                 {b.pttCalibrationRequired ? "Conviene ajustar" : "Listo"}
               </span>
             </div>
-            <p className="mt-1 text-[10px] leading-snug text-slate-400">
-              Si cambias entre el espacio (0g), la Luna o Marte, toca este botón para afinar la lectura de presión.
-            </p>
             <button
               type="button"
               onClick={handleCalibrateClick}
@@ -604,17 +588,6 @@ export default function WearableHarnessPanel({
               <p className="mt-0.5 text-[11px] text-slate-400">{item.note}</p>
             </div>
           ))}
-        </div>
-
-        <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400">
-          <span className="flex items-center gap-1.5">
-            <Cpu className="h-3.5 w-3.5 text-sky-400" />
-            Hardware único: Arnés 3N (Chaleco Torácico · Banda Frontal · Pulsera/Collar) 100% autónomo.
-          </span>
-          <span className="flex items-center gap-1 font-mono-hud text-slate-300">
-            <Radiation className="h-3.5 w-3.5 text-amber-400" />
-            PTT calibrado: {b.pttMs} ms
-          </span>
         </div>
       </div>
     </section>

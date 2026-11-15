@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { BookOpen, ExternalLink, Radiation } from "lucide-react";
+import { Cpu, Radiation } from "lucide-react";
 import {
   CSA_RADIATION_LIMITS,
   SCIENTIFIC_REFERENCES,
@@ -14,161 +14,6 @@ const RAD_BADGE_CLASSES: Record<HealthStatus, string> = {
   warning: "border-amber-500/40 bg-amber-500/15 text-amber-300",
   critical: "border-red-500/45 bg-red-500/15 text-red-300",
 };
-
-interface VerifiedCitation {
-  id: string;
-  authors: string;
-  year: string;
-  title: string;
-  url: string;
-  domain: string;
-}
-
-const VERIFIED_16_SOURCES: VerifiedCitation[] = [
-  {
-    id: "[1]",
-    authors: "NASA",
-    year: "2023",
-    title:
-      "NASA-STD-3001_VOL_1: NASA Spaceflight Human-System Standard Volume 1, Crew Health (Rev C)",
-    url: "https://standards.nasa.gov",
-    domain: "standards.nasa.gov",
-  },
-  {
-    id: "[2]",
-    authors: "Agencia Espacial Canadiense / CSA",
-    year: "2019",
-    title:
-      "Bio-Monitor: Wearable technology for astronaut health monitoring on the International Space Station",
-    url: "https://www.asc-csa.gc.ca/eng/sciences/bio-monitor.asp",
-    domain: "asc-csa.gc.ca",
-  },
-  {
-    id: "[3]",
-    authors: "Hughson, R. L. et al. / CSA & NASA",
-    year: "2016",
-    title:
-      "Increased postflight carotid artery stiffness and inflight insulin resistance resulting from 6-mo spaceflight in male and female astronauts (BP Reg Experiment)",
-    url: "https://doi.org/10.1152/ajpheart.00802.2015",
-    domain: "osdr.nasa.gov / doi.org",
-  },
-  {
-    id: "[4]",
-    authors: "Platts, S. H. et al. / NASA HRP",
-    year: "2016",
-    title:
-      "Evidence Report: Risk of Orthostatic Intolerance During Re-exposure to Gravity",
-    url: "https://humanresearchroadmap.nasa.gov",
-    domain: "humanresearchroadmap.nasa.gov",
-  },
-  {
-    id: "[5]",
-    authors: "NASA HRP / Exploration Medical Capability — ExMC",
-    year: "2023",
-    title:
-      "Risk of Adverse Health Outcomes and Decrements in Performance Due to In-Flight Medical Conditions (Autonomous Medical Operations)",
-    url: "https://www.nasa.gov/hrp",
-    domain: "nasa.gov/hrp",
-  },
-  {
-    id: "[6]",
-    authors: "NASA LSDA & CSA",
-    year: "2020",
-    title:
-      "Bio-Monitor System Operations and Flight Validation on ISS Expeditions 58/59",
-    url: "https://www.nasa.gov/mission/station/research-explorer/",
-    domain: "nasa.gov",
-  },
-  {
-    id: "[7]",
-    authors: "Garrett-Bakelman, F. E. et al. / NASA HRP",
-    year: "2019",
-    title:
-      "The NASA Twins Study: A multidimensional analysis of a year-long human spaceflight",
-    url: "https://www.nasa.gov/humans-in-space/twins-study/",
-    domain: "nasa.gov / science.org",
-  },
-  {
-    id: "[8]",
-    authors: "Mader, T. H. et al. / NASA HRP",
-    year: "2022",
-    title:
-      "Evidence Report: Risk of Spaceflight Associated Neuro-ocular Syndrome (SANS)",
-    url: "https://ntrs.nasa.gov",
-    domain: "ntrs.nasa.gov",
-  },
-  {
-    id: "[9]",
-    authors: "Sibonga, J. D. et al. / NASA HRP",
-    year: "2017",
-    title:
-      "Evaluating Bone Loss in ISS Astronauts (Risk of Spaceflight-Induced Bone Loss)",
-    url: "https://ntrs.nasa.gov",
-    domain: "ntrs.nasa.gov",
-  },
-  {
-    id: "[10]",
-    authors: "Basner, M. et al. / NASA HRP",
-    year: "2022",
-    title:
-      "Evidence Report: Risk of Performance and Behavioral Health Decrements (WinSCAT & Mars500)",
-    url: "https://humanresearchroadmap.nasa.gov",
-    domain: "humanresearchroadmap.nasa.gov",
-  },
-  {
-    id: "[11]",
-    authors: "Agencia Espacial Canadiense / CSA",
-    year: "2022",
-    title:
-      "Canadian Space Agency Radiation Protection Guidelines and Operational Dose Limits (mSv)",
-    url: "https://www.asc-csa.gc.ca",
-    domain: "asc-csa.gc.ca",
-  },
-  {
-    id: "[12]",
-    authors: "Basner, M. et al. / NASA HRP",
-    year: "2015",
-    title:
-      "Development and Validation of the Cognition Test Battery for Spaceflight",
-    url: "https://osdr.nasa.gov",
-    domain: "osdr.nasa.gov",
-  },
-  {
-    id: "[13]",
-    authors: "NASA HRP / Behavioral Health and Performance — BHP",
-    year: "2021",
-    title:
-      "Evidence Report: Risk of Adverse Cognitive or Behavioral Conditions and Psychiatric Disorders",
-    url: "https://humanresearchroadmap.nasa.gov",
-    domain: "humanresearchroadmap.nasa.gov",
-  },
-  {
-    id: "[14]",
-    authors: "Agencia Espacial Canadiense / CSA",
-    year: "2020",
-    title:
-      "Bio-Analyzer: Near-real-time biomedical analysis on the International Space Station",
-    url: "https://www.asc-csa.gc.ca/eng/sciences/bio-analyzer.asp",
-    domain: "asc-csa.gc.ca",
-  },
-  {
-    id: "[15]",
-    authors: "NASA Space Apps Challenge",
-    year: "2026",
-    title: "Official Project Submission Guidelines & Judging Criteria",
-    url: "https://www.spaceappschallenge.org",
-    domain: "spaceappschallenge.org",
-  },
-  {
-    id: "[16]",
-    authors: "NASA",
-    year: "2026",
-    title:
-      "NASA-STD-3001_VOL_2: NASA Spaceflight Human-System Standard Volume 2: Human Factors, Habitability, and Environmental Health (Rev F)",
-    url: "https://standards.nasa.gov",
-    domain: "standards.nasa.gov",
-  },
-];
 
 interface ScientificReferencesContentProps {
   dailyRadiationMsv?: number;
@@ -198,7 +43,7 @@ export default function ScientificReferencesContent({
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-sky-400">
             <Radiation className="h-4 w-4" />
-            Parámetros de Referencia Radiológica ({CSA_RADIATION_LIMITS.instrumentName} [11])
+            Parámetros de Referencia Radiológica ({CSA_RADIATION_LIMITS.instrumentName})
           </div>
 
           {hasLiveTelemetry && (
@@ -235,6 +80,56 @@ export default function ScientificReferencesContent({
               {CSA_RADIATION_LIMITS.careerLimitMsv} mSv (Anual:{" "}
               {CSA_RADIATION_LIMITS.annualLimitMsv} mSv)
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Arquitectura y Fundamento Físico del Bio-Monitor 3N (Offline) */}
+      <div className="rounded-xl border border-[#182742] bg-[#091120] p-4">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-sky-300">
+            <Cpu className="h-4 w-4 text-sky-400" />
+            Arquitectura y Fundamento Físico del Bio-Monitor 3N (Memoria Local)
+          </div>
+          <span className="rounded-full border border-sky-500/35 bg-sky-500/10 px-2.5 py-0.5 font-mono-hud text-[11px] font-bold text-sky-300">
+            Manual Técnico Offline
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+          <div className="rounded-lg border border-[#182742] bg-[#0c1426] p-3 text-xs">
+            <div className="font-bold text-slate-100">
+              Nodo Frontal (Banda Cefálica)
+            </div>
+            <p className="mt-1 leading-relaxed text-slate-300">
+              En microgravedad (0g) la sangre se desplaza hacia la cabeza y las
+              manos se enfrían; medir SpO₂, pulso óptico (PTT) y temperatura
+              central (ZHF) en la frente evita lecturas falsas por
+              vasoconstricción periférica y permite estimar la presión arterial
+              sin inflar brazalete.
+            </p>
+          </div>
+          <div className="rounded-lg border border-[#182742] bg-[#0c1426] p-3 text-xs">
+            <div className="font-bold text-slate-100">
+              Nodo Torácico (Chaleco Textil)
+            </div>
+            <p className="mt-1 leading-relaxed text-slate-300">
+              Integra 3 derivaciones ECG (V1, V2, V3) en seco y bandas de
+              inductancia respiratoria (RIP) que calculan frecuencia cardíaca,
+              variabilidad (HRV rMSSD), ventilación por minuto (L/min),
+              temperatura cutánea y postura/sueño sin adhesivos.
+            </p>
+          </div>
+          <div className="rounded-lg border border-[#182742] bg-[#0c1426] p-3 text-xs">
+            <div className="font-bold text-slate-100">
+              Nodo Radial y Calibración por Gravedad
+            </div>
+            <p className="mt-1 leading-relaxed text-slate-300">
+              Combina dosimetría personal (mSv/día) en muñeca y acelerometría
+              laríngea en cuello (estima tensión vocal sin grabar la voz). Al
+              cambiar de gravedad (0g, 0.16g, 0.38g), una calibración de 30 s
+              frente al brazalete ajusta la curva de presión óptica (PTT).
+            </p>
           </div>
         </div>
       </div>
@@ -278,56 +173,13 @@ export default function ScientificReferencesContent({
                     {item.detail}
                   </p>
                   <p className="mt-1.5 text-[11px] font-medium text-sky-300">
-                    Integración en ASTRO-MED: {item.appMapping}
+                    Aplicación en Consola: {item.appMapping}
                   </p>
                 </div>
               ))}
             </div>
           </div>
         ))}
-      </div>
-
-      {/* Registro Oficial de 16 Fuentes Verificadas (NASA y CSA) */}
-      <div className="rounded-xl border border-[#182742] bg-[#091120] p-4">
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <BookOpen className="h-4 w-4 text-sky-400" />
-            <h3 className="text-sm font-bold text-slate-100 sm:text-base">
-              Registro Oficial de 16 Fuentes Verificadas (NASA HRP, NASA-STD-3001 y CSA)
-            </h3>
-          </div>
-          <span className="rounded-full border border-sky-500/35 bg-sky-500/10 px-2.5 py-0.5 font-mono-hud text-[11px] font-bold text-sky-300">
-            16 Referencias Oficiales [1]–[16]
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">
-          {VERIFIED_16_SOURCES.map((ref) => (
-            <a
-              key={ref.id}
-              href={ref.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex items-start justify-between gap-2.5 rounded-lg border border-[#182742] bg-[#0c1426] p-3 text-xs transition hover:border-sky-400/60"
-            >
-              <div className="min-w-0">
-                <div className="flex items-center gap-2 font-mono-hud text-[11px]">
-                  <span className="font-bold text-sky-400">{ref.id}</span>
-                  <span className="font-semibold text-slate-300">
-                    {ref.authors} ({ref.year})
-                  </span>
-                </div>
-                <p className="mt-1 text-xs leading-snug text-slate-100">
-                  {ref.title}
-                </p>
-                <span className="mt-1 inline-block font-mono-hud text-[10px] text-slate-400">
-                  {ref.domain}
-                </span>
-              </div>
-              <ExternalLink className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400 transition group-hover:text-sky-400" />
-            </a>
-          ))}
-        </div>
       </div>
     </div>
   );

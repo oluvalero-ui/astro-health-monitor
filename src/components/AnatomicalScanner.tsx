@@ -9,9 +9,7 @@ import {
   Dumbbell,
   Eye,
   HeartPulse,
-  Info,
   ScanLine,
-  ShieldAlert,
   Sparkles,
   Utensils,
 } from "lucide-react";
@@ -104,9 +102,9 @@ export default function AnatomicalScanner({
   const guide = SYSTEM_DIAGNOSTIC_GUIDES[selectedZone];
   const activeStatus = zoneStatuses[selectedZone];
   const activeHex = STATUS_HEX[activeStatus];
-  const [diagnosticTab, setDiagnosticTab] = useState<
-    "protocolo" | "umbrales" | "ciencia"
-  >("protocolo");
+  const [diagnosticTab, setDiagnosticTab] = useState<"protocolo" | "umbrales">(
+    "protocolo"
+  );
 
   const getZoneFill = (zone: SystemZoneId, baseOpacity = 0.25) => {
     const color = STATUS_HEX[zoneStatuses[zone]];
@@ -590,18 +588,6 @@ export default function AnatomicalScanner({
               <AlertCircle className="h-4 w-4" />
               Umbrales y Triage
             </button>
-            <button
-              type="button"
-              onClick={() => setDiagnosticTab("ciencia")}
-              className={`inline-flex cursor-pointer items-center gap-2 rounded-xl border px-3.5 py-2 text-xs font-bold transition ${
-                diagnosticTab === "ciencia"
-                  ? "border-sky-400/60 bg-[#1a73e8] text-white"
-                  : "border-[#1b2d4b] bg-[#091120] text-slate-300 hover:border-sky-500/40 hover:text-white"
-              }`}
-            >
-              <ShieldAlert className="h-4 w-4" />
-              Fundamento NASA HRP
-            </button>
           </div>
 
           {/* PESTAÑA 1: Protocolo paso a paso + Contramedida inmediata */}
@@ -644,13 +630,6 @@ export default function AnatomicalScanner({
                       </li>
                     ))}
                   </ul>
-                </div>
-
-                <div className="mt-3 rounded-lg border border-[#1b2d4b] bg-[#091120] p-3 text-xs text-slate-300">
-                  <strong className="text-slate-100">
-                    ¿Por qué evaluarlo hoy?
-                  </strong>{" "}
-                  {guide.whyNecessary}
                 </div>
               </div>
             </div>
@@ -698,70 +677,6 @@ export default function AnatomicalScanner({
                   Protocolo de Contacto con Tierra (Houston / CSA):
                 </strong>{" "}
                 {guide.attentionThreshold.flightSurgeonNote}
-              </div>
-            </div>
-          )}
-
-          {/* PESTAÑA 3: Motivo Clínico y 5 Peligros Espaciales NASA HRP */}
-          {diagnosticTab === "ciencia" && (
-            <div className="space-y-4">
-              <div className="rounded-xl border border-sky-500/30 bg-[#0d1b33] p-4">
-                <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-sky-300">
-                  <Info className="h-4 w-4" />
-                  Fundamento Fisiológico en Vuelo Espacial
-                </h4>
-                <p className="mt-1.5 text-xs leading-relaxed text-slate-200 sm:text-sm">
-                  {guide.whyNecessary}
-                </p>
-              </div>
-
-              <div className="rounded-xl border border-[#1b2d4b] bg-[#091120] p-4">
-                <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-300">
-                  <ShieldAlert className="h-4 w-4" />
-                  Impacto de los 5 Peligros Espaciales (NASA HRP) en este Sistema
-                </h4>
-                <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  <div className="rounded-xl border border-[#162642] bg-[#0c1426] p-3">
-                    <div className="text-xs font-bold text-red-300">
-                      Radiación Espacial
-                    </div>
-                    <p className="mt-1 text-xs leading-relaxed text-slate-300">
-                      {guide.fiveHazardsImpact.radiation}
-                    </p>
-                  </div>
-                  <div className="rounded-xl border border-[#162642] bg-[#0c1426] p-3">
-                    <div className="text-xs font-bold text-sky-300">
-                      Aislamiento y Confinamiento
-                    </div>
-                    <p className="mt-1 text-xs leading-relaxed text-slate-300">
-                      {guide.fiveHazardsImpact.isolation}
-                    </p>
-                  </div>
-                  <div className="rounded-xl border border-[#162642] bg-[#0c1426] p-3">
-                    <div className="text-xs font-bold text-emerald-300">
-                      Distancia de la Tierra
-                    </div>
-                    <p className="mt-1 text-xs leading-relaxed text-slate-300">
-                      {guide.fiveHazardsImpact.distance}
-                    </p>
-                  </div>
-                  <div className="rounded-xl border border-[#162642] bg-[#0c1426] p-3">
-                    <div className="text-xs font-bold text-amber-300">
-                      Campos de Gravedad Alterados
-                    </div>
-                    <p className="mt-1 text-xs leading-relaxed text-slate-300">
-                      {guide.fiveHazardsImpact.gravity}
-                    </p>
-                  </div>
-                  <div className="rounded-xl border border-[#162642] bg-[#0c1426] p-3 sm:col-span-2 lg:col-span-1">
-                    <div className="text-xs font-bold text-teal-300">
-                      Ambientes Cerrados Hostiles
-                    </div>
-                    <p className="mt-1 text-xs leading-relaxed text-slate-300">
-                      {guide.fiveHazardsImpact.closedEnvironment}
-                    </p>
-                  </div>
-                </div>
               </div>
             </div>
           )}
