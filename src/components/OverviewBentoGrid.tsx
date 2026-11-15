@@ -4,11 +4,13 @@ import React, { useSyncExternalStore } from "react";
 import {
   Bar,
   CartesianGrid,
-  Cell,
   ComposedChart,
   Line,
-  Pie,
-  PieChart,
+  PolarAngleAxis,
+  PolarGrid,
+  PolarRadiusAxis,
+  Radar,
+  RadarChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -78,6 +80,15 @@ const ZONE_LIST: SystemZoneId[] = [
   "musculo",
 ];
 
+const ZONE_RADAR_LABELS: Record<SystemZoneId, string> = {
+  cerebro: "Cerebro",
+  rostro: "Rostro",
+  corazon: "Corazón",
+  endocrino: "Endocrino",
+  abdomen: "Abdomen",
+  musculo: "Músculo",
+};
+
 function getZoneScore(zone: SystemZoneId, b: BiomarkerData): number {
   switch (zone) {
     case "cerebro":
@@ -124,7 +135,9 @@ export default function OverviewBentoGrid({
   const donutData = ZONE_LIST.map((id) => ({
     id,
     name: SYSTEM_DIAGNOSTIC_GUIDES[id].name,
+    shortLabel: ZONE_RADAR_LABELS[id],
     value: getZoneScore(id, b),
+    baseline: 80,
     status: zoneStatuses[id],
     color:
       zoneStatuses[id] === "critical"
@@ -133,6 +146,14 @@ export default function OverviewBentoGrid({
         ? STATUS_HEX.warning
         : ZONE_PALETTE[id],
   }));
+
+  const hasCriticalZone = donutData.some((z) => z.status === "critical");
+  const hasWarningZone = donutData.some((z) => z.status === "warning");
+  const radarPolygonColor = hasCriticalZone
+    ? "#ef4444"
+    : hasWarningZone
+    ? "#f59e0b"
+    : "#38bdf8";
 
   const hazardBars = [
     {
@@ -194,28 +215,52 @@ export default function OverviewBentoGrid({
         </div>
 
         <div className="grid grid-cols-1 items-center gap-4 sm:grid-cols-12">
-          <div className="relative flex h-[180px] items-center justify-center sm:col-span-5">
+          <div className="relative flex h-[200px] flex-col items-center justify-center sm:col-span-5">
             {mounted ? (
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={donutData}
+                <RadarChart
+                  cx="50%"
+                  cy="50%"
+                  outerRadius="70%"
+                  data={donutData}
+                >
+                  <PolarGrid gridType="polygon" stroke="#1d3254" />
+                  <PolarAngleAxis
+                    dataKey="shortLabel"
+                    tick={{ fill: "#94a3b8", fontSize: 10, fontWeight: 600 }}
+                  />
+                  <PolarRadiusAxis
+                    angle={30}
+                    domain={[0, 100]}
+                    tick={false}
+                    axisLine={false}
+                  />
+                  {/* Umbral Nominal NASA (80%) */}
+                  <Radar
+                    name="Umbral NASA"
+                    dataKey="baseline"
+                    stroke="#475569"
+                    strokeWidth={1.2}
+                    strokeDasharray="3 3"
+                    fill="none"
+                  />
+                  {/* Estado Biométrico Actual (%) */}
+                  <Radar
+                    name="Integridad Sistema"
                     dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={48}
-                    outerRadius={76}
-                    paddingAngle={2}
-                    stroke="#0c1426"
-                    strokeWidth={2}
-                  >
-                    {donutData.map((entry) => (
-                      <Cell key={entry.id} fill={entry.color} />
-                    ))}
-                  </Pie>
+                    stroke={radarPolygonColor}
+                    strokeWidth={2.2}
+                    fill={radarPolygonColor}
+                    fillOpacity={0.22}
+                    dot={{
+                      r: 3.2,
+                      fill: radarPolygonColor,
+                      stroke: "#0c1426",
+                      strokeWidth: 1.5,
+                    }}
+                  />
                   <Tooltip
-                    formatter={(val, name) => [`${val}% salud`, String(name)]}
+                    formatter={(val, name) => [`${val}%`, String(name)]}
                     contentStyle={{
                       backgroundColor: "#081020",
                       borderColor: "#1e3254",
@@ -224,17 +269,22 @@ export default function OverviewBentoGrid({
                       color: "#f1f5f9",
                     }}
                   />
-                </PieChart>
+                </RadarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-36 w-36 rounded-full border-[14px] border-sky-900/40" />
+              <div className="h-36 w-36 rounded-full border-2 border-sky-900/40" />
             )}
-            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-              <span className="font-mono-hud text-xl font-bold text-slate-100">
-                {readinessScore}%
+            <div className="mt-0.5 flex items-center gap-3 font-mono-hud text-[10px] text-slate-400">
+              <span className="flex items-center gap-1">
+                <span
+                  className="h-2 w-2 rounded-full"
+                  style={{ backgroundColor: radarPolygonColor }}
+                />
+                Actual (%)
               </span>
-              <span className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
-                Nominal
+              <span className="flex items-center gap-1">
+                <span className="h-0.5 w-3 border-t border-dashed border-slate-400" />
+                Umbral 80%
               </span>
             </div>
           </div>
@@ -245,7 +295,7 @@ export default function OverviewBentoGrid({
                 key={item.id}
                 type="button"
                 onClick={() => onSelectZoneAndScroll(item.id)}
-                className="flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1 text-left transition hover:bg-[#13203a]"
+                className="flex w-full cursor-pointer items-center gap-2 rounded-lg px-2 py-1 text-left transition hover:bg-[#13203a]"
               >
                 <span
                   className="h-2.5 w-2.5 shrink-0 rounded-full"
@@ -254,10 +304,10 @@ export default function OverviewBentoGrid({
                     boxShadow: `0 0 6px ${item.color}`,
                   }}
                 />
-                <span className="w-32 truncate text-xs font-medium text-slate-200">
+                <span className="w-28 truncate text-xs font-medium text-slate-200 sm:w-32">
                   {item.name}
                 </span>
-                <div className="h-2 flex-1 overflow-hidden rounded-full bg-[#15233d]">
+                <div className="relative h-2 flex-1 overflow-hidden rounded-full bg-[#15233d]">
                   <div
                     className="h-full rounded-full transition-all duration-500"
                     style={{
@@ -265,7 +315,15 @@ export default function OverviewBentoGrid({
                       backgroundColor: item.color,
                     }}
                   />
+                  {/* Marca de umbral 80% */}
+                  <span
+                    className="pointer-events-none absolute top-0 bottom-0 w-[1.5px] bg-slate-300/45"
+                    style={{ left: "80%" }}
+                  />
                 </div>
+                <span className="w-10 text-right font-mono-hud text-xs font-bold text-slate-100">
+                  {item.value}%
+                </span>
                 <span
                   className="w-16 text-right font-mono-hud text-[11px] font-semibold"
                   style={{ color: STATUS_HEX[item.status] }}
