@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useCallback, useMemo, useState, useSyncExternalStore } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { ClipboardList, ShieldCheck } from "lucide-react";
 import AnatomicalScanner from "@/components/AnatomicalScanner";
 import BiomarkersDashboard from "@/components/BiomarkersDashboard";
@@ -13,6 +19,7 @@ import MultimodalScanModal, {
 } from "@/components/MultimodalScanModal";
 import OverviewBentoGrid from "@/components/OverviewBentoGrid";
 import ScientificReferencesModal from "@/components/ScientificReferencesModal";
+import SectionPagerControls from "@/components/SectionPagerControls";
 import TelemetryCharts from "@/components/TelemetryCharts";
 import TopMissionBar from "@/components/TopMissionBar";
 import WearableHarnessPanel from "@/components/WearableHarnessPanel";
@@ -163,7 +170,11 @@ export default function HomePage() {
 
   const handleNavigateSection = (section: NavSectionId) => {
     setActiveNavSection(section);
-    if (typeof document === "undefined") return;
+    if (typeof document === "undefined" || typeof window === "undefined") return;
+    if (section === "resumen") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
     const idMap: Record<NavSectionId, string> = {
       resumen: "resumen-bento",
       escaner: "scanner-section",
@@ -175,14 +186,44 @@ export default function HomePage() {
     target?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof IntersectionObserver === "undefined") {
+      return;
+    }
+    const sectionPairs: [NavSectionId, string][] = [
+      ["resumen", "resumen-bento"],
+      ["escaner", "scanner-section"],
+      ["wearable", "wearable-harness"],
+      ["biomarcadores", "biomarkers-section"],
+      ["informes", "informes-section"],
+    ];
+    const elementToSection = new Map<Element, NavSectionId>();
+    sectionPairs.forEach(([sec, id]) => {
+      const el = document.getElementById(id);
+      if (el) elementToSection.set(el, sec);
+    });
+    if (elementToSection.size === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        if (visible.length > 0) {
+          const sec = elementToSection.get(visible[0].target);
+          if (sec) setActiveNavSection(sec);
+        }
+      },
+      { rootMargin: "-20% 0px -55% 0px", threshold: [0.1, 0.35, 0.6] }
+    );
+
+    elementToSection.forEach((_, el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
   const handleSelectZoneAndScroll = (zone: SystemZoneId) => {
     setSelectedZone(zone);
-    setActiveNavSection("escaner");
-    if (typeof document !== "undefined") {
-      document
-        .getElementById("scanner-section")
-        ?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    handleNavigateSection("escaner");
   };
 
   const zoneStatuses = useMemo(
@@ -315,7 +356,6 @@ export default function HomePage() {
       let nextBio = { ...b };
       let nextRoutine = { ...r };
 
-      // Apply realistic countermeasure effects when completing quests
       if (completing) {
         if (target.id === "quest-ared" || target.category === "fisico") {
           nextBio = {
@@ -430,11 +470,12 @@ export default function HomePage() {
     }
     setState(INITIAL_DASHBOARD_STATE);
     setSelectedZone("cerebro");
+    handleNavigateSection("resumen");
   };
 
   return (
     <div className="flex min-h-screen flex-col bg-[#f4f7fc] text-slate-900 md:flex-row">
-      {/* Left Deep-Navy Sidebar (Reference Design Layout) */}
+      {/* Barra Lateral Izquierda */}
       <LeftNavSidebar
         activeSection={activeNavSection}
         emergencyMode={state.emergencyMode}
@@ -466,8 +507,8 @@ export default function HomePage() {
           onResetMission={handleResetMission}
         />
 
-        {/* Main Workspace */}
-        <main className="mx-auto max-w-[1600px] space-y-6 px-4 py-6 sm:px-6">
+        {/* Main Workspace (normal vertical scroll + smooth section navigation) */}
+        <main className="mx-auto max-w-[1600px] space-y-6 px-4 py-6 pb-20 sm:px-6">
           {/* Module 5: Live Emergency Alert & Flight Surgeon Contact Protocol */}
           <EmergencyBannerModal
             emergencyMode={state.emergencyMode}
@@ -478,6 +519,7 @@ export default function HomePage() {
             onToggleStep={handleToggleEmergencyStep}
             onRestoreNominal={handleToggleEmergency}
           />
+
           {/* Cronometría en vivo: Tiempo del Astronauta vs. Tiempo en la Tierra */}
           <MissionTimeSyncBar
             environmentId={state.environmentId}
@@ -544,7 +586,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Local Offline Activity Audit Log */}
+          {/* Bitácora Local de Autoevaluaciones */}
           <section className="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-[0_6px_24px_rgba(15,23,42,0.04)] sm:p-5">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
               <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-700">
@@ -568,13 +610,21 @@ export default function HomePage() {
                     </span>
                     <span className="text-slate-400">{log.timestamp}</span>
                   </div>
-                  <p className="mt-1 line-clamp-2 text-slate-600">{log.summary}</p>
+                  <p className="mt-1 line-clamp-2 text-slate-600">
+                    {log.summary}
+                  </p>
                 </div>
               ))}
             </div>
           </section>
         </main>
       </div>
+
+      {/* Control Flotante de Flechas Arriba / Abajo para saltar entre secciones */}
+      <SectionPagerControls
+        activeSection={activeNavSection}
+        onNavigate={handleNavigateSection}
+      />
 
       {/* Module 3: Multimodal Scan Modal (Camera / Manual) */}
       {scanModalOpen && (
@@ -589,7 +639,7 @@ export default function HomePage() {
         />
       )}
 
-      {/* Module 5: NASA HRP & CSA Scientific References Modal */}
+      {/* Modal de Referencias Científicas NASA HRP & CSA */}
       <ScientificReferencesModal
         isOpen={referencesOpen}
         onClose={() => setReferencesOpen(false)}
