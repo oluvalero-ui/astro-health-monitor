@@ -454,6 +454,8 @@ export default function HomePage() {
           emergencyMode={state.emergencyMode}
           zoneStatuses={zoneStatuses}
           biomarkers={state.biomarkers}
+          activeSection={activeNavSection}
+          onNavigateSection={handleNavigateSection}
           onSelectEnvironment={handleSelectEnvironment}
           onToggleTelemedicine={handleToggleTelemedicine}
           onOpenScanModal={() => handleOpenScanTab("camara")}

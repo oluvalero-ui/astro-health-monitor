@@ -1,20 +1,25 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Activity,
   AlertTriangle,
   Compass,
   Globe,
+  Mic,
+  MicOff,
   Orbit,
   Radio,
   Rocket,
   RotateCcw,
   ScanLine,
+  Send,
   ShieldAlert,
   ShieldCheck,
+  Sparkles,
   Volume2,
   VolumeX,
+  X,
 } from "lucide-react";
 import { MISSION_ENVIRONMENTS } from "@/data/missionData";
 import {
@@ -23,6 +28,34 @@ import {
   MissionEnvironmentId,
   SystemZoneId,
 } from "@/types/astronaut";
+import { NavSectionId } from "./LeftNavSidebar";
+
+interface SpeechRecognitionAlternativeLike {
+  transcript: string;
+}
+
+interface SpeechRecognitionResultLike {
+  0: SpeechRecognitionAlternativeLike;
+  isFinal?: boolean;
+}
+
+interface SpeechRecognitionEventLike {
+  results: ArrayLike<SpeechRecognitionResultLike>;
+}
+
+interface SpeechRecognitionLike {
+  lang: string;
+  interimResults: boolean;
+  maxAlternatives: number;
+  continuous: boolean;
+  onresult: ((event: SpeechRecognitionEventLike) => void) | null;
+  onerror: (() => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+}
+
+type SpeechRecognitionConstructor = new () => SpeechRecognitionLike;
 
 interface TopMissionBarProps {
   environmentId: MissionEnvironmentId;
@@ -34,6 +67,8 @@ interface TopMissionBarProps {
   emergencyMode: boolean;
   zoneStatuses: Record<SystemZoneId, HealthStatus>;
   biomarkers?: BiomarkerData;
+  activeSection: NavSectionId;
+  onNavigateSection: (section: NavSectionId) => void;
   onSelectEnvironment: (envId: MissionEnvironmentId) => void;
   onToggleTelemedicine: () => void;
   onOpenScanModal: () => void;
@@ -74,6 +109,8 @@ export default function TopMissionBar({
   emergencyMode,
   zoneStatuses,
   biomarkers,
+  activeSection,
+  onNavigateSection,
   onSelectEnvironment,
   onToggleTelemedicine,
   onOpenScanModal,
@@ -83,6 +120,16 @@ export default function TopMissionBar({
   const env = MISSION_ENVIRONMENTS[environmentId];
   const [utcTime, setUtcTime] = useState<string>("08:42:19 UTC");
   const [speaking, setSpeaking] = useState(false);
+  const [astroOpen, setAstroOpen] = useState(false);
+  const [listening, setListening] = useState(false);
+  const [astroInput, setAstroInput] = useState("");
+  const [lastUserQuery, setLastUserQuery] = useState<string>(
+    "Astro, ¿cómo están mis signos vitales?"
+  );
+  const [astroReply, setAstroReply] = useState<string>(
+    "Hola, soy ASTRO, tu asistente de voz a bordo. Pregúntame por tus signos vitales (corazón, oxígeno, presión, temperatura, radiación) o pídeme cambiar de sección (Monitor, Escáner, Arnés 3N, Signos, Hábitos o Ciencia)."
+  );
+  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
 
   const criticalZones = (
     Object.entries(zoneStatuses) as [SystemZoneId, HealthStatus][]
@@ -116,20 +163,9 @@ export default function TopMissionBar({
     return () => window.clearInterval(timer);
   }, []);
 
-  const handleVoiceBriefing = () => {
+  const speakAstroText = (text: string) => {
+    setAstroReply(text);
     if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
-    if (speaking) {
-      window.speechSynthesis.cancel();
-      setSpeaking(false);
-      return;
-    }
-    const criticalCount = Object.values(zoneStatuses).filter(
-      (s) => s === "critical"
-    ).length;
-    const text = biomarkers
-      ? `Resumen de salud para ${astronautName}, día ${missionDay} en ${env.shortName}. Tu bienestar general está al ${readinessScore} por ciento. Tu corazón late a ${biomarkers.bpm} por minuto, tu oxígeno está al ${biomarkers.spo2Percent} por ciento, tu presión es ${biomarkers.systolicBP} sobre ${biomarkers.diastolicBP}, y el escudo de radiación marca ${dailyRadiationMsv.toFixed(2)} por día. ${criticalCount > 0 ? `Atención: hay ${criticalCount} zona que necesita cuidado urgente.` : "Todo tu cuerpo está en buen estado."}`
-      : `Resumen de salud. Día ${missionDay}, bienestar general ${readinessScore} por ciento.`;
-
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = "es-ES";
@@ -138,6 +174,317 @@ export default function TopMissionBar({
     utterance.onerror = () => setSpeaking(false);
     setSpeaking(true);
     window.speechSynthesis.speak(utterance);
+  };
+
+  const processAstroCommand = (rawCommand: string) => {
+    const clean = rawCommand.trim();
+    if (!clean) return;
+    setLastUserQuery(clean);
+
+    const q = clean
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+
+    const b = biomarkers;
+    const shieldPct = Math.max(
+      10,
+      Math.min(100, Math.round(100 - (dailyRadiationMsv / 2.2) * 100))
+    );
+
+    // 1. Navegación por secciones o zonas cuando el usuario pide ir/abrir/mostrar/cambiar
+    if (
+      q.includes("arnes") ||
+      q.includes("traje") ||
+      q.includes("chaleco") ||
+      q.includes("sensores") ||
+      q.includes("wearable")
+    ) {
+      onNavigateSection("wearable");
+      speakAstroText(
+        `Claro, abriendo la sección de tu Traje de Sensores Arnés 3N. Aquí ves los 13 signos continuos en tus 3 nodos corporales.`
+      );
+      return;
+    }
+
+    if (
+      q.includes("ciencia") ||
+      q.includes("referencia") ||
+      q.includes("fuente") ||
+      q.includes("estudio")
+    ) {
+      onNavigateSection("referencias");
+      speakAstroText(
+        `Abriendo la sección de Ciencia con los 5 peligros espaciales de la NASA y las 16 fuentes verificadas.`
+      );
+      return;
+    }
+
+    if (
+      q.includes("habito") ||
+      q.includes("informe") ||
+      q.includes("grafica") ||
+      q.includes("evolucion") ||
+      q.includes("ejercicio")
+    ) {
+      onNavigateSection("informes");
+      speakAstroText(
+        `Mostrando la sección de Hábitos y gráficas de evolución para mantener tu cuerpo fuerte en el espacio.`
+      );
+      return;
+    }
+
+    if (q.includes("camara") || q.includes("manual") || q.includes("ajustar")) {
+      onOpenScanModal();
+      speakAstroText(
+        `Abriendo la ventana de Cámara y Registro Manual para que actualices tu evaluación.`
+      );
+      return;
+    }
+
+    if (
+      q.includes("escaner") ||
+      q.includes("mapa") ||
+      q.includes("protocolo") ||
+      q.includes("instrucciones") ||
+      q.includes("anatom")
+    ) {
+      if (q.includes("corazon")) {
+        onInspectProtocol("corazon");
+      } else if (q.includes("rostro") || q.includes("cara")) {
+        onInspectProtocol("rostro");
+      } else if (q.includes("abdomen") || q.includes("energia")) {
+        onInspectProtocol("abdomen");
+      } else if (q.includes("musculo") || q.includes("hueso")) {
+        onInspectProtocol("musculo");
+      } else if (q.includes("defensa") || q.includes("endocrino")) {
+        onInspectProtocol("endocrino");
+      } else {
+        onNavigateSection("escaner");
+      }
+      speakAstroText(
+        `Abriendo el Escáner Anatómico y el Manual de Instrucciones Clínico paso a paso.`
+      );
+      return;
+    }
+
+    if (
+      q.includes("monitor") ||
+      q.includes("inicio") ||
+      q.includes("principal") ||
+      q.includes("panel general")
+    ) {
+      onNavigateSection("resumen");
+      speakAstroText(
+        `Volviendo al Monitor Principal de misión. Tu bienestar general es del ${readinessScore} por ciento.`
+      );
+      return;
+    }
+
+    if (
+      (q.includes("ir a") ||
+        q.includes("abre") ||
+        q.includes("abrir") ||
+        q.includes("ver") ||
+        q.includes("muestra") ||
+        q.includes("seccion") ||
+        q.includes("cambia")) &&
+      (q.includes("signos") ||
+        q.includes("biomarcador") ||
+        q.includes("animo") ||
+        q.includes("rutina") ||
+        q.includes("horario"))
+    ) {
+      onNavigateSection("biomarcadores");
+      speakAstroText(
+        `Abriendo la sección de Signos, Ánimo y Horarios del día.`
+      );
+      return;
+    }
+
+    // 2. Cambio de entorno gravitatorio por voz
+    if (q.includes("marte")) {
+      onSelectEnvironment("marte");
+      speakAstroText(
+        `Entorno cambiado a Marte con gravedad de 0.38 g. Recuerda calibrar el medidor de presión del Arnés 3N.`
+      );
+      return;
+    }
+    if (q.includes("luna")) {
+      onSelectEnvironment("luna");
+      speakAstroText(
+        `Entorno cambiado a la Luna con gravedad de 0.16 g.`
+      );
+      return;
+    }
+    if (q.includes("estacion") || q.includes("iss")) {
+      onSelectEnvironment("iss");
+      speakAstroText(
+        `Entorno cambiado a la Estación Espacial en microgravedad cero g.`
+      );
+      return;
+    }
+    if (q.includes("viaje") || q.includes("transito")) {
+      onSelectEnvironment("nave");
+      speakAstroText(
+        `Entorno cambiado a Viaje espacial profundo en cero g.`
+      );
+      return;
+    }
+
+    // 3. Consultas de signos vitales específicos
+    if (b) {
+      if (
+        q.includes("corazon") ||
+        q.includes("latido") ||
+        q.includes("pulso") ||
+        q.includes("cardiac")
+      ) {
+        const restPct = Math.min(100, Math.round((b.hrvRmssdMs / 60) * 100));
+        speakAstroText(
+          `Soy ASTRO. Tu corazón late a ${b.bpm} latidos por minuto y su nivel de descanso está al ${restPct} por ciento (${b.hrvRmssdMs} milisegundos). ${
+            b.bpm <= 92 && b.bpm >= 52
+              ? "El ritmo es tranquilo y parejo."
+              : "Te recomiendo respirar lento y descansar unos minutos."
+          }`
+        );
+        return;
+      }
+
+      if (
+        q.includes("oxigeno") ||
+        q.includes("aire") ||
+        q.includes("saturacion")
+      ) {
+        speakAstroText(
+          `Soy ASTRO. Tu oxígeno en sangre medido en la frente es del ${b.spo2Percent} por ciento, con una fuerza de pulso de ${b.perfusionIndex.toFixed(
+            1
+          )} por ciento. Llega suficiente aire a tu cuerpo.`
+        );
+        return;
+      }
+
+      if (q.includes("presion") || q.includes("sangre") || q.includes("circulacion")) {
+        speakAstroText(
+          `Soy ASTRO. Tu presión arterial medida sin manguito por el Arnés 3N es de ${b.systolicBP} sobre ${b.diastolicBP} milímetros de mercurio, con paso de pulso de ${b.pttMs} milisegundos.`
+        );
+        return;
+      }
+
+      if (q.includes("respiracion") || q.includes("respiro") || q.includes("pulmon")) {
+        speakAstroText(
+          `Soy ASTRO. Estás respirando ${b.respiratoryRateRpm} veces por minuto y entran ${b.minuteVentilationLpm.toFixed(
+            1
+          )} litros de aire por minuto a tu pecho.`
+        );
+        return;
+      }
+
+      if (
+        q.includes("temperatura") ||
+        q.includes("calor") ||
+        q.includes("fiebre") ||
+        q.includes("agua") ||
+        q.includes("hidratacion")
+      ) {
+        speakAstroText(
+          `Soy ASTRO. Tu temperatura interna es de ${b.bodyTempC.toFixed(
+            1
+          )} grados centígrados y en la piel de ${b.skinTempC.toFixed(
+            1
+          )} grados. Tu hidratación está al ${b.hydrationPercent} por ciento.`
+        );
+        return;
+      }
+
+      if (q.includes("radiacion") || q.includes("escudo")) {
+        speakAstroText(
+          `Soy ASTRO. El escudo de la nave te da un ${shieldPct} por ciento de protección hoy, con una lectura de ${dailyRadiationMsv.toFixed(
+            2
+          )} milisieverts por día.`
+        );
+        return;
+      }
+
+      if (q.includes("sueno") || q.includes("dormir") || q.includes("descanso")) {
+        speakAstroText(
+          `Soy ASTRO. Dormiste ${b.sleepHours.toFixed(
+            1
+          )} horas y tu postura corporal está al ${b.postureScore} por ciento.`
+        );
+        return;
+      }
+    }
+
+    // 4. Respuesta general de signos vitales (por defecto o cuando pregunta "¿cómo están mis signos?")
+    const criticalCount = Object.values(zoneStatuses).filter(
+      (s) => s === "critical"
+    ).length;
+    const summaryText = b
+      ? `Hola ${astronautName}, soy ASTRO. En el día ${missionDay} en ${env.shortName}, tu salud general está al ${readinessScore} por ciento. Corazón: ${b.bpm} latidos por minuto. Oxígeno: ${b.spo2Percent} por ciento. Presión: ${b.systolicBP} sobre ${b.diastolicBP}. Temperatura: ${b.bodyTempC.toFixed(1)} grados. Escudo de radiación: ${shieldPct} por ciento seguro. ${
+          criticalCount > 0
+            ? `Atención: hay ${criticalCount} zona en nivel crítico; te recomiendo abrir el Escáner.`
+            : "Todos tus sistemas principales están en buen estado."
+        }`
+      : `Hola, soy ASTRO. Día ${missionDay}, salud general al ${readinessScore} por ciento.`;
+
+    speakAstroText(summaryText);
+  };
+
+  const handleToggleListening = () => {
+    if (listening && recognitionRef.current) {
+      recognitionRef.current.stop();
+      setListening(false);
+      return;
+    }
+
+    if (typeof window === "undefined") return;
+    const win = window as unknown as {
+      SpeechRecognition?: SpeechRecognitionConstructor;
+      webkitSpeechRecognition?: SpeechRecognitionConstructor;
+    };
+    const SpeechRec = win.SpeechRecognition ?? win.webkitSpeechRecognition;
+
+    if (!SpeechRec) {
+      speakAstroText(
+        "Tu navegador no tiene micrófono de voz directo, pero puedes tocar cualquiera de las preguntas rápidas o escribirme aquí abajo."
+      );
+      return;
+    }
+
+    try {
+      if ( "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+        setSpeaking(false);
+      }
+      const recognition = new SpeechRec();
+      recognition.lang = "es-ES";
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+      recognition.continuous = false;
+
+      recognition.onresult = (event: SpeechRecognitionEventLike) => {
+        const transcript = event.results?.[0]?.[0]?.transcript ?? "";
+        setListening(false);
+        if (transcript) {
+          processAstroCommand(transcript);
+        }
+      };
+
+      recognition.onerror = () => {
+        setListening(false);
+      };
+
+      recognition.onend = () => {
+        setListening(false);
+      };
+
+      recognitionRef.current = recognition;
+      setListening(true);
+      recognition.start();
+    } catch {
+      setListening(false);
+    }
   };
 
   return (
@@ -236,23 +583,30 @@ export default function TopMissionBar({
 
           <button
             type="button"
-            onClick={handleVoiceBriefing}
-            className={`inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition ${
-              speaking
-                ? "border-cyan-400 bg-cyan-500 text-slate-950"
-                : "border-white/15 bg-white/10 text-white hover:bg-white/20"
+            onClick={() => setAstroOpen((prev) => !prev)}
+            className={`inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-bold transition ${
+              listening
+                ? "animate-pulse border-cyan-300 bg-cyan-500 text-slate-950"
+                : astroOpen || speaking
+                ? "border-cyan-400/70 bg-cyan-500/20 text-cyan-200"
+                : "border-cyan-500/35 bg-cyan-500/10 text-cyan-200 hover:bg-cyan-500/20"
             }`}
-            title="Escuchar un resumen hablado y sencillo de cómo estás hoy"
+            title="Asistente de voz ASTRO: pregúntale tus signos vitales o pídele cambiar de sección"
           >
-            {speaking ? (
+            {listening ? (
               <>
-                <VolumeX className="h-3.5 w-3.5" />
-                <span>Callar Voz</span>
+                <Mic className="h-3.5 w-3.5" />
+                <span>ASTRO Escuchando...</span>
+              </>
+            ) : speaking ? (
+              <>
+                <Volume2 className="h-3.5 w-3.5 text-cyan-300" />
+                <span>ASTRO Hablando...</span>
               </>
             ) : (
               <>
-                <Volume2 className="h-3.5 w-3.5 text-cyan-300" />
-                <span>Escuchar Resumen</span>
+                <Sparkles className="h-3.5 w-3.5 text-cyan-300" />
+                <span>Asistente ASTRO</span>
               </>
             )}
           </button>
@@ -311,6 +665,180 @@ export default function TopMissionBar({
           </button>
         </div>
       </div>
+
+      {/* Consola Interactiva del Asistente de Voz ASTRO */}
+      {astroOpen && (
+        <div className="border-t border-cyan-500/35 bg-[#081225] px-4 py-3 text-xs text-slate-100 shadow-xl sm:px-6">
+          <div className="mx-auto max-w-[1600px] space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-cyan-400/40 bg-cyan-500/20 text-cyan-300">
+                  <Sparkles className="h-4 w-4" />
+                </span>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono-hud text-xs font-bold tracking-wider text-cyan-300">
+                      ASTRO · ASISTENTE DE VOZ DE CABINA (0g)
+                    </span>
+                    <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 font-mono-hud text-[10px] text-emerald-300">
+                      Sección actual: {activeSection.toUpperCase()}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400">
+                    Háblale con el micrófono, escribe tu consulta o toca un comando rápido para escuchar tus signos o cambiar de sección.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleToggleListening}
+                  className={`inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-bold transition ${
+                    listening
+                      ? "animate-pulse border-red-400 bg-red-600 text-white"
+                      : "border-cyan-400/50 bg-cyan-500 text-slate-950 hover:bg-cyan-400"
+                  }`}
+                >
+                  {listening ? (
+                    <>
+                      <MicOff className="h-3.5 w-3.5" />
+                      <span>Detener Micrófono</span>
+                    </>
+                  ) : (
+                    <>
+                      <Mic className="h-3.5 w-3.5" />
+                      <span>Hablar con ASTRO</span>
+                    </>
+                  )}
+                </button>
+
+                {speaking && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+                        window.speechSynthesis.cancel();
+                      }
+                      setSpeaking(false);
+                    }}
+                    className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-white/20 bg-white/10 px-2.5 py-1.5 text-xs font-semibold text-slate-200 hover:bg-white/20"
+                  >
+                    <VolumeX className="h-3.5 w-3.5" />
+                    <span>Callar Voz</span>
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setAstroOpen(false)}
+                  className="inline-flex cursor-pointer items-center justify-center rounded-lg border border-white/15 bg-white/5 p-1.5 text-slate-300 hover:bg-white/15 hover:text-white"
+                  aria-label="Cerrar asistente ASTRO"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Respuesta en vivo de ASTRO + Entrada de voz/texto */}
+            <div className="grid grid-cols-1 gap-3 lg:grid-cols-12">
+              <div className="rounded-xl border border-[#1b3154] bg-[#0c1830] p-3 lg:col-span-7">
+                <div className="flex items-center justify-between text-[11px] font-mono-hud text-slate-400">
+                  <span>TÚ: &ldquo;{lastUserQuery}&rdquo;</span>
+                  <button
+                    type="button"
+                    onClick={() => speakAstroText(astroReply)}
+                    className="inline-flex cursor-pointer items-center gap-1 text-cyan-300 hover:underline"
+                  >
+                    <Volume2 className="h-3.5 w-3.5" />
+                    Repetir en voz alta
+                  </button>
+                </div>
+                <p className="mt-1.5 text-xs leading-relaxed font-medium text-cyan-100">
+                  <strong className="text-cyan-300">ASTRO:</strong> {astroReply}
+                </p>
+              </div>
+
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (!astroInput.trim()) return;
+                  processAstroCommand(astroInput);
+                  setAstroInput("");
+                }}
+                className="flex flex-col justify-between gap-2 rounded-xl border border-[#1b3154] bg-[#0c1830] p-3 lg:col-span-5"
+              >
+                <label className="text-[11px] font-semibold text-slate-300">
+                  Pregúntale a ASTRO (ej. &ldquo;Astro, ¿cómo está mi corazón?&rdquo; o &ldquo;Astro, abre Arnés 3N&rdquo;):
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={astroInput}
+                    onChange={(e) => setAstroInput(e.target.value)}
+                    placeholder="Escribe o usa el micrófono..."
+                    className="flex-1 rounded-lg border border-[#233b63] bg-[#070e1d] px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:border-cyan-400 focus:outline-none"
+                  />
+                  <button
+                    type="submit"
+                    className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-[#1a73e8] px-3 py-1.5 text-xs font-bold text-white hover:bg-blue-600"
+                  >
+                    <Send className="h-3.5 w-3.5" />
+                    <span>Enviar</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* Comandos rápidos de voz en 1 clic: Signos Vitales y Navegación de Secciones */}
+            <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+              <span className="mr-1 font-mono-hud text-[10px] font-bold uppercase text-cyan-400">
+                Preguntar Signos:
+              </span>
+              {[
+                "Astro, ¿cómo están mis signos vitales?",
+                "Astro, ¿cómo está mi corazón?",
+                "Astro, ¿cuál es mi oxígeno?",
+                "Astro, ¿cómo está mi presión?",
+                "Astro, ¿cuál es mi temperatura?",
+                "Astro, ¿cómo está el escudo de radiación?",
+              ].map((cmd) => (
+                <button
+                  key={cmd}
+                  type="button"
+                  onClick={() => processAstroCommand(cmd)}
+                  className="cursor-pointer rounded-lg border border-cyan-500/30 bg-cyan-500/10 px-2.5 py-1 text-[11px] font-medium text-cyan-200 transition hover:bg-cyan-500/25"
+                >
+                  {cmd.replace("Astro, ", "")}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="mr-1 font-mono-hud text-[10px] font-bold uppercase text-sky-400">
+                Cambiar Sección:
+              </span>
+              {[
+                { label: "Ir a Monitor", cmd: "Astro, ir a Monitor" },
+                { label: "Ir a Escáner", cmd: "Astro, abre el Escáner" },
+                { label: "Ir a Arnés 3N", cmd: "Astro, abre el Arnés 3N" },
+                { label: "Ir a Signos", cmd: "Astro, ver sección Signos" },
+                { label: "Ir a Hábitos", cmd: "Astro, abre Hábitos" },
+                { label: "Ir a Ciencia", cmd: "Astro, abre Ciencia" },
+              ].map((item) => (
+                <button
+                  key={item.label}
+                  type="button"
+                  onClick={() => processAstroCommand(item.cmd)}
+                  className="cursor-pointer rounded-lg border border-[#233b63] bg-[#0e1b33] px-2.5 py-1 text-[11px] font-semibold text-slate-200 transition hover:border-sky-400/50 hover:text-sky-200"
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Banner Automático en Estado Precaución (Warning) */}
       {overallRiskStatus === "warning" && (
