@@ -576,9 +576,9 @@ export const DEFAULT_QUESTS: MissionQuest[] = [
     category: "fisico",
     durationLabel: "120–150 min/día",
     description:
-      "Protocolo diario en órbita: ~60 min de entrenamiento resistivo ARED (sentadillas, peso muerto, tracción) + ~60–90 min aeróbico en cicloergómetro CEVIS o cinta T2/COLBERT.",
+      "Combina cada día dos bloques de entrenamiento: ~60 min de fuerza con resistencia en el equipo ARED (sentadillas, peso muerto y tracción) y de 60 a 90 min aeróbicos en bicicleta fija (CEVIS) o banda caminadora (T2).",
     impactDescription:
-      "Mitiga pérdida ósea (1–1.5%/mes en 0g), atrofia muscular y desacondicionamiento cardiovascular",
+      "Sin gravedad los huesos y músculos dejan de cargar peso corporal: sin este estímulo mecánico diario se pierde entre 1 % y 1.5 % de densidad ósea al mes, aparece atrofia muscular y el corazón pierde tolerancia al esfuerzo.",
     nasaStandard: "NASA HRP ISS: 2 a 2.5 h/día (resistencia + cardio)",
     nasaSource: "NASA HRP · Countermeasures for Bone & Muscle Loss",
     previousComparison:
@@ -591,9 +591,9 @@ export const DEFAULT_QUESTS: MissionQuest[] = [
     category: "hidratacion",
     durationLabel: "≥ 32 mL/kg",
     description:
-      "Distribuir ≥ 2.5 L/día en hombres (≥ 2.1 L en mujeres) más reposición post-ARED para compensar la redistribución de líquidos en microgravedad y proteger la filtración renal.",
+      "Consiste en distribuir tomas constantes de agua a lo largo de la jornada hasta cubrir al menos 2.5 L en hombres o 2.1 L en mujeres (~32 mL por kilo de peso), añadiendo líquido extra tras el ejercicio.",
     impactDescription:
-      "Mantiene balance hídrico y reduce riesgo de cálculos renales (2.ª causa potencial de evacuación médica)",
+      "En microgravedad los líquidos suben hacia el torso y la cabeza, baja el volumen sanguíneo total y el calcio óseo pasa a la orina. Mantener alta la ingesta diluye la orina y previene cálculos renales, la 2.ª causa potencial de evacuación médica en la ISS.",
     nasaStandard: "NASA-STD-3001: ≥ 32 mL/kg/día (~2.1–2.5 L base)",
     nasaSource: "NASA-STD-3001 · HRP Risk of Renal Stone Formation",
     previousComparison:
@@ -606,9 +606,9 @@ export const DEFAULT_QUESTS: MissionQuest[] = [
     category: "mental",
     durationLabel: "20–30 min/día",
     description:
-      "Tiempo protegido de desconexión fuera de consola: videomensaje asíncrono o contacto con casa, ocio grupal y seguimiento para conferencias psicológicas privadas (PPC).",
+      "Consiste en apartarse de las consolas técnicas para conectar con casa (llamada o videomensajes asíncronos si hay demora de señal), compartir un momento recreativo grupal o preparar sesiones psicológicas privadas (PPC).",
     impactDescription:
-      "Previene fatiga conductual, aislamiento prolongado, deterioro anímico y conflictos de equipo",
+      "Convivir meses en un módulo cerrado, con tripulaciones pequeñas y lejos de la Tierra, desgasta el estado de ánimo, aumenta la sensación de aislamiento y monotonía, y favorece fatiga mental o tensiones de equipo.",
     nasaStandard: "NASA BHP: Ocio protegido, soporte familiar y PPC",
     nasaSource: "NASA HRP · Behavioral Health & Performance (BHP)",
     previousComparison:
@@ -621,9 +621,9 @@ export const DEFAULT_QUESTS: MissionQuest[] = [
     category: "circadiano",
     durationLabel: "8–8.5 h + SSLA",
     description:
-      "Emplear luminarias LED SSLA de espectro azul en fase activa y luz cálida tenue 60–90 min antes de dormir, protegiendo 8–8.5 h de sueño con antifaz ante los 16 amaneceres/día.",
+      "Consiste en ajustar las luminarias LED de cabina (SSLA) a luz clara azulada en el día y luz cálida tenue de 60 a 90 min antes de dormir, asegurando entre 8 y 8.5 h continuas de descanso con antifaz y tapones.",
     impactDescription:
-      "Estabiliza melatonina y cortisol; evita el déficit orbital típico (~6 h reales vs. 8.5 h meta)",
+      "En órbita hay 16 amaneceres y atardeceres cada 24 h y ruido continuo de ventilación, por lo que muchos tripulantes duermen solo ~6 h reales; esto desregula melatonina y cortisol y reduce atención y memoria.",
     nasaStandard: "NASA SSLA + NASA-STD-3001: 8–8.5 h oportunidad de sueño",
     nasaSource: "NASA HRP · ISS Solid State Lighting Assemblies (SSLA)",
     previousComparison:
@@ -636,9 +636,9 @@ export const DEFAULT_QUESTS: MissionQuest[] = [
     category: "fisico",
     durationLabel: "800 UI + 3 tomas",
     description:
-      "Ingerir suplemento diario de 800 UI de Vitamina D (sin radiación UV en cabina), completar raciones calóricas con antioxidantes y registrar la dosis diaria del dosímetro CSA Radi-N2.",
+      "Consiste en tomar el suplemento diario de 800 UI de Vitamina D junto con las comidas ricas en calcio y antioxidantes del día, y registrar la lectura diaria del dosímetro CSA Radi-N2 en mSv.",
     impactDescription:
-      "Respalda absorción cálcica/ósea en conjunto con ARED y vigilancia de exposición en mSv",
+      "El blindaje de la nave bloquea la radiación UV solar e impide que el cuerpo produzca Vitamina D; sin ella no se absorbe ni fija el calcio óseo pese al ejercicio, mientras que dieta antioxidante y control mSv ayudan ante radiación espacial.",
     nasaStandard: "NASA Nutrition: 800 UI/día Vit. D + dosímetro Radi-N2",
     nasaSource: "NASA HRP Space Nutrition · CSA Radi-N2 Dosimetry",
     previousComparison:

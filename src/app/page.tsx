@@ -11,6 +11,7 @@ import { ClipboardList, ShieldCheck } from "lucide-react";
 import AnatomicalScanner from "@/components/AnatomicalScanner";
 import BiomarkersDashboard from "@/components/BiomarkersDashboard";
 import EmergencyBannerModal from "@/components/EmergencyBannerModal";
+import HabitsExplanationPanel from "@/components/HabitsExplanationPanel";
 import LeftNavSidebar, { NavSectionId } from "@/components/LeftNavSidebar";
 import MissionTimeSyncBar from "@/components/MissionTimeSyncBar";
 import MultimodalScanModal, {
@@ -171,6 +172,18 @@ export default function HomePage() {
   const [scanModalOpen, setScanModalOpen] = useState(false);
   const [scanInitialTab, setScanInitialTab] = useState<ScanModalTab>("camara");
   const [referencesOpen, setReferencesOpen] = useState(false);
+  const [highlightedHabitId, setHighlightedHabitId] = useState<string | null>(
+    null
+  );
+
+  const handleInspectHabit = (habitId: string) => {
+    setHighlightedHabitId(habitId);
+    if (typeof document !== "undefined") {
+      document
+        .getElementById("explicacion-habitos")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
 
   const handleNavigateSection = (section: NavSectionId) => {
     setActiveNavSection(section);
@@ -445,7 +458,7 @@ export default function HomePage() {
       durationLabel: "15 min",
       description: "Hábito preventivo personalizado añadido por el tripulante.",
       impactDescription:
-        "Refuerza adherencia a la rutina diaria y bienestar operativo",
+        "Ayuda a sostener el bienestar físico o mental y la estabilidad de la rutina durante la jornada.",
       completed: false,
     };
     setState((prev) => ({
@@ -572,10 +585,17 @@ export default function HomePage() {
                 habits={state.quests}
                 onToggleHabit={handleToggleHabit}
                 onAddCustomHabit={handleAddCustomHabit}
-                onOpenReferences={() => setReferencesOpen(true)}
+                onInspectHabit={handleInspectHabit}
               />
             </div>
           </div>
+
+          {/* Apartado independiente: Explicación clínica y sustento oficial NASA */}
+          <HabitsExplanationPanel
+            habits={state.quests}
+            highlightedHabitId={highlightedHabitId}
+            onOpenReferences={() => setReferencesOpen(true)}
+          />
 
           {/* Bitácora Local de Autoevaluaciones */}
           <section className="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-[0_6px_24px_rgba(15,23,42,0.04)] sm:p-5">
