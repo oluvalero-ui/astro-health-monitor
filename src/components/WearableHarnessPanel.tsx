@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import {
   Activity,
   AlertTriangle,
@@ -43,6 +43,7 @@ import {
   STATUS_HEX,
   STATUS_LABELS,
 } from "@/utils/healthEngine";
+import LivePhysioWaveform from "./LivePhysioWaveform";
 
 interface WearableHarnessPanelProps {
   environmentId: MissionEnvironmentId;
@@ -110,62 +111,6 @@ function TelemetryBadge({
   );
 }
 
-/**
- * Generates deterministic 3-lead P-QRS-T ECG SVG polyline points from live BPM and HRV.
- */
-function buildEcgTrace(
-  bpm: number,
-  hrvMs: number,
-  leadAmplitude: number,
-  phaseShift: number
-): string {
-  const width = 320;
-  const baseline = 26;
-  const cycles = Math.max(2, Math.min(4.8, bpm / 32));
-  const hrvMod = Math.max(0.85, Math.min(1.15, hrvMs / 42));
-  const points: string[] = [];
-
-  for (let x = 0; x <= width; x += 2) {
-    const rawPhase = ((x / width) * cycles + phaseShift) % 1;
-    const p = rawPhase < 0 ? rawPhase + 1 : rawPhase;
-
-    // Gaussian P, Q, R, S, T morphological components (deterministic, no randomness)
-    const pWave = 3.2 * Math.exp(-Math.pow((p - 0.16) / 0.045, 2));
-    const qDip = -3.8 * Math.exp(-Math.pow((p - 0.27) / 0.015, 2));
-    const rPeak = 18.5 * Math.exp(-Math.pow((p - 0.3) / 0.016, 2));
-    const sDip = -5.4 * Math.exp(-Math.pow((p - 0.335) / 0.017, 2));
-    const tWave =
-      5.2 * hrvMod * Math.exp(-Math.pow((p - 0.54) / 0.065, 2));
-
-    const y = baseline - (pWave + qDip + rPeak + sDip + tWave) * leadAmplitude;
-    points.push(`${x},${y.toFixed(1)}`);
-  }
-
-  return points.join(" ");
-}
-
-/**
- * Generates deterministic distal finger PPG arterial pulse wave shifted by chest-to-finger PTT.
- */
-function buildPpgTrace(bpm: number, pttMs: number): string {
-  const width = 300;
-  const baseline = 34;
-  const cycles = Math.max(2, Math.min(4.5, bpm / 34));
-  const delayPhase = (pttMs - 140) / 420;
-  const points: string[] = [];
-
-  for (let x = 0; x <= width; x += 2) {
-    const shifted = ((x / width) * cycles - delayPhase) % 1;
-    const p = shifted < 0 ? shifted + 1 : shifted;
-    const systolicPeak = 22 * Math.exp(-Math.pow((p - 0.32) / 0.11, 2));
-    const dicroticNotch = 9.5 * Math.exp(-Math.pow((p - 0.56) / 0.12, 2));
-    const y = baseline - (systolicPeak + dicroticNotch);
-    points.push(`${x},${y.toFixed(1)}`);
-  }
-
-  return points.join(" ");
-}
-
 export default function WearableHarnessPanel({
   environmentId,
   biomarkers: b,
@@ -176,23 +121,6 @@ export default function WearableHarnessPanel({
 
   const env = MISSION_ENVIRONMENTS[environmentId];
   const hemo = computeHemodynamicIndices(b, environmentId);
-
-  const leadIPoints = useMemo(
-    () => buildEcgTrace(b.bpm, b.hrvRmssdMs, 0.85, 0),
-    [b.bpm, b.hrvRmssdMs]
-  );
-  const leadIIPoints = useMemo(
-    () => buildEcgTrace(b.bpm, b.hrvRmssdMs, 1.08, 0.04),
-    [b.bpm, b.hrvRmssdMs]
-  );
-  const leadV5Points = useMemo(
-    () => buildEcgTrace(b.bpm, b.hrvRmssdMs, 0.94, 0.08),
-    [b.bpm, b.hrvRmssdMs]
-  );
-  const ppgWavePoints = useMemo(
-    () => buildPpgTrace(b.bpm, b.pttMs),
-    [b.bpm, b.pttMs]
-  );
 
   const calHoursStatus: HealthStatus =
     b.pttCalibrationRequired || b.lastOscillometricCalHours >= 24
@@ -318,47 +246,40 @@ export default function WearableHarnessPanel({
               </span>
             </div>
 
-            {/* Deterministic 3-Lead ECG Trace */}
+            {/* Live 60-FPS 3-Lead ECG Trace */}
             <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50/90 p-2.5">
               <div className="mb-1.5 flex items-center justify-between text-[10px] font-mono-hud">
-                <span className="font-bold text-[#0b2559]">
-                  ECG TEXTIL 3 DERIVACIONES (I · II · V5)
+                <span className="font-bold text-slate-200">
+                  ECG TEXTIL 3 DERIVACIONES EN VIVO (I · II · V5)
                 </span>
-                <span className="text-[#1a73e8]">
+                <span className="text-sky-400">
                   {b.bpm} BPM · HRV {b.hrvRmssdMs} ms
                 </span>
               </div>
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 {[
-                  { label: "DI", points: leadIPoints, color: "#1a73e8" },
-                  { label: "DII", points: leadIIPoints, color: "#059669" },
-                  { label: "V5", points: leadV5Points, color: "#4f46e5" },
+                  { label: "DI", amp: 0.85, phase: 0, color: "#38bdf8" },
+                  { label: "DII", amp: 1.08, phase: 0.03, color: "#22c55e" },
+                  { label: "V5", amp: 0.94, phase: 0.06, color: "#2dd4bf" },
                 ].map((lead) => (
                   <div key={lead.label} className="flex items-center gap-2">
-                    <span className="w-6 font-mono-hud text-[10px] font-bold text-slate-500">
+                    <span className="w-6 font-mono-hud text-[10px] font-bold text-slate-400">
                       {lead.label}
                     </span>
-                    <svg
-                      viewBox="0 0 320 40"
-                      className="h-8 w-full rounded border border-slate-200/70 bg-white"
-                      aria-label={`Trazado ECG derivación ${lead.label}`}
-                    >
-                      <line
-                        x1="0"
-                        y1="26"
-                        x2="320"
-                        y2="26"
-                        stroke="#f1f5f9"
-                        strokeWidth="1"
+                    <div className="flex-1 rounded border border-[#182742] bg-[#081020] px-1.5 py-0.5">
+                      <LivePhysioWaveform
+                        mode="ecg"
+                        color={lead.color}
+                        bpm={b.bpm}
+                        hrvMs={b.hrvRmssdMs}
+                        leadAmplitude={lead.amp}
+                        phaseOffset={lead.phase}
+                        width={280}
+                        height={30}
+                        heightClass="h-7"
+                        showGrid
                       />
-                      <polyline
-                        fill="none"
-                        stroke={lead.color}
-                        strokeWidth="1.6"
-                        strokeLinejoin="round"
-                        points={lead.points}
-                      />
-                    </svg>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -502,11 +423,11 @@ export default function WearableHarnessPanel({
               </span>
             </div>
 
-            {/* Deterministic Distal Finger PPG + Long-Path PTT Strip */}
+            {/* Live 60-FPS Distal Finger PPG + Long-Path PTT Strip */}
             <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50/90 p-2.5">
               <div className="mb-1 flex items-center justify-between font-mono-hud text-[10px]">
-                <span className="font-bold text-teal-900">
-                  ONDA PPG EN DEDO · PTT = {b.pttMs} ms
+                <span className="font-bold text-teal-300">
+                  ONDA PPG EN DEDO EN VIVO · PTT = {b.pttMs} ms
                 </span>
                 <span
                   className="font-semibold"
@@ -515,27 +436,18 @@ export default function WearableHarnessPanel({
                   ECG pecho → PPG dedo
                 </span>
               </div>
-              <svg
-                viewBox="0 0 300 42"
-                className="h-10 w-full rounded border border-slate-200/70 bg-white"
-                aria-label="Onda de pulso PPG en dedo y tiempo de tránsito PTT pecho a dedo"
-              >
-                <line
-                  x1="0"
-                  y1="34"
-                  x2="300"
-                  y2="34"
-                  stroke="#f1f5f9"
-                  strokeWidth="1"
+              <div className="rounded border border-[#182742] bg-[#081020] px-2 py-1">
+                <LivePhysioWaveform
+                  mode="ppg"
+                  color="#2dd4bf"
+                  bpm={b.bpm}
+                  pttMs={b.pttMs}
+                  width={300}
+                  height={38}
+                  heightClass="h-9"
+                  showGrid
                 />
-                <polyline
-                  fill="none"
-                  stroke="#0d9488"
-                  strokeWidth="1.9"
-                  strokeLinejoin="round"
-                  points={ppgWavePoints}
-                />
-              </svg>
+              </div>
             </div>
 
             {/* 5 Continuous Wrist + Finger Parameters */}

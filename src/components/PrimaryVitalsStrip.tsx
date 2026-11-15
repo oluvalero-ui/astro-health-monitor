@@ -23,6 +23,7 @@ import {
   STATUS_HEX,
   worstStatus,
 } from "@/utils/healthEngine";
+import LivePhysioWaveform from "./LivePhysioWaveform";
 
 interface PrimaryVitalsStripProps {
   biomarkers: BiomarkerData;
@@ -67,16 +68,17 @@ export default function PrimaryVitalsStrip({
   const hrColor = getVitalDisplayColor(hrStatus, "#22c55e");
   const spo2Color = getVitalDisplayColor(spo2Status, "#38bdf8");
   const bpColor = getVitalDisplayColor(bpStatus, "#f8fafc");
+  const bpWaveColor = getVitalDisplayColor(bpStatus, "#38bdf8");
   const respColor = getVitalDisplayColor(respStatus, "#2dd4bf");
   const metabColor = getVitalDisplayColor(metabolicStatus, "#38bdf8");
   const radColor = getVitalDisplayColor(radStatus, "#34d399");
 
   return (
     <section
-      aria-label="Monitor primario de signos vitales"
+      aria-label="Monitor primario de signos vitales en tiempo real"
       className="grid grid-cols-2 gap-2.5 lg:grid-cols-6"
     >
-      {/* 1. ECG / Frecuencia Cardíaca */}
+      {/* 1. ECG / Frecuencia Cardíaca (Derivación II en Vivo) */}
       <button
         type="button"
         onClick={() => onSelectZone("corazon")}
@@ -96,7 +98,7 @@ export default function PrimaryVitalsStrip({
           />
         </div>
 
-        <div className="my-1 flex items-baseline justify-between gap-2">
+        <div className="my-0.5 flex items-baseline justify-between gap-2">
           <span
             className="font-mono-hud text-2xl font-bold tracking-tight sm:text-3xl"
             style={{ color: hrColor }}
@@ -108,17 +110,13 @@ export default function PrimaryVitalsStrip({
           </span>
         </div>
 
-        {/* Mini trazo ECG */}
-        <svg viewBox="0 0 120 22" className="h-5 w-full overflow-visible">
-          <path
-            d="M 0 12 L 18 12 L 23 8 L 28 12 L 34 12 L 37 17 L 41 2 L 45 19 L 49 12 L 57 12 L 63 7 L 69 12 L 85 12 L 90 17 L 94 2 L 98 19 L 102 12 L 120 12"
-            fill="none"
-            stroke={hrColor}
-            strokeWidth="1.85"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+        <LivePhysioWaveform
+          mode="ecg"
+          color={hrColor}
+          bpm={b.bpm}
+          hrvMs={b.hrvRmssdMs}
+          heightClass="h-6"
+        />
 
         <div className="mt-1 flex items-center justify-between font-mono-hud text-[10px] text-slate-400">
           <span>HRV {b.hrvRmssdMs} ms</span>
@@ -126,7 +124,7 @@ export default function PrimaryVitalsStrip({
         </div>
       </button>
 
-      {/* 2. SpO2 / Pletismografía */}
+      {/* 2. SpO2 / Onda Pletismográfica Arterial en Vivo */}
       <button
         type="button"
         onClick={onOpenWearable}
@@ -146,7 +144,7 @@ export default function PrimaryVitalsStrip({
           />
         </div>
 
-        <div className="my-1 flex items-baseline justify-between gap-2">
+        <div className="my-0.5 flex items-baseline justify-between gap-2">
           <span
             className="font-mono-hud text-2xl font-bold tracking-tight sm:text-3xl"
             style={{ color: spo2Color }}
@@ -158,16 +156,13 @@ export default function PrimaryVitalsStrip({
           </span>
         </div>
 
-        {/* Mini onda PPG */}
-        <svg viewBox="0 0 120 22" className="h-5 w-full overflow-visible">
-          <path
-            d="M 0 16 Q 10 16, 16 5 Q 22 14, 27 11 Q 33 16, 42 16 Q 52 16, 58 5 Q 64 14, 69 11 Q 75 16, 84 16 Q 94 16, 100 5 Q 106 14, 111 11 L 120 16"
-            fill="none"
-            stroke={spo2Color}
-            strokeWidth="1.85"
-            strokeLinecap="round"
-          />
-        </svg>
+        <LivePhysioWaveform
+          mode="ppg"
+          color={spo2Color}
+          bpm={b.bpm}
+          pttMs={b.pttMs}
+          heightClass="h-6"
+        />
 
         <div className="mt-1 flex items-center justify-between font-mono-hud text-[10px] text-slate-400">
           <span>PI {b.perfusionIndex.toFixed(1)}%</span>
@@ -175,7 +170,7 @@ export default function PrimaryVitalsStrip({
         </div>
       </button>
 
-      {/* 3. Presión Arterial Continua (PTT) */}
+      {/* 3. Presión Arterial Continua (Onda Arterial ABP / PTT en Vivo) */}
       <button
         type="button"
         onClick={() => onSelectZone("corazon")}
@@ -195,7 +190,7 @@ export default function PrimaryVitalsStrip({
           />
         </div>
 
-        <div className="my-1 flex items-baseline justify-between gap-1">
+        <div className="my-0.5 flex items-baseline justify-between gap-1">
           <span
             className="font-mono-hud text-2xl font-bold tracking-tight sm:text-3xl"
             style={{ color: bpColor }}
@@ -207,23 +202,21 @@ export default function PrimaryVitalsStrip({
           </span>
         </div>
 
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#15233d]">
-          <div
-            className="h-full rounded-full transition-all"
-            style={{
-              width: `${Math.min(100, Math.round((b.systolicBP / 160) * 100))}%`,
-              backgroundColor: STATUS_HEX[bpStatus],
-            }}
-          />
-        </div>
+        <LivePhysioWaveform
+          mode="abp"
+          color={bpWaveColor}
+          bpm={b.bpm}
+          pttMs={b.pttMs}
+          heightClass="h-6"
+        />
 
-        <div className="mt-1.5 flex items-center justify-between font-mono-hud text-[10px] text-slate-400">
+        <div className="mt-1 flex items-center justify-between font-mono-hud text-[10px] text-slate-400">
           <span>PAM {mapMmHg}</span>
           <span>PTT {b.pttMs} ms</span>
         </div>
       </button>
 
-      {/* 4. Frecuencia Respiratoria y Cabina */}
+      {/* 4. Frecuencia Respiratoria y Capnografía en Vivo */}
       <button
         type="button"
         onClick={onOpenWearable}
@@ -243,7 +236,7 @@ export default function PrimaryVitalsStrip({
           />
         </div>
 
-        <div className="my-1 flex items-baseline justify-between gap-2">
+        <div className="my-0.5 flex items-baseline justify-between gap-2">
           <span
             className="font-mono-hud text-2xl font-bold tracking-tight sm:text-3xl"
             style={{ color: respColor }}
@@ -255,14 +248,12 @@ export default function PrimaryVitalsStrip({
           </span>
         </div>
 
-        <svg viewBox="0 0 120 22" className="h-5 w-full overflow-visible">
-          <path
-            d="M 0 14 Q 15 2, 30 14 T 60 14 T 90 14 T 120 14"
-            fill="none"
-            stroke={respColor}
-            strokeWidth="1.85"
-          />
-        </svg>
+        <LivePhysioWaveform
+          mode="resp"
+          color={respColor}
+          respiratoryRateRpm={b.respiratoryRateRpm}
+          heightClass="h-6"
+        />
 
         <div className="mt-1 flex items-center justify-between font-mono-hud text-[10px] text-slate-400">
           <span>CO₂ {cabinCo2MmHg} mmHg</span>
@@ -270,7 +261,7 @@ export default function PrimaryVitalsStrip({
         </div>
       </button>
 
-      {/* 5. Temperatura, Glucosa e Hidratación */}
+      {/* 5. Temperatura Central ZHF, Glucosa e Hidratación (Flujo Vasomotor en Vivo) */}
       <button
         type="button"
         onClick={() => onSelectZone("abdomen")}
@@ -290,7 +281,7 @@ export default function PrimaryVitalsStrip({
           />
         </div>
 
-        <div className="my-1 flex items-baseline justify-between gap-1">
+        <div className="my-0.5 flex items-baseline justify-between gap-1">
           <span
             className="font-mono-hud text-2xl font-bold tracking-tight sm:text-3xl"
             style={{ color: metabColor }}
@@ -302,18 +293,19 @@ export default function PrimaryVitalsStrip({
           </span>
         </div>
 
-        <div className="flex items-center justify-between rounded-md bg-[#111e36] px-2 py-0.5 font-mono-hud text-[10px] font-semibold text-slate-200">
-          <span>GLUC {b.bloodGlucoseMgDl}</span>
-          <span>HIDR {b.hydrationPercent}%</span>
-        </div>
+        <LivePhysioWaveform
+          mode="metab"
+          color={metabColor}
+          heightClass="h-6"
+        />
 
         <div className="mt-1 flex items-center justify-between font-mono-hud text-[10px] text-slate-400">
-          <span>Piel {b.skinTempC.toFixed(1)} °C</span>
-          <span>ΔT {(b.bodyTempC - b.skinTempC).toFixed(1)} °C</span>
+          <span>GLUC {b.bloodGlucoseMgDl}</span>
+          <span>HIDR {b.hydrationPercent}% · Δ{(b.bodyTempC - b.skinTempC).toFixed(1)}°</span>
         </div>
       </button>
 
-      {/* 6. Dosimetría CSA & Preparación */}
+      {/* 6. Dosimetría CSA (Centelleo de Partículas Cósmicas GCR/SPE en Vivo) */}
       <button
         type="button"
         onClick={() => onSelectZone("endocrino")}
@@ -333,7 +325,7 @@ export default function PrimaryVitalsStrip({
           />
         </div>
 
-        <div className="my-1 flex items-baseline justify-between gap-1">
+        <div className="my-0.5 flex items-baseline justify-between gap-1">
           <span
             className="font-mono-hud text-2xl font-bold tracking-tight sm:text-3xl"
             style={{ color: radColor }}
@@ -345,14 +337,16 @@ export default function PrimaryVitalsStrip({
           </span>
         </div>
 
-        <div className="flex items-center justify-between rounded-md bg-[#111e36] px-2 py-0.5 font-mono-hud text-[10px] font-semibold text-slate-200">
-          <span>Acum {b.cumulativeRadiationMsv.toFixed(1)}</span>
-          <span>Lím {CSA_RADIATION_LIMITS.careerLimitMsv}</span>
-        </div>
+        <LivePhysioWaveform
+          mode="rad"
+          color={radColor}
+          radiationMsv={b.dailyRadiationMsv}
+          heightClass="h-6"
+        />
 
         <div className="mt-1 flex items-center justify-between font-mono-hud text-[10px] text-slate-400">
+          <span>Acum {b.cumulativeRadiationMsv.toFixed(1)}/{CSA_RADIATION_LIMITS.careerLimitMsv}</span>
           <span>Aptitud {readinessScore}%</span>
-          <span>Sueño {b.sleepHours.toFixed(1)}h</span>
         </div>
       </button>
     </section>
