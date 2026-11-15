@@ -153,21 +153,17 @@ export interface MissionQuest {
   id: string;
   title: string;
   category: "fisico" | "hidratacion" | "mental" | "circadiano";
-  xpReward: number;
+  xpReward?: number;
   durationLabel: string;
   description: string;
   impactDescription: string;
+  nasaStandard?: string;
+  nasaSource?: string;
+  previousComparison?: string;
   completed: boolean;
 }
 
-export interface MissionBadge {
-  id: string;
-  name: string;
-  description: string;
-  requiredXp: number;
-  requiredStreak: number;
-  requiredQuests: number;
-}
+export type RecommendedHabit = MissionQuest;
 
 export interface EmergencyProtocolStep {
   id: string;
@@ -195,8 +191,8 @@ export interface AstronautDashboardState {
   routine: RoutineTracking;
   history: TelemetryPoint[];
   quests: MissionQuest[];
-  xp: number;
-  streakDays: number;
+  xp?: number;
+  streakDays?: number;
   emergencyMode: boolean;
   emergencyChecklist: EmergencyProtocolStep[];
   lastUltrasoundFinding: string;

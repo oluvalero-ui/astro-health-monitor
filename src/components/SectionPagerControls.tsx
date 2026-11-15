@@ -15,7 +15,7 @@ export const ORDERED_SECTIONS: SectionStepMeta[] = [
   { id: "escaner", index: 2, shortLabel: "Escáner Anatómico (6 Sistemas)" },
   { id: "wearable", index: 3, shortLabel: "Arnés Vestible (13 Signos)" },
   { id: "biomarcadores", index: 4, shortLabel: "Biomarcadores y Rutina" },
-  { id: "informes", index: 5, shortLabel: "Informes y Misiones" },
+  { id: "informes", index: 5, shortLabel: "Informes y Hábitos" },
 ];
 
 interface SectionPagerControlsProps {

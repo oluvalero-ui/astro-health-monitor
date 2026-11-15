@@ -289,7 +289,7 @@ export default function WearableHarnessPanel({
             </span>
           </div>
           <span className="rounded-full bg-emerald-600 px-2.5 py-0.5 font-mono-hud text-[11px] font-bold text-white">
-            +15 XP Gamificación
+            Guardado en bitácora
           </span>
         </div>
       )}
@@ -607,7 +607,7 @@ export default function WearableHarnessPanel({
               </span>
             </div>
             <p className="mt-1 text-[10px] leading-snug text-slate-500">
-              Sincroniza la ecuación PTT pecho→dedo contra lectura oscilométrica absoluta de brazo (+15 XP).
+              Sincroniza la ecuación PTT pecho→dedo contra lectura oscilométrica absoluta de brazo.
             </p>
             <button
               type="button"

@@ -2,7 +2,6 @@ import {
   AstronautDashboardState,
   BiomarkerData,
   EmergencyProtocolStep,
-  MissionBadge,
   MissionEnvironment,
   MissionEnvironmentId,
   MissionQuest,
@@ -573,95 +572,103 @@ export const DEFAULT_HISTORY: TelemetryPoint[] = [
 export const DEFAULT_QUESTS: MissionQuest[] = [
   {
     id: "quest-ared",
-    title: "60 min ejercicio resistivo ARED",
+    title: "120–150 min ejercicio combinado (ARED + CEVIS/T2)",
     category: "fisico",
-    xpReward: 150,
-    durationLabel: "60 min",
+    durationLabel: "120–150 min/día",
     description:
-      "Sentadillas con carga, peso muerto orbital y tracción dorsal para proteger densidad ósea y masa muscular.",
-    impactDescription: "Mejora densidad ósea, reduce fatiga y estrés",
+      "Protocolo diario en órbita: ~60 min de entrenamiento resistivo ARED (sentadillas, peso muerto, tracción) + ~60–90 min aeróbico en cicloergómetro CEVIS o cinta T2/COLBERT.",
+    impactDescription:
+      "Mitiga pérdida ósea (1–1.5%/mes en 0g), atrofia muscular y desacondicionamiento cardiovascular",
+    nasaStandard: "NASA HRP ISS: 2 a 2.5 h/día (resistencia + cardio)",
+    nasaSource: "NASA HRP · Countermeasures for Bone & Muscle Loss",
+    previousComparison:
+      "Ajustado al alza frente al borrador previo (antes 60 min solo ARED) para igualar la pauta oficial ISS.",
     completed: false,
   },
   {
     id: "quest-hydration",
-    title: "Completar 2.5L de hidratación",
+    title: "Hidratación ≥ 2.5 L/día (NASA-STD-3001)",
     category: "hidratacion",
-    xpReward: 100,
-    durationLabel: "Todo el día",
+    durationLabel: "≥ 32 mL/kg",
     description:
-      "Ingerir 10 tomas de 250 ml de agua con electrolitos para compensar la pérdida de líquidos en el espacio.",
-    impactDescription: "+6% balance hídrico y previene cálculos renales",
+      "Distribuir ≥ 2.5 L/día en hombres (≥ 2.1 L en mujeres) más reposición post-ARED para compensar la redistribución de líquidos en microgravedad y proteger la filtración renal.",
+    impactDescription:
+      "Mantiene balance hídrico y reduce riesgo de cálculos renales (2.ª causa potencial de evacuación médica)",
+    nasaStandard: "NASA-STD-3001: ≥ 32 mL/kg/día (~2.1–2.5 L base)",
+    nasaSource: "NASA-STD-3001 · HRP Risk of Renal Stone Formation",
+    previousComparison:
+      "Validado contra NASA-STD-3001; incorpora diferenciación clínica base y prevención renal.",
     completed: false,
   },
   {
     id: "quest-family",
-    title: "Pausa cognitiva / Videomensaje familiar",
+    title: "Pausa psicosocial / Enlace familiar (Protocolo BHP)",
     category: "mental",
-    xpReward: 120,
-    durationLabel: "20 min",
+    durationLabel: "20–30 min/día",
     description:
-      "Desconexión activa de consola técnica, envío de mensaje en video a casa o actividad recreativa con la tripulación.",
-    impactDescription: "Reduce soledad, aburrimiento y cansancio mental",
+      "Tiempo protegido de desconexión fuera de consola: videomensaje asíncrono o contacto con casa, ocio grupal y seguimiento para conferencias psicológicas privadas (PPC).",
+    impactDescription:
+      "Previene fatiga conductual, aislamiento prolongado, deterioro anímico y conflictos de equipo",
+    nasaStandard: "NASA BHP: Ocio protegido, soporte familiar y PPC",
+    nasaSource: "NASA HRP · Behavioral Health & Performance (BHP)",
+    previousComparison:
+      "Validado con prácticas oficiales BHP en ISS/CHAPEA; añade respaldo explícito para enlaces asíncronos.",
     completed: false,
   },
   {
     id: "quest-circadian",
-    title: "Calibración de luz circadiana",
+    title: "Iluminación circadiana SSLA y sueño protegido (8–8.5 h)",
     category: "circadiano",
-    xpReward: 90,
-    durationLabel: "Ciclo AM/PM",
+    durationLabel: "8–8.5 h + SSLA",
     description:
-      "Sincronizar paneles LED de cabina a espectro azul en la mañana y luz cálida tenue 60 min antes de dormir.",
-    impactDescription: "Estabiliza melatonina, cortisol y horas de sueño",
+      "Emplear luminarias LED SSLA de espectro azul en fase activa y luz cálida tenue 60–90 min antes de dormir, protegiendo 8–8.5 h de sueño con antifaz ante los 16 amaneceres/día.",
+    impactDescription:
+      "Estabiliza melatonina y cortisol; evita el déficit orbital típico (~6 h reales vs. 8.5 h meta)",
+    nasaStandard: "NASA SSLA + NASA-STD-3001: 8–8.5 h oportunidad de sueño",
+    nasaSource: "NASA HRP · ISS Solid State Lighting Assemblies (SSLA)",
+    previousComparison:
+      "Ampliado vs. versión previa: incorpora la meta oficial de 8–8.5 h de descanso junto a SSLA.",
     completed: false,
   },
   {
     id: "quest-csa-check",
-    title: "Lectura de dosímetro CSA y nutrición",
+    title: "Vitamina D (800 UI), nutrición y dosimetría CSA",
     category: "fisico",
-    xpReward: 80,
-    durationLabel: "10 min",
+    durationLabel: "800 UI + 3 tomas",
     description:
-      "Registrar exposición diaria en mSv y validar las 3 raciones calóricas completas contra la línea base.",
-    impactDescription: "Refuerza estabilidad de rutina y control metabólico",
+      "Ingerir suplemento diario de 800 UI de Vitamina D (sin radiación UV en cabina), completar raciones calóricas con antioxidantes y registrar la dosis diaria del dosímetro CSA Radi-N2.",
+    impactDescription:
+      "Respalda absorción cálcica/ósea en conjunto con ARED y vigilancia de exposición en mSv",
+    nasaStandard: "NASA Nutrition: 800 UI/día Vit. D + dosímetro Radi-N2",
+    nasaSource: "NASA HRP Space Nutrition · CSA Radi-N2 Dosimetry",
+    previousComparison:
+      "Actualizado: incorpora la dosis oficial diaria de 800 UI de Vitamina D ausente anteriormente.",
     completed: false,
   },
 ];
 
-export const MISSION_BADGES: MissionBadge[] = [
-  {
-    id: "badge-rookie",
-    name: "Tripulante Sincronizado",
-    description: "Completaste al menos 2 misiones diarias de bienestar.",
-    requiredXp: 200,
-    requiredStreak: 1,
-    requiredQuests: 2,
-  },
-  {
-    id: "badge-bone",
-    name: "Guardián Óseo ARED",
-    description: "Alcanza 450 XP manteniendo tu rutina física y de hidratación.",
-    requiredXp: 450,
-    requiredStreak: 5,
-    requiredQuests: 3,
-  },
-  {
-    id: "badge-mind",
-    name: "Mente Inquebrantable",
-    description: "Supera 650 XP protegiendo tu ciclo circadiano y salud emocional.",
-    requiredXp: 650,
-    requiredStreak: 7,
-    requiredQuests: 4,
-  },
-  {
-    id: "badge-artemis",
-    name: "Pionero Espacio Profundo",
-    description: "Completa todas las misiones diarias y supera 850 XP.",
-    requiredXp: 850,
-    requiredStreak: 10,
-    requiredQuests: 5,
-  },
-];
+export const NASA_DEFAULT_HABITS_BY_ID: Record<string, MissionQuest> =
+  Object.fromEntries(DEFAULT_QUESTS.map((habit) => [habit.id, habit]));
+
+export function hydrateRecommendedHabits(
+  stored?: MissionQuest[]
+): MissionQuest[] {
+  if (!Array.isArray(stored) || stored.length === 0) {
+    return DEFAULT_QUESTS;
+  }
+
+  const storedById = new Map(stored.map((item) => [item.id, item]));
+  const updatedBuiltIns = DEFAULT_QUESTS.map((def) => {
+    const existing = storedById.get(def.id);
+    return existing ? { ...def, completed: Boolean(existing.completed) } : def;
+  });
+
+  const customHabits = stored.filter(
+    (item) => !(item.id in NASA_DEFAULT_HABITS_BY_ID)
+  );
+
+  return [...updatedBuiltIns, ...customHabits];
+}
 
 export const DEFAULT_EMERGENCY_CHECKLIST: EmergencyProtocolStep[] = [
   {
@@ -731,8 +738,6 @@ export const INITIAL_DASHBOARD_STATE: AstronautDashboardState = {
   routine: DEFAULT_ROUTINE,
   history: DEFAULT_HISTORY,
   quests: DEFAULT_QUESTS,
-  xp: 340,
-  streakDays: 9,
   emergencyMode: false,
   emergencyChecklist: DEFAULT_EMERGENCY_CHECKLIST,
   lastUltrasoundFinding:
@@ -799,7 +804,7 @@ export const SCIENTIFIC_REFERENCES: ScientificReferenceSection[] = [
         detail:
           "Pasar de 1g terrestre a 0g, 0.16g (Luna) o 0.38g (Marte) causa desplazamiento cefálico de fluidos, desacondicionamiento cardiovascular y pérdida acelerada de hueso y músculo.",
         appMapping:
-          "Recálculo automático de gravedad y riesgos musculoesqueléticos, cardiovasculares e hídricos + misiones ARED.",
+          "Recálculo automático de gravedad y riesgos musculoesqueléticos, cardiovasculares e hídricos + hábitos NASA (ARED + aeróbico CEVIS/T2).",
       },
       {
         name: "5. Ambientes Cerrados Hostiles",

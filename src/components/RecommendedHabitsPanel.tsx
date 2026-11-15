@@ -2,27 +2,27 @@
 
 import React, { useState } from "react";
 import {
-  Award,
+  BookOpenCheck,
   CheckCircle2,
   Circle,
+  ClipboardCheck,
   Droplets,
   Dumbbell,
-  Flame,
   Plus,
-  Sparkles,
+  ShieldCheck,
   Sun,
-  Trophy,
   Video,
 } from "lucide-react";
-import { MISSION_BADGES } from "@/data/missionData";
 import { MissionQuest } from "@/types/astronaut";
 
-interface GamificationPanelProps {
-  quests: MissionQuest[];
-  xp: number;
-  streakDays: number;
-  onToggleQuest: (questId: string) => void;
-  onAddCustomQuest: (title: string, category: MissionQuest["category"]) => void;
+interface RecommendedHabitsPanelProps {
+  habits: MissionQuest[];
+  onToggleHabit: (habitId: string) => void;
+  onAddCustomHabit: (
+    title: string,
+    category: MissionQuest["category"]
+  ) => void;
+  onOpenReferences?: () => void;
 }
 
 const CATEGORY_ICON: Record<MissionQuest["category"], React.ReactNode> = {
@@ -32,88 +32,84 @@ const CATEGORY_ICON: Record<MissionQuest["category"], React.ReactNode> = {
   circadiano: <Sun className="h-3.5 w-3.5 text-emerald-600" />,
 };
 
-export default function GamificationPanel({
-  quests,
-  xp,
-  streakDays,
-  onToggleQuest,
-  onAddCustomQuest,
-}: GamificationPanelProps) {
-  const [newQuestTitle, setNewQuestTitle] = useState("");
+export default function RecommendedHabitsPanel({
+  habits,
+  onToggleHabit,
+  onAddCustomHabit,
+  onOpenReferences,
+}: RecommendedHabitsPanelProps) {
+  const [newHabitTitle, setNewHabitTitle] = useState("");
   const [newCategory, setNewCategory] =
     useState<MissionQuest["category"]>("mental");
 
-  const level = Math.floor(xp / 200) + 1;
-  const currentLevelXp = xp % 200;
-  const progressPct = Math.round((currentLevelXp / 200) * 100);
-  const completedCount = quests.filter((q) => q.completed).length;
+  const completedCount = habits.filter((h) => h.completed).length;
+  const totalCount = Math.max(1, habits.length);
+  const adherencePct = Math.round((completedCount / totalCount) * 100);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const trimmed = newQuestTitle.trim();
+    const trimmed = newHabitTitle.trim();
     if (!trimmed) return;
-    onAddCustomQuest(trimmed, newCategory);
-    setNewQuestTitle("");
+    onAddCustomHabit(trimmed, newCategory);
+    setNewHabitTitle("");
   };
 
   return (
     <section className="flex h-full flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-4 shadow-[0_6px_24px_rgba(15,23,42,0.04)] sm:p-5">
       <div>
-        {/* Header: Level, XP & Streak */}
+        {/* Header: Title & Daily Adherence */}
         <div className="mb-3.5 flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
           <div>
             <h2 className="flex items-center gap-2 text-base font-bold text-slate-900">
-              <Trophy className="h-5 w-5 text-amber-500" />
-              Módulo 4B · Misiones y Plan de Acción
+              <ClipboardCheck className="h-5 w-5 text-[#1a73e8]" />
+              Hábitos Recomendados
             </h2>
             <p className="mt-0.5 text-xs text-slate-500">
-              Completa contramedidas contra aburrimiento, sedentarismo y aislamiento.
+              Contramedidas diarias validadas contra protocolos oficiales NASA HRP
+              y estándar NASA-STD-3001.
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700">
-              <Flame className="h-3.5 w-3.5" />
-              <span className="font-mono-hud">{streakDays} días</span>
-            </div>
-            <div className="rounded-xl border border-blue-200 bg-blue-50 px-2.5 py-1 font-mono-hud text-xs font-bold text-[#1a73e8]">
-              Nivel {level}
-            </div>
+          <div className="flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">
+            <ShieldCheck className="h-3.5 w-3.5" />
+            <span className="font-mono-hud">
+              {completedCount}/{habits.length} cumplidos
+            </span>
           </div>
         </div>
 
-        {/* XP Progress Bar */}
+        {/* Daily Adherence Progress Bar */}
         <div className="mb-4 rounded-xl border border-slate-200 bg-slate-50/80 p-3">
           <div className="flex items-center justify-between text-xs">
             <span className="font-semibold text-slate-700">
-              Experiencia de Misión ({completedCount}/{quests.length} completadas hoy)
+              Adherencia preventiva del turno actual
             </span>
             <span className="font-mono-hud font-bold text-[#1a73e8]">
-              {xp} XP ({currentLevelXp}/200 para Nivel {level + 1})
+              {adherencePct}% ({completedCount} de {habits.length} hábitos)
             </span>
           </div>
           <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-slate-200">
             <div
               className="h-full rounded-full bg-gradient-to-r from-[#1a73e8] via-teal-500 to-emerald-500 transition-all duration-500"
-              style={{ width: `${Math.max(8, progressPct)}%` }}
+              style={{ width: `${Math.max(4, adherencePct)}%` }}
             />
           </div>
         </div>
 
-        {/* Interactive Missions Checklist */}
+        {/* Interactive Recommended Habits Checklist */}
         <div className="space-y-2">
-          {quests.map((quest) => (
+          {habits.map((habit) => (
             <button
-              key={quest.id}
+              key={habit.id}
               type="button"
-              onClick={() => onToggleQuest(quest.id)}
+              onClick={() => onToggleHabit(habit.id)}
               className={`flex w-full cursor-pointer items-start gap-2.5 rounded-xl border p-3 text-left transition ${
-                quest.completed
+                habit.completed
                   ? "border-emerald-300 bg-emerald-50/75"
                   : "border-slate-200 bg-slate-50/70 hover:border-blue-300 hover:bg-white"
               }`}
             >
-              {quest.completed ? (
+              {habit.completed ? (
                 <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
               ) : (
                 <Circle className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
@@ -123,36 +119,49 @@ export default function GamificationPanel({
                 <div className="flex flex-wrap items-center justify-between gap-1.5">
                   <span
                     className={`flex items-center gap-1.5 text-xs font-semibold ${
-                      quest.completed
+                      habit.completed
                         ? "text-emerald-800 line-through"
                         : "text-slate-800"
                     }`}
                   >
-                    {CATEGORY_ICON[quest.category]}
-                    {quest.title}
+                    {CATEGORY_ICON[habit.category]}
+                    {habit.title}
                   </span>
                   <span className="rounded-md bg-blue-50 px-2 py-0.5 font-mono-hud text-[10px] font-bold text-[#1a73e8]">
-                    +{quest.xpReward} XP · {quest.durationLabel}
+                    {habit.durationLabel}
                   </span>
                 </div>
+
                 <p className="mt-1 text-[11px] leading-snug text-slate-500">
-                  {quest.description}
+                  {habit.description}
                 </p>
+
                 <p className="mt-1 text-[11px] font-medium text-emerald-700">
-                  Impacto: {quest.impactDescription}
+                  Efecto clínico: {habit.impactDescription}
                 </p>
+
+                {habit.nasaStandard && (
+                  <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[10px]">
+                    <span className="rounded-md border border-blue-200 bg-blue-50/70 px-1.5 py-0.5 font-semibold text-[#0b2559]">
+                      {habit.nasaStandard}
+                    </span>
+                    {habit.nasaSource && (
+                      <span className="text-slate-400">{habit.nasaSource}</span>
+                    )}
+                  </div>
+                )}
               </div>
             </button>
           ))}
         </div>
 
-        {/* Add Custom Reminder / Activity */}
+        {/* Add Custom Personal Habit */}
         <form onSubmit={handleSubmit} className="mt-3 flex gap-2">
           <input
             type="text"
-            value={newQuestTitle}
-            onChange={(e) => setNewQuestTitle(e.target.value)}
-            placeholder="Añadir recordatorio personal (ej. música / estiramiento)..."
+            value={newHabitTitle}
+            onChange={(e) => setNewHabitTitle(e.target.value)}
+            placeholder="Añadir hábito personal (ej. estiramiento lumbar, lectura)..."
             className="min-w-0 flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-800 placeholder:text-slate-400 focus:border-[#1a73e8] focus:bg-white focus:outline-none"
           />
           <select
@@ -161,7 +170,7 @@ export default function GamificationPanel({
               setNewCategory(e.target.value as MissionQuest["category"])
             }
             className="rounded-xl border border-slate-200 bg-slate-50 px-2 py-1.5 text-xs text-slate-700 focus:border-[#1a73e8] focus:outline-none"
-            aria-label="Categoría de recordatorio"
+            aria-label="Categoría de hábito recomendado"
           >
             <option value="mental">Mental</option>
             <option value="fisico">Físico</option>
@@ -178,42 +187,40 @@ export default function GamificationPanel({
         </form>
       </div>
 
-      {/* Mission Badges */}
-      <div className="mt-4 border-t border-slate-100 pt-3">
-        <div className="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-600">
-          <Award className="h-4 w-4 text-amber-500" />
-          Insignias de Misión
+      {/* NASA HRP Evidence Summary Footer */}
+      <div className="mt-4 rounded-xl border border-blue-200/80 bg-blue-50/45 p-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#0b2559]">
+            <BookOpenCheck className="h-4 w-4 text-[#1a73e8]" />
+            Criterios Oficiales NASA HRP Aplicados
+          </div>
+          {onOpenReferences && (
+            <button
+              type="button"
+              onClick={onOpenReferences}
+              className="cursor-pointer text-[11px] font-semibold text-[#1a73e8] underline-offset-2 hover:underline"
+            >
+              Ver fuentes científicas
+            </button>
+          )}
         </div>
-        <div className="grid grid-cols-2 gap-2">
-          {MISSION_BADGES.map((badge) => {
-            const unlocked =
-              xp >= badge.requiredXp &&
-              streakDays >= badge.requiredStreak &&
-              completedCount >= badge.requiredQuests;
-            return (
-              <div
-                key={badge.id}
-                className={`rounded-xl border p-2.5 text-[11px] transition ${
-                  unlocked
-                    ? "border-blue-200 bg-blue-50/80 text-slate-900"
-                    : "border-slate-200 bg-slate-50/70 text-slate-400"
-                }`}
-              >
-                <div className="flex items-center gap-1.5 font-semibold">
-                  <Sparkles
-                    className={`h-3.5 w-3.5 shrink-0 ${
-                      unlocked ? "text-[#1a73e8]" : "text-slate-300"
-                    }`}
-                  />
-                  <span className="truncate">{badge.name}</span>
-                </div>
-                <p className="mt-0.5 line-clamp-2 text-[10px] opacity-85">
-                  {badge.description}
-                </p>
-              </div>
-            );
-          })}
-        </div>
+        <ul className="mt-2 space-y-1 text-[11px] leading-snug text-slate-600">
+          <li>
+            • <strong className="text-slate-800">Ejercicio ISS:</strong>{" "}
+            ampliado de 60 min a <strong>120–150 min/día</strong> (fuerza ARED +
+            aeróbico CEVIS/T2).
+          </li>
+          <li>
+            • <strong className="text-slate-800">Hidratación y Sueño:</strong>{" "}
+            pauta NASA-STD-3001 de <strong>≥ 2.5 L/día</strong> y ventana de{" "}
+            <strong>8–8.5 h</strong> con luz SSLA.
+          </li>
+          <li>
+            • <strong className="text-slate-800">Soporte nutricional y BHP:</strong>{" "}
+            <strong>800 UI/día Vitamina D</strong> por cabina sin UV + enlace
+            familiar y dosimetría CSA Radi-N2.
+          </li>
+        </ul>
       </div>
     </section>
   );

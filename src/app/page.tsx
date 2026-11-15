@@ -11,19 +11,22 @@ import { ClipboardList, ShieldCheck } from "lucide-react";
 import AnatomicalScanner from "@/components/AnatomicalScanner";
 import BiomarkersDashboard from "@/components/BiomarkersDashboard";
 import EmergencyBannerModal from "@/components/EmergencyBannerModal";
-import GamificationPanel from "@/components/GamificationPanel";
 import LeftNavSidebar, { NavSectionId } from "@/components/LeftNavSidebar";
 import MissionTimeSyncBar from "@/components/MissionTimeSyncBar";
 import MultimodalScanModal, {
   ScanModalTab,
 } from "@/components/MultimodalScanModal";
 import OverviewBentoGrid from "@/components/OverviewBentoGrid";
+import RecommendedHabitsPanel from "@/components/RecommendedHabitsPanel";
 import ScientificReferencesModal from "@/components/ScientificReferencesModal";
 import SectionPagerControls from "@/components/SectionPagerControls";
 import TelemetryCharts from "@/components/TelemetryCharts";
 import TopMissionBar from "@/components/TopMissionBar";
 import WearableHarnessPanel from "@/components/WearableHarnessPanel";
-import { INITIAL_DASHBOARD_STATE } from "@/data/missionData";
+import {
+  INITIAL_DASHBOARD_STATE,
+  hydrateRecommendedHabits,
+} from "@/data/missionData";
 import {
   AstronautDashboardState,
   BiomarkerData,
@@ -86,6 +89,7 @@ function getDashboardSnapshot(): AstronautDashboardState {
           ...INITIAL_DASHBOARD_STATE.routine,
           ...parsed.routine,
         },
+        quests: hydrateRecommendedHabits(parsed.quests),
       };
       return cachedParsed;
     }
@@ -343,13 +347,12 @@ export default function HomePage() {
     }));
   };
 
-  const handleToggleQuest = (questId: string) => {
+  const handleToggleHabit = (habitId: string) => {
     setState((prev) => {
-      const target = prev.quests.find((q) => q.id === questId);
+      const target = prev.quests.find((q) => q.id === habitId);
       if (!target) return prev;
 
       const completing = !target.completed;
-      const xpDelta = completing ? target.xpReward : -target.xpReward;
       const b = prev.biomarkers;
       const r = prev.routine;
 
@@ -417,48 +420,37 @@ export default function HomePage() {
         }
       }
 
-      const nextQuests = prev.quests.map((q) =>
-        q.id === questId ? { ...q, completed: completing } : q
+      const nextHabits = prev.quests.map((q) =>
+        q.id === habitId ? { ...q, completed: completing } : q
       );
-
-      const completedBefore = prev.quests.filter((q) => q.completed).length;
-      const completedAfter = nextQuests.filter((q) => q.completed).length;
-      const streakDelta =
-        completedBefore === 0 && completedAfter > 0
-          ? 1
-          : completedBefore > 0 && completedAfter === 0
-          ? -1
-          : 0;
 
       return {
         ...prev,
         previousBiomarkers: prev.biomarkers,
         biomarkers: nextBio,
         routine: nextRoutine,
-        quests: nextQuests,
-        xp: Math.max(0, prev.xp + xpDelta),
-        streakDays: Math.max(1, prev.streakDays + streakDelta),
+        quests: nextHabits,
       };
     });
   };
 
-  const handleAddCustomQuest = (
+  const handleAddCustomHabit = (
     title: string,
     category: MissionQuest["category"]
   ) => {
-    const customQuest: MissionQuest = {
+    const customHabit: MissionQuest = {
       id: `quest-custom-${Date.now()}`,
       title,
       category,
-      xpReward: 75,
       durationLabel: "15 min",
-      description: "Contramedida personalizada añadida por el tripulante.",
-      impactDescription: "Ayuda a mantener rutina activa y bienestar general",
+      description: "Hábito preventivo personalizado añadido por el tripulante.",
+      impactDescription:
+        "Refuerza adherencia a la rutina diaria y bienestar operativo",
       completed: false,
     };
     setState((prev) => ({
       ...prev,
-      quests: [...prev.quests, customQuest],
+      quests: [...prev.quests, customHabit],
     }));
   };
 
@@ -570,18 +562,17 @@ export default function HomePage() {
             onJumpToWearable={() => handleNavigateSection("wearable")}
           />
 
-          {/* Module 4: Dynamic Recharts Telemetry + Gamification Action Plan */}
+          {/* Module 4: Dynamic Recharts Telemetry + NASA HRP Recommended Habits */}
           <div className="grid grid-cols-1 gap-5 xl:grid-cols-12">
             <div className="xl:col-span-7">
               <TelemetryCharts history={state.history} />
             </div>
             <div className="xl:col-span-5">
-              <GamificationPanel
-                quests={state.quests}
-                xp={state.xp}
-                streakDays={state.streakDays}
-                onToggleQuest={handleToggleQuest}
-                onAddCustomQuest={handleAddCustomQuest}
+              <RecommendedHabitsPanel
+                habits={state.quests}
+                onToggleHabit={handleToggleHabit}
+                onAddCustomHabit={handleAddCustomHabit}
+                onOpenReferences={() => setReferencesOpen(true)}
               />
             </div>
           </div>

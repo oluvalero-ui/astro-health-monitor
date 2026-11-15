@@ -103,10 +103,10 @@ export default function LeftNavSidebar({
             <Camera className="h-5 w-5" />
           </button>
 
-          {/* Informes Recharts y Misiones */}
+          {/* Informes Recharts y Hábitos Recomendados */}
           <button
             type="button"
-            title="Informes y Misiones de Acción"
+            title="Informes y Hábitos Recomendados"
             onClick={() => onNavigate("informes")}
             className={navBtnClass(activeSection === "informes")}
           >

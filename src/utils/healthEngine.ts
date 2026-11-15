@@ -554,13 +554,12 @@ export function calibrateOscillometricCuff(
     ...state,
     previousBiomarkers: state.biomarkers,
     biomarkers: nextBiomarkers,
-    xp: state.xp + 15,
     scanLogs: [
       {
         id: `log-cal-${Date.now()}`,
         timestamp: `${utc} UTC`,
         modality: "wearable",
-        summary: `Calibración oscilométrica CSA BP Reg completada (30 s): PTT sincronizado a ${calibratedPtt} ms en ${env.shortName} (+15 XP).`,
+        summary: `Calibración oscilométrica CSA BP Reg completada (30 s): PTT sincronizado a ${calibratedPtt} ms en ${env.shortName}.`,
       },
       ...state.scanLogs.slice(0, 7),
     ],
