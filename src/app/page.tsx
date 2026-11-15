@@ -13,6 +13,7 @@ import MultimodalScanModal, {
 } from "@/components/MultimodalScanModal";
 import OverviewBentoGrid from "@/components/OverviewBentoGrid";
 import ScientificReferencesModal from "@/components/ScientificReferencesModal";
+import SectionPagerControls from "@/components/SectionPagerControls";
 import TelemetryCharts from "@/components/TelemetryCharts";
 import TopMissionBar from "@/components/TopMissionBar";
 import WearableHarnessPanel from "@/components/WearableHarnessPanel";
@@ -163,26 +164,17 @@ export default function HomePage() {
 
   const handleNavigateSection = (section: NavSectionId) => {
     setActiveNavSection(section);
-    if (typeof document === "undefined") return;
-    const idMap: Record<NavSectionId, string> = {
-      resumen: "resumen-bento",
-      escaner: "scanner-section",
-      wearable: "wearable-harness",
-      biomarcadores: "biomarkers-section",
-      informes: "informes-section",
-    };
-    const target = document.getElementById(idMap[section]);
-    target?.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (typeof document !== "undefined") {
+      const viewport = document.getElementById("section-viewport");
+      if (viewport) {
+        viewport.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    }
   };
 
   const handleSelectZoneAndScroll = (zone: SystemZoneId) => {
     setSelectedZone(zone);
-    setActiveNavSection("escaner");
-    if (typeof document !== "undefined") {
-      document
-        .getElementById("scanner-section")
-        ?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    handleNavigateSection("escaner");
   };
 
   const zoneStatuses = useMemo(
@@ -346,7 +338,6 @@ export default function HomePage() {
       let nextBio = { ...b };
       let nextRoutine = { ...r };
 
-      // Apply realistic countermeasure effects when completing quests
       if (completing) {
         if (target.id === "quest-ared" || target.category === "fisico") {
           nextBio = {
@@ -461,11 +452,12 @@ export default function HomePage() {
     }
     setState(INITIAL_DASHBOARD_STATE);
     setSelectedZone("cerebro");
+    handleNavigateSection("resumen");
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#f4f7fc] text-slate-900 md:flex-row">
-      {/* Left Deep-Navy Sidebar (Reference Design Layout) */}
+    <div className="flex h-screen flex-col overflow-hidden bg-[#f4f7fc] text-slate-900 md:flex-row">
+      {/* Barra Lateral Izquierda */}
       <LeftNavSidebar
         activeSection={activeNavSection}
         emergencyMode={state.emergencyMode}
@@ -475,9 +467,9 @@ export default function HomePage() {
         onToggleEmergency={handleToggleEmergency}
       />
 
-      {/* Right Main Scrollable Area */}
-      <div className="min-w-0 flex-1 bg-telemetry-grid">
-        {/* Top Mission Bar (scrolls naturally with content, non-sticky) */}
+      {/* Contenedor Principal Bloqueado a Pantalla Completa (Sin scroll global de ventana) */}
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-telemetry-grid">
+        {/* Barra Superior de Misión Fija */}
         <TopMissionBar
           environmentId={state.environmentId}
           telemedicineEnabled={state.telemedicineEnabled}
@@ -497,117 +489,144 @@ export default function HomePage() {
           onResetMission={handleResetMission}
         />
 
-        {/* Main Workspace */}
-        <main className="mx-auto max-w-[1600px] space-y-6 px-4 py-6 sm:px-6">
-          {/* Module 5: Live Emergency Alert & Flight Surgeon Contact Protocol */}
-          <EmergencyBannerModal
-            emergencyMode={state.emergencyMode}
-            environmentId={state.environmentId}
-            telemedicineEnabled={state.telemedicineEnabled}
-            biomarkers={state.biomarkers}
-            checklist={state.emergencyChecklist}
-            onToggleStep={handleToggleEmergencyStep}
-            onRestoreNominal={handleToggleEmergency}
-          />
-          {/* Cronometría en vivo: Tiempo del Astronauta vs. Tiempo en la Tierra */}
-          <MissionTimeSyncBar
-            environmentId={state.environmentId}
-            missionDay={state.missionDay}
-            telemedicineEnabled={state.telemedicineEnabled}
-          />
+        {/* Visor de Sección Activa (Cambio exclusivo por barra lateral o flechas) */}
+        <main
+          id="section-viewport"
+          onWheel={(e) => e.preventDefault()}
+          className="mx-auto w-full max-w-[1600px] flex-1 overflow-hidden px-4 py-5 sm:px-6"
+        >
+          <div className="h-full space-y-5 overflow-hidden">
+            {/* Alerta de Emergencia (visible en cualquier sección si está activa) */}
+            <EmergencyBannerModal
+              emergencyMode={state.emergencyMode}
+              environmentId={state.environmentId}
+              telemedicineEnabled={state.telemedicineEnabled}
+              biomarkers={state.biomarkers}
+              checklist={state.emergencyChecklist}
+              onToggleStep={handleToggleEmergencyStep}
+              onRestoreNominal={handleToggleEmergency}
+            />
 
-          {/* Executive 4-Card Bento Overview (mirrors reference screenshot layout) */}
-          <OverviewBentoGrid
-            environmentId={state.environmentId}
-            biomarkers={state.biomarkers}
-            routine={state.routine}
-            zoneStatuses={zoneStatuses}
-            readinessScore={readinessScore}
-            history={state.history}
-            onSelectZoneAndScroll={handleSelectZoneAndScroll}
-            onOpenScanTab={handleOpenScanTab}
-            onOpenReferences={() => setReferencesOpen(true)}
-          />
+            {/* SECCIÓN 1: Resumen Ejecutivo + Reloj Astronauta vs Tierra */}
+            {activeNavSection === "resumen" && (
+              <div className="space-y-5">
+                <MissionTimeSyncBar
+                  environmentId={state.environmentId}
+                  missionDay={state.missionDay}
+                  telemedicineEnabled={state.telemedicineEnabled}
+                />
+                <OverviewBentoGrid
+                  environmentId={state.environmentId}
+                  biomarkers={state.biomarkers}
+                  routine={state.routine}
+                  zoneStatuses={zoneStatuses}
+                  readinessScore={readinessScore}
+                  history={state.history}
+                  onSelectZoneAndScroll={handleSelectZoneAndScroll}
+                  onOpenScanTab={handleOpenScanTab}
+                  onOpenReferences={() => setReferencesOpen(true)}
+                />
+              </div>
+            )}
 
-          {/* Module 1: Interactive Anatomical & Psychological SVG Scanner */}
-          <AnatomicalScanner
-            selectedZone={selectedZone}
-            onSelectZone={setSelectedZone}
-            zoneStatuses={zoneStatuses}
-            biomarkers={state.biomarkers}
-            environmentId={state.environmentId}
-            onOpenScanTab={handleOpenScanTab}
-          />
-
-          {/* Prototype 2: CSA Bio-Monitor Wearable Body Area Network (13 Continuous Signs) */}
-          <WearableHarnessPanel
-            environmentId={state.environmentId}
-            biomarkers={state.biomarkers}
-            onCalibrateOscillometric={handleCalibrateOscillometric}
-            onSelectSystemZone={handleSelectZoneAndScroll}
-          />
-
-          {/* Module 2: Comprehensive Biomarkers, Mental/Behavioral Health & Routine Change Detector */}
-          <BiomarkersDashboard
-            biomarkers={state.biomarkers}
-            previousBiomarkers={state.previousBiomarkers}
-            routine={state.routine}
-            lastCameraFinding={state.lastCameraFinding}
-            lastUltrasoundFinding={state.lastUltrasoundFinding}
-            onSelectSystemZone={handleSelectZoneAndScroll}
-            onOpenManualEdit={() => handleOpenScanTab("manual")}
-            onJumpToWearable={() => handleNavigateSection("wearable")}
-          />
-
-          {/* Module 4: Dynamic Recharts Telemetry + Gamification Action Plan */}
-          <div className="grid grid-cols-1 gap-5 xl:grid-cols-12">
-            <div className="xl:col-span-7">
-              <TelemetryCharts history={state.history} />
-            </div>
-            <div className="xl:col-span-5">
-              <GamificationPanel
-                quests={state.quests}
-                xp={state.xp}
-                streakDays={state.streakDays}
-                onToggleQuest={handleToggleQuest}
-                onAddCustomQuest={handleAddCustomQuest}
+            {/* SECCIÓN 2: Escáner Anatómico Interactivo (6 Sistemas) */}
+            {activeNavSection === "escaner" && (
+              <AnatomicalScanner
+                selectedZone={selectedZone}
+                onSelectZone={setSelectedZone}
+                zoneStatuses={zoneStatuses}
+                biomarkers={state.biomarkers}
+                environmentId={state.environmentId}
+                onOpenScanTab={handleOpenScanTab}
               />
-            </div>
-          </div>
+            )}
 
-          {/* Local Offline Activity Audit Log */}
-          <section className="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-[0_6px_24px_rgba(15,23,42,0.04)] sm:p-5">
-            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-              <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-700">
-                <ClipboardList className="h-4 w-4 text-[#1a73e8]" />
-                Bitácora Local de Autoevaluaciones (Persistencia Offline)
-              </h3>
-              <span className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-700">
-                <ShieldCheck className="h-3.5 w-3.5" />
-                Guardado localmente en el dispositivo sin conexión externa
-              </span>
-            </div>
-            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
-              {state.scanLogs.slice(0, 4).map((log) => (
-                <div
-                  key={log.id}
-                  className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 text-xs"
-                >
-                  <div className="flex items-center justify-between font-mono-hud text-[10px]">
-                    <span className="font-semibold uppercase text-[#1a73e8]">
-                      {log.modality}
-                    </span>
-                    <span className="text-slate-400">{log.timestamp}</span>
+            {/* SECCIÓN 3: Arnés Vestible CSA Bio-Monitor (13 Signos) */}
+            {activeNavSection === "wearable" && (
+              <WearableHarnessPanel
+                environmentId={state.environmentId}
+                biomarkers={state.biomarkers}
+                onCalibrateOscillometric={handleCalibrateOscillometric}
+                onSelectSystemZone={handleSelectZoneAndScroll}
+              />
+            )}
+
+            {/* SECCIÓN 4: Biomarcadores, Salud Mental y Detector de Rutina */}
+            {activeNavSection === "biomarcadores" && (
+              <BiomarkersDashboard
+                biomarkers={state.biomarkers}
+                previousBiomarkers={state.previousBiomarkers}
+                routine={state.routine}
+                lastCameraFinding={state.lastCameraFinding}
+                lastUltrasoundFinding={state.lastUltrasoundFinding}
+                onSelectSystemZone={handleSelectZoneAndScroll}
+                onOpenManualEdit={() => handleOpenScanTab("manual")}
+                onJumpToWearable={() => handleNavigateSection("wearable")}
+              />
+            )}
+
+            {/* SECCIÓN 5: Informes Recharts, Misiones de Acción y Bitácora Local */}
+            {activeNavSection === "informes" && (
+              <div className="space-y-5">
+                <div className="grid grid-cols-1 gap-5 xl:grid-cols-12">
+                  <div className="xl:col-span-7">
+                    <TelemetryCharts history={state.history} />
                   </div>
-                  <p className="mt-1 line-clamp-2 text-slate-600">{log.summary}</p>
+                  <div className="xl:col-span-5">
+                    <GamificationPanel
+                      quests={state.quests}
+                      xp={state.xp}
+                      streakDays={state.streakDays}
+                      onToggleQuest={handleToggleQuest}
+                      onAddCustomQuest={handleAddCustomQuest}
+                    />
+                  </div>
                 </div>
-              ))}
-            </div>
-          </section>
+
+                {/* Bitácora Local de Autoevaluaciones */}
+                <section className="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-[0_6px_24px_rgba(15,23,42,0.04)] sm:p-5">
+                  <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                    <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-700">
+                      <ClipboardList className="h-4 w-4 text-[#1a73e8]" />
+                      Bitácora Local de Autoevaluaciones (Persistencia Offline)
+                    </h3>
+                    <span className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-700">
+                      <ShieldCheck className="h-3.5 w-3.5" />
+                      Guardado localmente en el dispositivo sin conexión externa
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
+                    {state.scanLogs.slice(0, 4).map((log) => (
+                      <div
+                        key={log.id}
+                        className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 text-xs"
+                      >
+                        <div className="flex items-center justify-between font-mono-hud text-[10px]">
+                          <span className="font-semibold uppercase text-[#1a73e8]">
+                            {log.modality}
+                          </span>
+                          <span className="text-slate-400">{log.timestamp}</span>
+                        </div>
+                        <p className="mt-1 line-clamp-2 text-slate-600">
+                          {log.summary}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              </div>
+            )}
+          </div>
         </main>
       </div>
 
-      {/* Module 3: Multimodal Scan Modal (Camera / Ultrasound / Manual) */}
+      {/* Control Flotante de Flechas Arriba / Abajo para cambiar entre secciones */}
+      <SectionPagerControls
+        activeSection={activeNavSection}
+        onNavigate={handleNavigateSection}
+      />
+
+      {/* Modal Multimodal (Cámara / Ultrasonido / Manual) */}
       {scanModalOpen && (
         <MultimodalScanModal
           isOpen={scanModalOpen}
@@ -621,7 +640,7 @@ export default function HomePage() {
         />
       )}
 
-      {/* Module 5: NASA HRP & CSA Scientific References Modal */}
+      {/* Modal de Referencias Científicas NASA HRP & CSA */}
       <ScientificReferencesModal
         isOpen={referencesOpen}
         onClose={() => setReferencesOpen(false)}
