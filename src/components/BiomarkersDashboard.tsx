@@ -71,7 +71,6 @@ interface BiomarkersDashboardProps {
   previousBiomarkers: BiomarkerData;
   routine: RoutineTracking;
   lastCameraFinding: string;
-  lastUltrasoundFinding: string;
   onSelectSystemZone: (zone: SystemZoneId) => void;
   onOpenManualEdit: () => void;
   onJumpToWearable?: () => void;
@@ -216,7 +215,6 @@ export default function BiomarkersDashboard({
   previousBiomarkers: prev,
   routine,
   lastCameraFinding,
-  lastUltrasoundFinding,
   onSelectSystemZone,
   onOpenManualEdit,
   onJumpToWearable,
@@ -367,9 +365,6 @@ export default function BiomarkersDashboard({
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2.5">
-            <span className="font-mono-hud text-[11px] text-slate-500">
-              Último Ultrasonido: {lastUltrasoundFinding}
-            </span>
             {onJumpToWearable && (
               <button
                 type="button"
@@ -399,7 +394,7 @@ export default function BiomarkersDashboard({
             title="Presión Arterial"
             value={`${b.systolicBP}/${b.diastolicBP}`}
             unit="mmHg"
-            subtitle={`Derivada vía PTT (${b.pttMs} ms) · Bio-Monitor Frontal`}
+            subtitle={`Derivada vía PTT pecho→dedo (${b.pttMs} ms)`}
             status={evaluateBpStatus(b.systolicBP, b.diastolicBP)}
             trend={getTrend(b.systolicBP, prev.systolicBP, 2)}
             progressPercent={(b.systolicBP / 170) * 100}

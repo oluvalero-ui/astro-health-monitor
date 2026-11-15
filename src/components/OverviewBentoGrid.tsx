@@ -19,7 +19,7 @@ import {
   Globe,
   Radiation,
   ScanLine,
-  Waves,
+  Watch,
 } from "lucide-react";
 import {
   CSA_RADIATION_LIMITS,
@@ -49,6 +49,7 @@ interface OverviewBentoGridProps {
   readinessScore: number;
   history: TelemetryPoint[];
   onSelectZoneAndScroll: (zone: SystemZoneId) => void;
+  onNavigateWearable: () => void;
   onOpenScanTab: (tab: ScanModalTab) => void;
   onOpenReferences: () => void;
 }
@@ -104,6 +105,7 @@ export default function OverviewBentoGrid({
   readinessScore,
   history,
   onSelectZoneAndScroll,
+  onNavigateWearable,
   onOpenScanTab,
   onOpenReferences,
 }: OverviewBentoGridProps) {
@@ -357,25 +359,25 @@ export default function OverviewBentoGrid({
             </div>
           </button>
 
-          {/* Thumbnail 3: Ultrasound Scanner */}
+          {/* Thumbnail 3: Wearable Body Area Network (Prototype 2) */}
           <button
             type="button"
-            onClick={() => onOpenScanTab("ultrasonido")}
+            onClick={onNavigateWearable}
             className="group cursor-pointer overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-left transition hover:border-blue-400 hover:bg-blue-50/40"
           >
             <div className="flex h-20 items-center justify-between rounded-lg bg-gradient-to-br from-[#0f172a] to-[#0e7490] px-3 text-white">
               <div>
                 <div className="text-[10px] font-semibold uppercase tracking-wider text-cyan-200">
-                  Ultrasonido
+                  Arnés Vestible
                 </div>
                 <div className="mt-0.5 text-xs font-bold">
-                  Hueso {b.boneDensityIndex.toFixed(0)}%
+                  13 Signos · 3 Nodos
                 </div>
               </div>
-              <Waves className="h-8 w-8 text-teal-300 transition group-hover:scale-110" />
+              <Watch className="h-8 w-8 text-teal-300 transition group-hover:scale-110" />
             </div>
             <div className="mt-1.5 text-[11px] font-medium text-slate-600">
-              Densidad ósea y tejidos
+              Pecho, Cabeza y Dedo
             </div>
           </button>
 

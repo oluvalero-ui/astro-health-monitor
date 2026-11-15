@@ -119,7 +119,7 @@ export default function ScientificReferencesModal({
           <div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-800">
             <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-600" />
             <span>
-              Arquitectura 100% Autónoma Offline: Toda la base científica, simulaciones de ultrasonido, análisis facial y almacenamiento local operan sin conexión a internet ni dependencias externas.
+              Arquitectura 100% Autónoma Offline: Toda la base científica, telemetría vestible, análisis facial y almacenamiento local operan sin conexión a internet ni dependencias externas.
             </span>
           </div>
         </div>

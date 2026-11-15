@@ -104,10 +104,12 @@ export interface HemodynamicIndices {
   mapMmHg: number;
   pulsePressureMmHg: number;
   shockIndex: number;
+  thermalGradientC: number;
   orthostaticAlert: boolean;
   mapStatus: HealthStatus;
   pulsePressureStatus: HealthStatus;
   shockStatus: HealthStatus;
+  thermalGradientStatus: HealthStatus;
 }
 
 export interface RoutineTracking {

@@ -93,10 +93,10 @@ export default function LeftNavSidebar({
             <Activity className="h-5 w-5" />
           </button>
 
-          {/* Entrada Multimodal (Cámara / Ultrasonido / Manual) */}
+          {/* Entrada Multimodal (Cámara / Registro Manual) */}
           <button
             type="button"
-            title="Evaluación Multimodal (Cámara / Ultrasonido)"
+            title="Evaluación Multimodal (Cámara / Registro Manual)"
             onClick={onOpenScanModal}
             className={navBtnClass(false)}
           >
@@ -194,7 +194,7 @@ export default function LeftNavSidebar({
           type="button"
           onClick={onOpenScanModal}
           className="rounded-lg p-2 text-blue-100/80"
-          aria-label="Cámara y Ultrasonido"
+          aria-label="Cámara y Registro Manual"
         >
           <Camera className="h-4 w-4" />
         </button>

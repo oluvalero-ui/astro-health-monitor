@@ -30,7 +30,7 @@ interface AnatomicalScannerProps {
   zoneStatuses: Record<SystemZoneId, HealthStatus>;
   biomarkers: BiomarkerData;
   environmentId: MissionEnvironmentId;
-  onOpenScanTab: (tab: "camara" | "ultrasonido" | "manual") => void;
+  onOpenScanTab: (tab: "camara" | "manual") => void;
 }
 
 const ZONE_ICONS: Record<SystemZoneId, React.ReactNode> = {
@@ -115,13 +115,9 @@ export default function AnatomicalScanner({
     };
   };
 
-  const recommendedScanTab: "camara" | "ultrasonido" | "manual" =
+  const recommendedScanTab: "camara" | "manual" =
     selectedZone === "rostro" || selectedZone === "cerebro"
       ? "camara"
-      : selectedZone === "musculo" ||
-        selectedZone === "abdomen" ||
-        selectedZone === "corazon"
-      ? "ultrasonido"
       : "manual";
 
   return (

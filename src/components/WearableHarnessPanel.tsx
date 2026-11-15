@@ -36,7 +36,9 @@ import {
   evaluateRadiationStatus,
   evaluateRespiratoryRateStatus,
   evaluateSkinTempStatus,
+  evaluateSleepStatus,
   evaluateSpo2Status,
+  evaluateStressStatus,
   evaluateTempStatus,
   STATUS_HEX,
   STATUS_LABELS,
@@ -55,6 +57,7 @@ interface TelemetryBadgeProps {
   meta: string;
   status: HealthStatus;
   onClick?: () => void;
+  className?: string;
 }
 
 function TelemetryBadge({
@@ -63,6 +66,7 @@ function TelemetryBadge({
   meta,
   status,
   onClick,
+  className = "",
 }: TelemetryBadgeProps) {
   const hex = STATUS_HEX[status];
   return (
@@ -82,7 +86,7 @@ function TelemetryBadge({
       }
       className={`rounded-xl border border-slate-200/90 bg-slate-50/75 p-2.5 transition ${
         onClick ? "cursor-pointer hover:border-blue-300 hover:bg-white" : ""
-      }`}
+      } ${className}`}
     >
       <div className="flex items-center justify-between gap-1.5">
         <span className="truncate text-[11px] font-semibold text-slate-700">
@@ -141,7 +145,7 @@ function buildEcgTrace(
 }
 
 /**
- * Generates deterministic frontal PPG arterial pulse wave shifted by PTT relative to ECG.
+ * Generates deterministic distal finger PPG arterial pulse wave shifted by chest-to-finger PTT.
  */
 function buildPpgTrace(bpm: number, pttMs: number): string {
   const width = 300;
@@ -172,20 +176,6 @@ export default function WearableHarnessPanel({
 
   const env = MISSION_ENVIRONMENTS[environmentId];
   const hemo = computeHemodynamicIndices(b, environmentId);
-
-  const vocalStressIndex = Math.round((b.facialTension + b.stressLevel) / 2);
-  const vocalStatus: HealthStatus =
-    vocalStressIndex >= 72
-      ? "critical"
-      : vocalStressIndex >= 46
-      ? "warning"
-      : "optimal";
-  const vocalLabel =
-    vocalStatus === "critical"
-      ? "Estrés Vocal Agudo"
-      : vocalStatus === "warning"
-      ? "Tensión Laríngea Moderada"
-      : "Prosodia Estable";
 
   const leadIPoints = useMemo(
     () => buildEcgTrace(b.bpm, b.hrvRmssdMs, 0.85, 0),
@@ -233,7 +223,7 @@ export default function WearableHarnessPanel({
                 Prototipo 2 · Red de Área Corporal Vestible (Bio-Monitor / Astroskin CSA)
               </h2>
               <span className="rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 font-mono-hud text-[10px] font-bold uppercase tracking-wider text-[#1a73e8]">
-                13 Signos Continuos 24/7
+                13 Signos Continuos + 5 Índices
               </span>
               <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 font-mono-hud text-[10px] font-semibold text-emerald-700">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
@@ -241,7 +231,7 @@ export default function WearableHarnessPanel({
               </span>
             </div>
             <p className="mt-0.5 text-xs text-slate-500">
-              Adquisición continua sin cables ni conexión a Tierra mediante chaleco textil RIP/ECG, vincha óptica frontal PPG + flujo térmico nulo y pulsera dosimétrica.
+              Adquisición continua sin cables ni conexión a Tierra mediante Banda Torácica (ECG/RIP), Banda Cefálica (ZHF + respaldo central) y Pulsera + Sensor en Dedo (PTT largo, GSR, temperatura distal, sueño y dosimetría).
             </p>
           </div>
         </div>
@@ -306,8 +296,8 @@ export default function WearableHarnessPanel({
 
       {/* 3 Physical Capture Nodes Grid */}
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-12">
-        {/* NODE 1: Smart Thoracic Vest (6 Continuous Signs + 3-Lead ECG SVG) */}
-        <div className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-xs xl:col-span-5">
+        {/* NODE 1: Thoracic Strap (5 Continuous Signs + 3-Lead ECG SVG) */}
+        <div className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-xs xl:col-span-4">
           <div>
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
               <div className="flex items-center gap-2">
@@ -316,10 +306,10 @@ export default function WearableHarnessPanel({
                 </span>
                 <div>
                   <h3 className="text-xs font-bold uppercase tracking-wider text-[#0b2559]">
-                    Nodo 1 · Chaleco Inteligente Torácico
+                    Nodo 1 · Banda Torácica (Pecho)
                   </h3>
                   <p className="text-[11px] text-slate-500">
-                    Bio-Monitor RIP + ECG Textil 3 Derivaciones
+                    ECG Textil 3 Derivaciones + Bandas RIP + Acelerómetro
                   </p>
                 </div>
               </div>
@@ -374,8 +364,8 @@ export default function WearableHarnessPanel({
               </div>
             </div>
 
-            {/* 6 Continuous Thoracic Parameters */}
-            <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {/* 5 Continuous Thoracic Parameters */}
+            <div className="mt-3 grid grid-cols-2 gap-2">
               <TelemetryBadge
                 label="Frec. Cardíaca"
                 value={`${b.bpm} BPM`}
@@ -405,25 +395,19 @@ export default function WearableHarnessPanel({
                 onClick={() => onSelectSystemZone?.("corazon")}
               />
               <TelemetryBadge
-                label="Temp. Cutánea"
-                value={`${b.skinTempC.toFixed(1)} °C`}
-                meta="Termistor 1 Hz (32–35.5)"
-                status={evaluateSkinTempStatus(b.skinTempC)}
-                onClick={() => onSelectSystemZone?.("abdomen")}
-              />
-              <TelemetryBadge
                 label="Postura Axial"
                 value={`${b.postureScore}/100`}
-                meta="Acelerómetro 64 Hz"
+                meta="Acelerómetro torácico 64 Hz"
                 status={evaluatePostureStatus(b.postureScore)}
                 onClick={() => onSelectSystemZone?.("rostro")}
+                className="col-span-2"
               />
             </div>
           </div>
         </div>
 
-        {/* NODE 2: Frontal Cephalic Headband (5 Continuous Signs + PTT PPG Wave) */}
-        <div className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-xs xl:col-span-4">
+        {/* NODE 2: Cephalic Headband (3 Continuous Cranial Signs + Backup Rationale) */}
+        <div className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-xs xl:col-span-3">
           <div>
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
               <div className="flex items-center gap-2">
@@ -432,10 +416,10 @@ export default function WearableHarnessPanel({
                 </span>
                 <div>
                   <h3 className="text-xs font-bold uppercase tracking-wider text-[#0b2559]">
-                    Nodo 2 · Vincha Cefálica Frontal
+                    Nodo 2 · Banda Cefálica (Cabeza)
                   </h3>
                   <p className="text-[11px] text-slate-500">
-                    PPG Óptico 64 Hz + Flujo Térmico Nulo (ZHF)
+                    Flujo Térmico Nulo (ZHF) + PPG Central Respaldo
                   </p>
                 </div>
               </div>
@@ -444,34 +428,97 @@ export default function WearableHarnessPanel({
               </span>
             </div>
 
-            {/* Cephalad Fluid Shift Rationale Card */}
+            {/* Cephalad Fluid Shift & Central Backup Rationale Card */}
             <div className="mt-3 rounded-xl border border-blue-200/80 bg-blue-50/70 p-2.5 text-[11px] leading-relaxed text-slate-700">
               <div className="flex items-center gap-1.5 font-bold text-[#0b2559]">
                 <Wind className="h-3.5 w-3.5 text-[#1a73e8]" />
-                Ubicación Frontal por Desplazamiento Cefálico de Fluidos
+                Temp. Central y Respaldo en Frío / EVA
               </div>
               <p className="mt-1 text-slate-600">
-                En microgravedad (~2 L de líquido migran de piernas a cabeza y disminuye el pulso periférico en dedos), el sensor frontal sobre la arteria supraorbitaria garantiza señal PPG estable sin estorbar guantes ni tareas EVA.
+                El sensor ZHF mide la temperatura central real junto al cráneo. Ante vasoconstricción en los dedos (frío o pre-shock), la arteria supraorbitaria conserva SpO₂ y perfusión central estables.
               </p>
             </div>
 
-            {/* Deterministic PPG + PTT Transit Strip */}
-            <div className="mt-2.5 rounded-xl border border-slate-200 bg-slate-50/90 p-2.5">
+            {/* 3 Continuous Frontal Parameters */}
+            <div className="mt-3 space-y-2">
+              <TelemetryBadge
+                label="Temp. Central (ZHF)"
+                value={`${b.bodyTempC.toFixed(1)} °C`}
+                meta="Zero-Heat-Flux craneal 1 Hz"
+                status={evaluateTempStatus(b.bodyTempC)}
+                onClick={() => onSelectSystemZone?.("abdomen")}
+              />
+              <TelemetryBadge
+                label="SpO₂ Central (Respaldo)"
+                value={`${b.spo2Percent}%`}
+                meta="Arteria supraorbitaria 64 Hz (< 92%)"
+                status={evaluateSpo2Status(b.spo2Percent)}
+                onClick={() => onSelectSystemZone?.("corazon")}
+              />
+              <TelemetryBadge
+                label="Perfusión Frontal (PI)"
+                value={`${b.perfusionIndex.toFixed(1)}%`}
+                meta="Respaldo óptico central (Alerta < 0.5%)"
+                status={evaluatePerfusionIndexStatus(b.perfusionIndex)}
+                onClick={() => onSelectSystemZone?.("corazon")}
+              />
+            </div>
+          </div>
+
+          {/* Central vs Finger Thermal Contrast Pill */}
+          <div className="mt-3 flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs">
+            <span className="flex items-center gap-1.5 text-slate-600">
+              <Thermometer className="h-3.5 w-3.5 text-indigo-600" />
+              Contraste Frente–Dedo:
+            </span>
+            <span
+              className="font-mono-hud font-bold"
+              style={{ color: STATUS_HEX[hemo.thermalGradientStatus] }}
+            >
+              Δ {hemo.thermalGradientC.toFixed(1)} °C
+            </span>
+          </div>
+        </div>
+
+        {/* NODE 3: Wristband + Finger Sensor (5 Continuous Signs + Distal PPG + Cuff Calibration) */}
+        <div className="flex flex-col justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs xl:col-span-5">
+          <div>
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+              <div className="flex items-center gap-2">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-50 text-teal-600">
+                  <Radio className="h-4 w-4" />
+                </span>
+                <div>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#0b2559]">
+                    Nodo 3 · Pulsera + Sensor en Dedo
+                  </h3>
+                  <p className="text-[11px] text-slate-500">
+                    PPG Digital (PTT) + GSR + Termistor + Actígrafo + MOSFET
+                  </p>
+                </div>
+              </div>
+              <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-mono-hud text-[10px] font-bold text-emerald-700">
+                Activo · 64 Hz / 1 Hz
+              </span>
+            </div>
+
+            {/* Deterministic Distal Finger PPG + Long-Path PTT Strip */}
+            <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50/90 p-2.5">
               <div className="mb-1 flex items-center justify-between font-mono-hud text-[10px]">
-                <span className="font-bold text-indigo-900">
-                  ONDA PPG FRONTAL · PTT = {b.pttMs} ms
+                <span className="font-bold text-teal-900">
+                  ONDA PPG EN DEDO · PTT = {b.pttMs} ms
                 </span>
                 <span
                   className="font-semibold"
                   style={{ color: STATUS_HEX[evaluatePttStatus(b.pttMs)] }}
                 >
-                  ECG pecho → PPG frente
+                  ECG pecho → PPG dedo
                 </span>
               </div>
               <svg
                 viewBox="0 0 300 42"
                 className="h-10 w-full rounded border border-slate-200/70 bg-white"
-                aria-label="Onda de pulso PPG frontal y tiempo de tránsito PTT"
+                aria-label="Onda de pulso PPG en dedo y tiempo de tránsito PTT pecho a dedo"
               >
                 <line
                   x1="0"
@@ -483,7 +530,7 @@ export default function WearableHarnessPanel({
                 />
                 <polyline
                   fill="none"
-                  stroke="#6366f1"
+                  stroke="#0d9488"
                   strokeWidth="1.9"
                   strokeLinejoin="round"
                   points={ppgWavePoints}
@@ -491,77 +538,43 @@ export default function WearableHarnessPanel({
               </svg>
             </div>
 
-            {/* 5 Continuous Frontal Parameters */}
+            {/* 5 Continuous Wrist + Finger Parameters */}
             <div className="mt-3 grid grid-cols-2 gap-2">
               <TelemetryBadge
-                label="PA Continua (vía PTT)"
+                label="PA Continua (PTT Dedo)"
                 value={`${b.systolicBP}/${b.diastolicBP} mmHg`}
-                meta={`PTT ${b.pttMs} ms · Sin manguito`}
+                meta={`PTT largo ${b.pttMs} ms (ECG pecho → PPG dedo) · Sin manguito`}
                 status={evaluateBpStatus(b.systolicBP, b.diastolicBP)}
                 onClick={() => onSelectSystemZone?.("corazon")}
+                className="col-span-2"
               />
               <TelemetryBadge
-                label="SpO₂ Arterial"
-                value={`${b.spo2Percent}%`}
-                meta="PPG 64 Hz (Alerta < 92%)"
-                status={evaluateSpo2Status(b.spo2Percent)}
-                onClick={() => onSelectSystemZone?.("corazon")}
-              />
-              <TelemetryBadge
-                label="Índice Perfusión (PI)"
-                value={`${b.perfusionIndex.toFixed(1)}%`}
-                meta="Óptico 64 Hz (Alerta < 0.5%)"
-                status={evaluatePerfusionIndexStatus(b.perfusionIndex)}
-                onClick={() => onSelectSystemZone?.("corazon")}
-              />
-              <TelemetryBadge
-                label="Temp. Central (ZHF)"
-                value={`${b.bodyTempC.toFixed(1)} °C`}
-                meta="Zero-Heat-Flux 1 Hz"
-                status={evaluateTempStatus(b.bodyTempC)}
+                label="Temp. Periférica (Dedo)"
+                value={`${b.skinTempC.toFixed(1)} °C`}
+                meta="Termistor digital 1 Hz (32–35.5)"
+                status={evaluateSkinTempStatus(b.skinTempC)}
                 onClick={() => onSelectSystemZone?.("abdomen")}
               />
-            </div>
-          </div>
-        </div>
-
-        {/* NODE 3: Wristband & Laryngeal Collar + Derived Hemodynamics & Cuff Calibration */}
-        <div className="flex flex-col justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs xl:col-span-3">
-          <div>
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
-              <div className="flex items-center gap-2">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-50 text-teal-600">
-                  <Radio className="h-4 w-4" />
-                </span>
-                <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#0b2559]">
-                    Nodo 3 · Pulsera y Collar
-                  </h3>
-                  <p className="text-[11px] text-slate-500">
-                    Radi-N2 / MOSFET + Acústica 16 kHz
-                  </p>
-                </div>
-              </div>
-              <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-mono-hud text-[10px] font-bold text-emerald-700">
-                Activo · 1 Hz
-              </span>
-            </div>
-
-            {/* 2 Continuous Node 3 Parameters */}
-            <div className="mt-3 space-y-2">
               <TelemetryBadge
-                label="Dosimetría Radiación (MOSFET)"
+                label="Estrés Simpático (GSR)"
+                value={`${b.stressLevel}/100`}
+                meta="Conductancia palmar/digital"
+                status={evaluateStressStatus(b.stressLevel)}
+                onClick={() => onSelectSystemZone?.("cerebro")}
+              />
+              <TelemetryBadge
+                label="Actigrafía de Sueño"
+                value={`${b.sleepHours.toFixed(1)} hrs`}
+                meta="Acelerómetro muñeca (Meta 7–8 h)"
+                status={evaluateSleepStatus(b.sleepHours)}
+                onClick={() => onSelectSystemZone?.("cerebro")}
+              />
+              <TelemetryBadge
+                label="Dosimetría (MOSFET)"
                 value={`${b.dailyRadiationMsv.toFixed(2)} mSv/d`}
                 meta={`Acum: ${b.cumulativeRadiationMsv.toFixed(1)}/${CSA_RADIATION_LIMITS.careerLimitMsv} mSv · ${CSA_RADIATION_LIMITS.instrumentName}`}
                 status={evaluateRadiationStatus(b.dailyRadiationMsv)}
                 onClick={() => onSelectSystemZone?.("endocrino")}
-              />
-              <TelemetryBadge
-                label="Collar Laríngeo (Estrés Vocal)"
-                value={`${vocalStressIndex}/100`}
-                meta={`${vocalLabel} · Análisis acústico local`}
-                status={vocalStatus}
-                onClick={() => onSelectSystemZone?.("cerebro")}
               />
             </div>
 
@@ -594,7 +607,7 @@ export default function WearableHarnessPanel({
               </span>
             </div>
             <p className="mt-1 text-[10px] leading-snug text-slate-500">
-              Sincroniza la ecuación PTT pecho-frente contra lectura oscilométrica absoluta de brazo (+15 XP).
+              Sincroniza la ecuación PTT pecho→dedo contra lectura oscilométrica absoluta de brazo (+15 XP).
             </p>
             <button
               type="button"
@@ -608,12 +621,12 @@ export default function WearableHarnessPanel({
         </div>
       </div>
 
-      {/* Derived Hemodynamic Indices Strip */}
+      {/* Derived Hemodynamic & Thermal Indices Strip */}
       <div className="mt-4 rounded-xl border border-slate-200/90 bg-slate-50/75 p-3.5">
         <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
           <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#0b2559]">
             <Gauge className="h-4 w-4 text-[#1a73e8]" />
-            Índices Hemodinámicos Derivados en Tiempo Real (Sin Conexión a Tierra)
+            Índices Hemodinámicos y Térmicos Derivados (5 Cálculos Sin Hardware Extra)
           </h3>
           <span
             className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${
@@ -633,99 +646,80 @@ export default function WearableHarnessPanel({
           </span>
         </div>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          {/* PAM */}
-          <div className="rounded-xl border border-slate-200 bg-white p-3">
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-semibold text-slate-700">
-                Presión Arterial Media (PAM)
-              </span>
-              <span
-                className="rounded-full px-2 py-0.5 font-mono-hud text-[10px] font-bold uppercase"
-                style={{
-                  backgroundColor: `${STATUS_HEX[hemo.mapStatus]}1a`,
-                  color: STATUS_HEX[hemo.mapStatus],
-                }}
-              >
-                {STATUS_LABELS[hemo.mapStatus]}
-              </span>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            {
+              key: "map",
+              title: "Presión Arterial Media (PAM)",
+              value: `${hemo.mapMmHg}`,
+              unit: "mmHg",
+              status: hemo.mapStatus,
+              note: "Nominal: 70–100 mmHg · Crítico < 65 mmHg",
+            },
+            {
+              key: "pp",
+              title: "Presión de Pulso",
+              value: `${hemo.pulsePressureMmHg}`,
+              unit: "mmHg",
+              status: hemo.pulsePressureStatus,
+              note: "Nominal: 30–50 mmHg · Alerta < 25 mmHg",
+            },
+            {
+              key: "shock",
+              title: "Índice de Shock (FC / PAS)",
+              value: hemo.shockIndex.toFixed(2),
+              unit: "ratio",
+              status: hemo.shockStatus,
+              note: "Nominal: 0.50–0.70 · Crítico ≥ 0.90",
+            },
+            {
+              key: "thermal",
+              title: "Gradiente Térmico (Frente–Dedo)",
+              value: hemo.thermalGradientC.toFixed(1),
+              unit: "°C",
+              status: hemo.thermalGradientStatus,
+              note: "Nominal: 1.0–4.2 °C · Vasoconstricción ≥ 5.8 °C",
+            },
+          ].map((item) => (
+            <div
+              key={item.key}
+              className="rounded-xl border border-slate-200 bg-white p-3"
+            >
+              <div className="flex items-center justify-between gap-1.5 text-xs">
+                <span className="font-semibold text-slate-700">
+                  {item.title}
+                </span>
+                <span
+                  className="shrink-0 rounded-full px-2 py-0.5 font-mono-hud text-[10px] font-bold uppercase"
+                  style={{
+                    backgroundColor: `${STATUS_HEX[item.status]}1a`,
+                    color: STATUS_HEX[item.status],
+                  }}
+                >
+                  {STATUS_LABELS[item.status]}
+                </span>
+              </div>
+              <div className="mt-1.5 flex items-baseline gap-1.5">
+                <span className="font-mono-hud text-xl font-bold text-slate-900">
+                  {item.value}
+                </span>
+                <span className="font-mono-hud text-xs text-slate-500">
+                  {item.unit}
+                </span>
+              </div>
+              <p className="mt-0.5 text-[11px] text-slate-500">{item.note}</p>
             </div>
-            <div className="mt-1.5 flex items-baseline gap-1.5">
-              <span className="font-mono-hud text-xl font-bold text-slate-900">
-                {hemo.mapMmHg}
-              </span>
-              <span className="font-mono-hud text-xs text-slate-500">mmHg</span>
-            </div>
-            <p className="mt-0.5 text-[11px] text-slate-500">
-              Nominal: 70–100 mmHg · Crítico &lt; 65 mmHg
-            </p>
-          </div>
-
-          {/* Pulse Pressure */}
-          <div className="rounded-xl border border-slate-200 bg-white p-3">
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-semibold text-slate-700">
-                Presión de Pulso
-              </span>
-              <span
-                className="rounded-full px-2 py-0.5 font-mono-hud text-[10px] font-bold uppercase"
-                style={{
-                  backgroundColor: `${STATUS_HEX[hemo.pulsePressureStatus]}1a`,
-                  color: STATUS_HEX[hemo.pulsePressureStatus],
-                }}
-              >
-                {STATUS_LABELS[hemo.pulsePressureStatus]}
-              </span>
-            </div>
-            <div className="mt-1.5 flex items-baseline gap-1.5">
-              <span className="font-mono-hud text-xl font-bold text-slate-900">
-                {hemo.pulsePressureMmHg}
-              </span>
-              <span className="font-mono-hud text-xs text-slate-500">mmHg</span>
-            </div>
-            <p className="mt-0.5 text-[11px] text-slate-500">
-              Nominal: 30–50 mmHg · Alerta &lt; 25 mmHg
-            </p>
-          </div>
-
-          {/* Shock Index */}
-          <div className="rounded-xl border border-slate-200 bg-white p-3">
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-semibold text-slate-700">
-                Índice de Shock (FC / PAS)
-              </span>
-              <span
-                className="rounded-full px-2 py-0.5 font-mono-hud text-[10px] font-bold uppercase"
-                style={{
-                  backgroundColor: `${STATUS_HEX[hemo.shockStatus]}1a`,
-                  color: STATUS_HEX[hemo.shockStatus],
-                }}
-              >
-                {STATUS_LABELS[hemo.shockStatus]}
-              </span>
-            </div>
-            <div className="mt-1.5 flex items-baseline gap-1.5">
-              <span className="font-mono-hud text-xl font-bold text-slate-900">
-                {hemo.shockIndex.toFixed(2)}
-              </span>
-              <span className="font-mono-hud text-xs text-slate-500">
-                ratio
-              </span>
-            </div>
-            <p className="mt-0.5 text-[11px] text-slate-500">
-              Nominal: 0.50–0.70 · Crítico ≥ 0.90
-            </p>
-          </div>
+          ))}
         </div>
 
         <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500">
           <span className="flex items-center gap-1.5">
             <Cpu className="h-3.5 w-3.5 text-[#1a73e8]" />
-            Procesamiento local determinístico del bus corporal CSA (sin envío continuo de datos crudos a la nube).
+            Procesamiento local determinístico (Pecho · Cabeza · Pulsera/Dedo) sin conexión a Tierra.
           </span>
           <span className="flex items-center gap-1 font-mono-hud text-slate-600">
             <Radiation className="h-3.5 w-3.5 text-amber-600" />
-            PTT calibrado base: {b.pttMs} ms
+            PTT pecho→dedo calibrado: {b.pttMs} ms
           </span>
         </div>
       </div>

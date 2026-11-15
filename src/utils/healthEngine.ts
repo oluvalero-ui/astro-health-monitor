@@ -242,14 +242,24 @@ export function computeHemodynamicIndices(
       ? "warning"
       : "optimal";
 
+  const thermalGradientC = Number((b.bodyTempC - b.skinTempC).toFixed(1));
+  const thermalGradientStatus: HealthStatus =
+    thermalGradientC >= 5.8 || thermalGradientC < 0
+      ? "critical"
+      : thermalGradientC > 4.2 || thermalGradientC < 1.0
+      ? "warning"
+      : "optimal";
+
   return {
     mapMmHg,
     pulsePressureMmHg,
     shockIndex,
+    thermalGradientC,
     orthostaticAlert,
     mapStatus,
     pulsePressureStatus,
     shockStatus,
+    thermalGradientStatus,
   };
 }
 

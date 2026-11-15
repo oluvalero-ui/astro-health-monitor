@@ -274,37 +274,6 @@ export default function HomePage() {
     setSelectedZone("rostro");
   };
 
-  const handleApplyUltrasoundResults = (
-    updates: Partial<BiomarkerData>,
-    finding: string
-  ) => {
-    setState((prev) => {
-      const nextBio: BiomarkerData = { ...prev.biomarkers, ...updates };
-      return {
-        ...prev,
-        emergencyMode: false,
-        previousBiomarkers: prev.biomarkers,
-        biomarkers: nextBio,
-        lastUltrasoundFinding: finding,
-        history: appendTelemetrySnapshot(
-          prev.history,
-          "Ultrasonido",
-          nextBio,
-          prev.routine
-        ),
-        scanLogs: [
-          {
-            id: `log-us-${Date.now()}`,
-            timestamp: getUtcStamp(),
-            modality: "ultrasonido",
-            summary: finding,
-          },
-          ...prev.scanLogs.slice(0, 7),
-        ],
-      };
-    });
-  };
-
   const handleApplyManualEntry = (
     nextBiomarkers: BiomarkerData,
     nextRoutine: RoutineTracking
@@ -525,6 +494,7 @@ export default function HomePage() {
             readinessScore={readinessScore}
             history={state.history}
             onSelectZoneAndScroll={handleSelectZoneAndScroll}
+            onNavigateWearable={() => handleNavigateSection("wearable")}
             onOpenScanTab={handleOpenScanTab}
             onOpenReferences={() => setReferencesOpen(true)}
           />
@@ -553,7 +523,6 @@ export default function HomePage() {
             previousBiomarkers={state.previousBiomarkers}
             routine={state.routine}
             lastCameraFinding={state.lastCameraFinding}
-            lastUltrasoundFinding={state.lastUltrasoundFinding}
             onSelectSystemZone={handleSelectZoneAndScroll}
             onOpenManualEdit={() => handleOpenScanTab("manual")}
             onJumpToWearable={() => handleNavigateSection("wearable")}
@@ -607,7 +576,7 @@ export default function HomePage() {
         </main>
       </div>
 
-      {/* Module 3: Multimodal Scan Modal (Camera / Ultrasound / Manual) */}
+      {/* Module 3: Multimodal Scan Modal (Camera / Manual) */}
       {scanModalOpen && (
         <MultimodalScanModal
           isOpen={scanModalOpen}
@@ -616,7 +585,6 @@ export default function HomePage() {
           routine={state.routine}
           onClose={() => setScanModalOpen(false)}
           onApplyCameraResults={handleApplyCameraResults}
-          onApplyUltrasoundResults={handleApplyUltrasoundResults}
           onApplyManualEntry={handleApplyManualEntry}
         />
       )}

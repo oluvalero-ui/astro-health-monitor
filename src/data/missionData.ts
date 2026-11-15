@@ -830,7 +830,7 @@ export const SCIENTIFIC_REFERENCES: ScientificReferenceSection[] = [
         detail:
           "Los programas biomédicos canadienses enfatizan monitoreo no invasivo (ultrasonido guiado, análisis óptico/salival y sensores portátiles) operable por astronautas sin formación médica clínica.",
         appMapping:
-          "Escáner de ultrasonido guiado, cámara multimodal y guías de examen paso a paso redactadas en lenguaje simple.",
+          "Red vestible modular (Pecho · Cabeza · Dedo), cámara de expresiones/postura y guías paso a paso redactadas en lenguaje simple.",
       },
     ],
   },
