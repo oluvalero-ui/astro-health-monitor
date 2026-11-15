@@ -3,21 +3,21 @@
 import React from "react";
 import {
   Activity,
-  Droplets,
   Gauge,
   HeartPulse,
   ShieldCheck,
+  Thermometer,
   Wind,
 } from "lucide-react";
 import { BiomarkerData, HealthStatus, SystemZoneId } from "@/types/astronaut";
 import {
   evaluateBpStatus,
   evaluateBpmStatus,
-  evaluateHydrationStatus,
   evaluateMinuteVentilationStatus,
   evaluatePerfusionIndexStatus,
   evaluateRadiationStatus,
   evaluateRespiratoryRateStatus,
+  evaluateSkinTempStatus,
   evaluateSpo2Status,
   evaluateTempStatus,
   STATUS_HEX,
@@ -61,9 +61,9 @@ export default function PrimaryVitalsStrip({
     evaluateRespiratoryRateStatus(b.respiratoryRateRpm),
     evaluateMinuteVentilationStatus(b.minuteVentilationLpm),
   ]);
-  const waterEnergyStatus = worstStatus([
-    evaluateHydrationStatus(b.hydrationPercent),
+  const tempStatus = worstStatus([
     evaluateTempStatus(b.bodyTempC),
+    evaluateSkinTempStatus(b.skinTempC),
   ]);
   const radStatus = evaluateRadiationStatus(b.dailyRadiationMsv);
 
@@ -72,7 +72,7 @@ export default function PrimaryVitalsStrip({
   const bpColor = getVitalDisplayColor(bpStatus, "#f8fafc");
   const bpWaveColor = getVitalDisplayColor(bpStatus, "#38bdf8");
   const respColor = getVitalDisplayColor(respStatus, "#2dd4bf");
-  const waterColor = getVitalDisplayColor(waterEnergyStatus, "#38bdf8");
+  const tempColor = getVitalDisplayColor(tempStatus, "#38bdf8");
   const radColor = getVitalDisplayColor(radStatus, "#34d399");
 
   const radShieldPercent = Math.max(
@@ -108,12 +108,12 @@ export default function PrimaryVitalsStrip({
       ? "Respiras rápido, relaja los hombros"
       : "Cuesta respirar, pide apoyo";
 
-  const waterSimpleText =
-    waterEnergyStatus === "optimal"
-      ? "Buena hidratación y calor normal"
-      : waterEnergyStatus === "warning"
-      ? "Toma un vaso de agua pronto"
-      : "Falta agua o tienes calor alto";
+  const tempSimpleText =
+    tempStatus === "optimal"
+      ? "Calor del cuerpo normal, sin fiebre"
+      : tempStatus === "warning"
+      ? "Cuerpo algo caliente, toma agua y descansa"
+      : "Fiebre o calor alto, revisa el protocolo";
 
   const radSimpleText =
     radStatus === "optimal"
@@ -314,48 +314,48 @@ export default function PrimaryVitalsStrip({
         </p>
       </button>
 
-      {/* 5. Agua y Energía */}
+      {/* 5. Temperatura */}
       <button
         type="button"
         onClick={() => onSelectZone("abdomen")}
-        className={`group flex cursor-pointer flex-col justify-between rounded-xl border bg-[#091120] p-3 text-left transition ${BORDER_BY_STATUS[waterEnergyStatus]}`}
+        className={`group flex cursor-pointer flex-col justify-between rounded-xl border bg-[#091120] p-3 text-left transition ${BORDER_BY_STATUS[tempStatus]}`}
       >
         <div className="flex items-center justify-between gap-1">
           <span className="flex items-center gap-1.5 text-xs font-bold text-slate-200">
-            <Droplets className="h-3.5 w-3.5 shrink-0" style={{ color: waterColor }} />
-            Agua y Calor
+            <Thermometer className="h-3.5 w-3.5 shrink-0" style={{ color: tempColor }} />
+            Temperatura
           </span>
           <span
             className="rounded-full px-2 py-0.5 font-mono-hud text-[10px] font-bold"
             style={{
-              backgroundColor: `${STATUS_HEX[waterEnergyStatus]}20`,
-              color: STATUS_HEX[waterEnergyStatus],
+              backgroundColor: `${STATUS_HEX[tempStatus]}20`,
+              color: STATUS_HEX[tempStatus],
             }}
           >
-            {STATUS_LABELS[waterEnergyStatus]}
+            {STATUS_LABELS[tempStatus]}
           </span>
         </div>
 
         <div className="my-0.5 flex items-baseline justify-between gap-1">
           <span
             className="font-mono-hud text-2xl font-bold tracking-tight sm:text-3xl"
-            style={{ color: waterColor }}
+            style={{ color: tempColor }}
           >
-            {b.hydrationPercent}%
+            {b.bodyTempC.toFixed(1)}°C
           </span>
-          <span className="font-mono-hud text-[11px] font-medium text-slate-400">
-            · {b.bodyTempC.toFixed(1)}°C
+          <span className="text-[11px] font-medium text-slate-400">
+            calor cuerpo
           </span>
         </div>
 
         <LivePhysioWaveform
           mode="metab"
-          color={waterColor}
+          color={tempColor}
           heightClass="h-6"
         />
 
         <p className="mt-1 truncate text-[11px] text-slate-300">
-          {waterSimpleText}
+          {tempSimpleText}
         </p>
       </button>
 
