@@ -1,12 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 body {
-  background-color: #f4f7fc;
-  color: #0f172a;
+  background-color: #070c17;
+  color: #e2e8f0;
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   overflow-x: hidden;
@@ -19,13 +19,159 @@ body {
 }
 
 .bg-telemetry-grid {
+  background-color: #070c17;
   background-image: linear-gradient(
       to right,
-      rgba(148, 163, 184, 0.12) 1px,
+      rgba(56, 189, 248, 0.045) 1px,
       transparent 1px
     ),
-    linear-gradient(to bottom, rgba(148, 163, 184, 0.12) 1px, transparent 1px);
+    linear-gradient(to bottom, rgba(56, 189, 248, 0.045) 1px, transparent 1px);
   background-size: 32px 32px;
+}
+
+/* ============================================================================
+   CREW DRAGON / ICU DARK TELEMETRY CONSOLE THEME OVERRIDES
+   Transforms all clinical cards, modals, and sub-panels into cohesive dark
+   aerospace instrumentation without jarring white surfaces or purple tints.
+   ============================================================================ */
+.crew-dragon-theme .bg-white,
+.crew-dragon-theme .bg-white\/95,
+.crew-dragon-theme .bg-white\/90,
+.crew-dragon-theme .bg-white\/80 {
+  background-color: #0c1426 !important;
+}
+
+.crew-dragon-theme .bg-slate-50,
+.crew-dragon-theme .bg-slate-50\/90,
+.crew-dragon-theme .bg-slate-50\/80,
+.crew-dragon-theme .bg-slate-50\/70,
+.crew-dragon-theme .bg-slate-50\/60,
+.crew-dragon-theme .bg-slate-50\/50 {
+  background-color: #101b31 !important;
+}
+
+.crew-dragon-theme .bg-slate-100,
+.crew-dragon-theme .bg-slate-100\/80 {
+  background-color: #162440 !important;
+}
+
+.crew-dragon-theme .bg-blue-50,
+.crew-dragon-theme .bg-blue-50\/80,
+.crew-dragon-theme .bg-blue-50\/70,
+.crew-dragon-theme .bg-blue-50\/60,
+.crew-dragon-theme .bg-blue-50\/50,
+.crew-dragon-theme .bg-blue-50\/40,
+.crew-dragon-theme .bg-indigo-50,
+.crew-dragon-theme .bg-indigo-50\/60 {
+  background-color: rgba(14, 165, 233, 0.12) !important;
+}
+
+.crew-dragon-theme .bg-emerald-50,
+.crew-dragon-theme .bg-emerald-50\/80,
+.crew-dragon-theme .bg-emerald-50\/70,
+.crew-dragon-theme .bg-emerald-50\/60,
+.crew-dragon-theme .bg-emerald-50\/50,
+.crew-dragon-theme .bg-emerald-50\/40 {
+  background-color: rgba(16, 185, 129, 0.11) !important;
+}
+
+.crew-dragon-theme .bg-amber-50,
+.crew-dragon-theme .bg-amber-50\/80,
+.crew-dragon-theme .bg-amber-50\/70,
+.crew-dragon-theme .bg-amber-50\/60,
+.crew-dragon-theme .bg-amber-50\/50,
+.crew-dragon-theme .bg-amber-50\/40 {
+  background-color: rgba(245, 158, 11, 0.12) !important;
+}
+
+.crew-dragon-theme .bg-red-50,
+.crew-dragon-theme .bg-red-50\/80,
+.crew-dragon-theme .bg-red-50\/70,
+.crew-dragon-theme .bg-red-50\/60,
+.crew-dragon-theme .bg-red-50\/50,
+.crew-dragon-theme .bg-red-50\/40 {
+  background-color: rgba(239, 68, 68, 0.13) !important;
+}
+
+/* Borders */
+.crew-dragon-theme .border-slate-200,
+.crew-dragon-theme .border-slate-200\/90,
+.crew-dragon-theme .border-slate-200\/80,
+.crew-dragon-theme .border-slate-100,
+.crew-dragon-theme .border-slate-300 {
+  border-color: #1c2d4a !important;
+}
+
+.crew-dragon-theme .border-blue-200,
+.crew-dragon-theme .border-blue-200\/80,
+.crew-dragon-theme .border-blue-100,
+.crew-dragon-theme .border-indigo-200 {
+  border-color: rgba(56, 189, 248, 0.28) !important;
+}
+
+.crew-dragon-theme .border-emerald-200,
+.crew-dragon-theme .border-emerald-200\/80,
+.crew-dragon-theme .border-emerald-300 {
+  border-color: rgba(16, 185, 129, 0.3) !important;
+}
+
+.crew-dragon-theme .border-amber-200,
+.crew-dragon-theme .border-amber-200\/80,
+.crew-dragon-theme .border-amber-300 {
+  border-color: rgba(245, 158, 11, 0.35) !important;
+}
+
+.crew-dragon-theme .border-red-200,
+.crew-dragon-theme .border-red-200\/80,
+.crew-dragon-theme .border-red-300 {
+  border-color: rgba(239, 68, 68, 0.38) !important;
+}
+
+/* Typography in Dark Telemetry Mode */
+.crew-dragon-theme .text-slate-900,
+.crew-dragon-theme .text-slate-800 {
+  color: #f1f5f9 !important;
+}
+
+.crew-dragon-theme .text-slate-700,
+.crew-dragon-theme .text-slate-600 {
+  color: #cbd5e1 !important;
+}
+
+.crew-dragon-theme .text-slate-500,
+.crew-dragon-theme .text-slate-400 {
+  color: #8b9db8 !important;
+}
+
+.crew-dragon-theme .text-blue-900,
+.crew-dragon-theme .text-blue-800,
+.crew-dragon-theme .text-blue-700,
+.crew-dragon-theme .text-blue-600,
+.crew-dragon-theme .text-\[\#1a73e8\],
+.crew-dragon-theme .text-indigo-700,
+.crew-dragon-theme .text-indigo-600 {
+  color: #38bdf8 !important;
+}
+
+.crew-dragon-theme .text-emerald-950,
+.crew-dragon-theme .text-emerald-900,
+.crew-dragon-theme .text-emerald-800,
+.crew-dragon-theme .text-emerald-700 {
+  color: #34d399 !important;
+}
+
+.crew-dragon-theme .text-amber-950,
+.crew-dragon-theme .text-amber-900,
+.crew-dragon-theme .text-amber-800,
+.crew-dragon-theme .text-amber-700 {
+  color: #fbbf24 !important;
+}
+
+.crew-dragon-theme .text-red-950,
+.crew-dragon-theme .text-red-900,
+.crew-dragon-theme .text-red-800,
+.crew-dragon-theme .text-red-700 {
+  color: #f87171 !important;
 }
 
 @keyframes scanline-sweep {
@@ -79,21 +225,21 @@ body {
   animation: emergency-pulse-border 1.6s ease-in-out infinite;
 }
 
-/* Custom clean light scrollbars */
+/* Custom dark telemetry scrollbars */
 ::-webkit-scrollbar {
   width: 7px;
   height: 7px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #eef2f7;
+  background: #070c17;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #1e2f4d;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #38bdf8;
 }

@@ -6,8 +6,8 @@ import {
   BarChart3,
   BookOpen,
   Camera,
-  Home,
   Monitor,
+  ScanLine,
   ShieldAlert,
   Watch,
 } from "lucide-react";
@@ -28,6 +28,50 @@ interface LeftNavSidebarProps {
   onToggleEmergency: () => void;
 }
 
+const NAV_ITEMS: {
+  id: NavSectionId;
+  label: string;
+  title: string;
+  icon: React.ReactNode;
+}[] = [
+  {
+    id: "resumen",
+    label: "Monitor",
+    title: "Monitor General de Misión",
+    icon: <Monitor className="h-4 w-4" />,
+  },
+  {
+    id: "escaner",
+    label: "Escáner",
+    title: "Escáner Anatómico (6 Sistemas)",
+    icon: <ScanLine className="h-4 w-4" />,
+  },
+  {
+    id: "wearable",
+    label: "Arnés 3N",
+    title: "Arnés Vestible Bio-Monitor CSA (13 Signos)",
+    icon: <Watch className="h-4 w-4" />,
+  },
+  {
+    id: "biomarcadores",
+    label: "Signos",
+    title: "Signos Vitales, Mente y Rutina",
+    icon: <Activity className="h-4 w-4" />,
+  },
+  {
+    id: "informes",
+    label: "Hábitos",
+    title: "Tendencias y Hábitos NASA HRP",
+    icon: <BarChart3 className="h-4 w-4" />,
+  },
+  {
+    id: "referencias",
+    label: "Ciencia",
+    title: "Base Científica NASA HRP y CSA",
+    icon: <BookOpen className="h-4 w-4" />,
+  },
+];
+
 export default function LeftNavSidebar({
   activeSection,
   emergencyMode,
@@ -35,91 +79,44 @@ export default function LeftNavSidebar({
   onOpenScanModal,
   onToggleEmergency,
 }: LeftNavSidebarProps) {
-  const navBtnClass = (isActive: boolean) =>
-    `group relative flex h-12 w-12 cursor-pointer items-center justify-center rounded-xl transition-all ${
-      isActive
-        ? "bg-[#1a73e8] text-white shadow-lg shadow-blue-950/50"
-        : "text-blue-100/75 hover:bg-white/10 hover:text-white"
-    }`;
-
   return (
     <>
-      {/* Desktop Left Navy Sidebar (matches reference design) */}
+      {/* Desktop Left Navy Rail — Single Authoritative Navigation */}
       <aside
         aria-label="Navegación principal del monitor"
-        className="hidden shrink-0 flex-col items-center justify-between bg-[#0b2559] px-2.5 py-4 text-white shadow-xl md:sticky md:top-0 md:flex md:h-screen md:w-[76px]"
+        className="hidden shrink-0 flex-col items-center justify-between border-r border-[#182742] bg-[#050a14] px-2 py-3 text-white shadow-xl md:sticky md:top-0 md:flex md:h-screen md:w-[84px]"
       >
-        <div className="flex flex-col items-center gap-3">
-          {/* Top Highlighted Dashboard Monitor Button */}
+        <div className="flex w-full flex-col items-center gap-1.5">
+          {NAV_ITEMS.map((item) => {
+            const isActive = activeSection === item.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                title={item.title}
+                onClick={() => onNavigate(item.id)}
+                className={`flex w-full cursor-pointer flex-col items-center justify-center gap-1 rounded-xl py-2.5 text-[10px] font-semibold transition-all ${
+                  isActive
+                    ? "border border-sky-400/40 bg-sky-500/20 text-sky-300 shadow-md shadow-sky-950/50"
+                    : "text-slate-400 hover:bg-[#0e182c] hover:text-slate-100"
+                }`}
+              >
+                {item.icon}
+                <span className="tracking-tight">{item.label}</span>
+              </button>
+            );
+          })}
+
+          <div className="my-1 h-px w-10 bg-[#182742]" />
+
           <button
             type="button"
-            title="Resumen Ejecutivo"
-            onClick={() => onNavigate("resumen")}
-            className={navBtnClass(activeSection === "resumen")}
-          >
-            <Monitor className="h-5 w-5" />
-          </button>
-
-          <div className="my-0.5 h-px w-8 bg-white/15" />
-
-          {/* Home / Escáner Anatómico */}
-          <button
-            type="button"
-            title="Escáner Anatómico (6 Sistemas)"
-            onClick={() => onNavigate("escaner")}
-            className={navBtnClass(activeSection === "escaner")}
-          >
-            <Home className="h-5 w-5" />
-          </button>
-
-          {/* Arnés Vestible (13 Signos Bio-Monitor CSA) */}
-          <button
-            type="button"
-            title="Arnés Vestible (13 Signos)"
-            onClick={() => onNavigate("wearable")}
-            className={navBtnClass(activeSection === "wearable")}
-          >
-            <Watch className="h-5 w-5" />
-          </button>
-
-          {/* Biomarcadores y Detector de Rutina */}
-          <button
-            type="button"
-            title="Biomarcadores y Detector de Rutina"
-            onClick={() => onNavigate("biomarcadores")}
-            className={navBtnClass(activeSection === "biomarcadores")}
-          >
-            <Activity className="h-5 w-5" />
-          </button>
-
-          {/* Entrada Multimodal (Cámara / Registro Manual) */}
-          <button
-            type="button"
-            title="Evaluación Multimodal (Cámara / Registro Manual)"
+            title="Cámara IA y Registro Manual"
             onClick={onOpenScanModal}
-            className={navBtnClass(false)}
+            className="flex w-full cursor-pointer flex-col items-center justify-center gap-1 rounded-xl py-2 text-[10px] font-semibold text-teal-300/85 transition hover:bg-[#0e182c] hover:text-teal-200"
           >
-            <Camera className="h-5 w-5" />
-          </button>
-
-          {/* Informes Recharts y Hábitos Recomendados */}
-          <button
-            type="button"
-            title="Informes y Hábitos Recomendados"
-            onClick={() => onNavigate("informes")}
-            className={navBtnClass(activeSection === "informes")}
-          >
-            <BarChart3 className="h-5 w-5" />
-          </button>
-
-          {/* Referencias NASA HRP / CSA */}
-          <button
-            type="button"
-            title="Base Científica · NASA HRP y CSA"
-            onClick={() => onNavigate("referencias")}
-            className={navBtnClass(activeSection === "referencias")}
-          >
-            <BookOpen className="h-5 w-5" />
+            <Camera className="h-4 w-4" />
+            <span>Cámara</span>
           </button>
         </div>
 
@@ -129,95 +126,48 @@ export default function LeftNavSidebar({
           title={
             emergencyMode
               ? "Restaurar Estado Nominal"
-              : "Simular Emergencia (Demo Mode)"
+              : "Simular Emergencia (SOS)"
           }
           onClick={onToggleEmergency}
-          className={`flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl transition ${
+          className={`flex w-full cursor-pointer flex-col items-center justify-center gap-1 rounded-xl py-2 text-[10px] font-bold transition ${
             emergencyMode
               ? "animate-pulse bg-red-600 text-white shadow-lg shadow-red-900/50"
-              : "text-blue-100/70 hover:bg-red-500/20 hover:text-red-300"
+              : "text-red-300/80 hover:bg-red-500/20 hover:text-red-200"
           }`}
         >
-          <ShieldAlert className="h-5 w-5" />
+          <ShieldAlert className="h-4 w-4" />
+          <span>SOS</span>
         </button>
       </aside>
 
-      {/* Mobile Compact Navy Bar */}
+      {/* Mobile Compact Bar */}
       <nav
         aria-label="Navegación móvil"
-        className="flex items-center justify-around bg-[#0b2559] px-2 py-2 text-white md:hidden"
+        className="flex items-center justify-around border-b border-slate-800 bg-[#0b2559] px-1.5 py-1.5 text-white md:hidden"
       >
-        <button
-          type="button"
-          onClick={() => onNavigate("resumen")}
-          className={`rounded-lg p-2 ${
-            activeSection === "resumen" ? "bg-[#1a73e8]" : "text-blue-100/80"
-          }`}
-          aria-label="Resumen"
-        >
-          <Monitor className="h-4 w-4" />
-        </button>
-        <button
-          type="button"
-          onClick={() => onNavigate("escaner")}
-          className={`rounded-lg p-2 ${
-            activeSection === "escaner" ? "bg-[#1a73e8]" : "text-blue-100/80"
-          }`}
-          aria-label="Escáner"
-        >
-          <Home className="h-4 w-4" />
-        </button>
-        <button
-          type="button"
-          onClick={() => onNavigate("wearable")}
-          className={`rounded-lg p-2 ${
-            activeSection === "wearable" ? "bg-[#1a73e8]" : "text-blue-100/80"
-          }`}
-          aria-label="Arnés Vestible (13 Signos)"
-        >
-          <Watch className="h-4 w-4" />
-        </button>
-        <button
-          type="button"
-          onClick={() => onNavigate("biomarcadores")}
-          className={`rounded-lg p-2 ${
-            activeSection === "biomarcadores"
-              ? "bg-[#1a73e8]"
-              : "text-blue-100/80"
-          }`}
-          aria-label="Biomarcadores"
-        >
-          <Activity className="h-4 w-4" />
-        </button>
+        {NAV_ITEMS.map((item) => {
+          const isActive = activeSection === item.id;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => onNavigate(item.id)}
+              className={`flex flex-col items-center gap-0.5 rounded-lg px-2 py-1 text-[10px] font-semibold ${
+                isActive ? "bg-[#1a73e8] text-white" : "text-blue-100/75"
+              }`}
+            >
+              {item.icon}
+              <span>{item.label}</span>
+            </button>
+          );
+        })}
         <button
           type="button"
           onClick={onOpenScanModal}
-          className="rounded-lg p-2 text-blue-100/80"
-          aria-label="Cámara y Registro Manual"
+          className="flex flex-col items-center gap-0.5 rounded-lg px-2 py-1 text-[10px] font-semibold text-cyan-200"
         >
           <Camera className="h-4 w-4" />
-        </button>
-        <button
-          type="button"
-          onClick={() => onNavigate("informes")}
-          className={`rounded-lg p-2 ${
-            activeSection === "informes" ? "bg-[#1a73e8]" : "text-blue-100/80"
-          }`}
-          aria-label="Informes"
-        >
-          <BarChart3 className="h-4 w-4" />
-        </button>
-        <button
-          type="button"
-          onClick={() => onNavigate("referencias")}
-          className={`rounded-lg p-2 ${
-            activeSection === "referencias"
-              ? "bg-[#1a73e8]"
-              : "text-blue-100/80"
-          }`}
-          aria-label="Base Científica NASA HRP y CSA"
-        >
-          <BookOpen className="h-4 w-4" />
+          <span>Cámara</span>
         </button>
       </nav>
     </>

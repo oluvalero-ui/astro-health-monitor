@@ -2,7 +2,6 @@
 
 import React, {
   useCallback,
-  useEffect,
   useMemo,
   useState,
   useSyncExternalStore,
@@ -13,20 +12,20 @@ import BiomarkersDashboard from "@/components/BiomarkersDashboard";
 import EmergencyBannerModal from "@/components/EmergencyBannerModal";
 import HabitsExplanationPanel from "@/components/HabitsExplanationPanel";
 import LeftNavSidebar, { NavSectionId } from "@/components/LeftNavSidebar";
-import MissionTimeSyncBar from "@/components/MissionTimeSyncBar";
 import MultimodalScanModal, {
   ScanModalTab,
 } from "@/components/MultimodalScanModal";
 import OverviewBentoGrid from "@/components/OverviewBentoGrid";
+import PrimaryVitalsStrip from "@/components/PrimaryVitalsStrip";
 import RecommendedHabitsPanel from "@/components/RecommendedHabitsPanel";
 import ScientificFrameworkSection from "@/components/ScientificFrameworkSection";
 import ScientificReferencesModal from "@/components/ScientificReferencesModal";
-import SectionPagerControls from "@/components/SectionPagerControls";
 import TelemetryCharts from "@/components/TelemetryCharts";
 import TopMissionBar from "@/components/TopMissionBar";
 import WearableHarnessPanel from "@/components/WearableHarnessPanel";
 import {
   INITIAL_DASHBOARD_STATE,
+  MISSION_ENVIRONMENTS,
   hydrateRecommendedHabits,
 } from "@/data/missionData";
 import {
@@ -188,58 +187,10 @@ export default function HomePage() {
 
   const handleNavigateSection = (section: NavSectionId) => {
     setActiveNavSection(section);
-    if (typeof document === "undefined" || typeof window === "undefined") return;
-    if (section === "resumen") {
+    if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
     }
-    const idMap: Record<NavSectionId, string> = {
-      resumen: "resumen-bento",
-      escaner: "scanner-section",
-      wearable: "wearable-harness",
-      biomarcadores: "biomarkers-section",
-      informes: "informes-section",
-      referencias: "referencias-section",
-    };
-    const target = document.getElementById(idMap[section]);
-    target?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
-
-  useEffect(() => {
-    if (typeof window === "undefined" || typeof IntersectionObserver === "undefined") {
-      return;
-    }
-    const sectionPairs: [NavSectionId, string][] = [
-      ["resumen", "resumen-bento"],
-      ["escaner", "scanner-section"],
-      ["wearable", "wearable-harness"],
-      ["biomarcadores", "biomarkers-section"],
-      ["informes", "informes-section"],
-      ["referencias", "referencias-section"],
-    ];
-    const elementToSection = new Map<Element, NavSectionId>();
-    sectionPairs.forEach(([sec, id]) => {
-      const el = document.getElementById(id);
-      if (el) elementToSection.set(el, sec);
-    });
-    if (elementToSection.size === 0) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-        if (visible.length > 0) {
-          const sec = elementToSection.get(visible[0].target);
-          if (sec) setActiveNavSection(sec);
-        }
-      },
-      { rootMargin: "-20% 0px -55% 0px", threshold: [0.1, 0.35, 0.6] }
-    );
-
-    elementToSection.forEach((_, el) => observer.observe(el));
-    return () => observer.disconnect();
-  }, []);
 
   const handleSelectZoneAndScroll = (zone: SystemZoneId) => {
     setSelectedZone(zone);
@@ -482,7 +433,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#f4f7fc] text-slate-900 md:flex-row">
+    <div className="crew-dragon-theme flex min-h-screen flex-col bg-[#070c17] text-slate-100 md:flex-row">
       {/* Barra Lateral Izquierda */}
       <LeftNavSidebar
         activeSection={activeNavSection}
@@ -494,7 +445,7 @@ export default function HomePage() {
 
       {/* Right Main Scrollable Area */}
       <div className="min-w-0 flex-1 bg-telemetry-grid">
-        {/* Top Mission Bar (scrolls naturally with content, non-sticky) */}
+        {/* Cinta Superior Única de 1 Línea (Tipo Consola Aeroespacial) */}
         <TopMissionBar
           environmentId={state.environmentId}
           telemedicineEnabled={state.telemedicineEnabled}
@@ -506,16 +457,18 @@ export default function HomePage() {
           readinessScore={readinessScore}
           emergencyMode={state.emergencyMode}
           zoneStatuses={zoneStatuses}
+          biomarkers={state.biomarkers}
+          routine={state.routine}
           onSelectEnvironment={handleSelectEnvironment}
           onToggleTelemedicine={handleToggleTelemedicine}
           onOpenScanModal={() => handleOpenScanTab("camara")}
           onToggleEmergency={handleToggleEmergency}
-          onOpenReferences={() => setReferencesOpen(true)}
+          onOpenReferences={() => handleNavigateSection("referencias")}
           onResetMission={handleResetMission}
         />
 
-        {/* Main Workspace (normal vertical scroll + smooth section navigation) */}
-        <main className="mx-auto max-w-[1600px] space-y-6 px-4 py-6 pb-20 sm:px-6">
+        {/* Main Workspace */}
+        <main className="mx-auto max-w-[1600px] space-y-4 px-4 py-4 pb-12 sm:px-6">
           {/* Module 5: Live Emergency Alert & Flight Surgeon Contact Protocol */}
           <EmergencyBannerModal
             emergencyMode={state.emergencyMode}
@@ -527,123 +480,133 @@ export default function HomePage() {
             onRestoreNominal={handleToggleEmergency}
           />
 
-          {/* Cronometría en vivo: Tiempo del Astronauta vs. Tiempo en la Tierra */}
-          <MissionTimeSyncBar
-            environmentId={state.environmentId}
-            missionDay={state.missionDay}
-            telemedicineEnabled={state.telemedicineEnabled}
-          />
-
-          {/* Executive 4-Card Bento Overview (mirrors reference screenshot layout) */}
-          <OverviewBentoGrid
-            environmentId={state.environmentId}
+          {/* Franja Superior de Signos Vitales Primarios (Números Grandes + Ondas en Vivo) */}
+          <PrimaryVitalsStrip
             biomarkers={state.biomarkers}
-            routine={state.routine}
-            zoneStatuses={zoneStatuses}
             readinessScore={readinessScore}
-            history={state.history}
-            onSelectZoneAndScroll={handleSelectZoneAndScroll}
-            onNavigateWearable={() => handleNavigateSection("wearable")}
-            onOpenScanTab={handleOpenScanTab}
+            cabinCo2MmHg={MISSION_ENVIRONMENTS[state.environmentId].co2MmHg}
+            onSelectZone={handleSelectZoneAndScroll}
+            onOpenWearable={() => handleNavigateSection("wearable")}
           />
 
-          {/* Module 1: Interactive Anatomical & Psychological SVG Scanner */}
-          <AnatomicalScanner
-            selectedZone={selectedZone}
-            onSelectZone={setSelectedZone}
-            zoneStatuses={zoneStatuses}
-            biomarkers={state.biomarkers}
-            environmentId={state.environmentId}
-            onOpenScanTab={handleOpenScanTab}
-          />
-
-          {/* Prototype 2: CSA Bio-Monitor Wearable Body Area Network (13 Continuous Signs) */}
-          <WearableHarnessPanel
-            environmentId={state.environmentId}
-            biomarkers={state.biomarkers}
-            onCalibrateOscillometric={handleCalibrateOscillometric}
-            onSelectSystemZone={handleSelectZoneAndScroll}
-          />
-
-          {/* Module 2: Comprehensive Biomarkers, Mental/Behavioral Health & Routine Change Detector */}
-          <BiomarkersDashboard
-            biomarkers={state.biomarkers}
-            previousBiomarkers={state.previousBiomarkers}
-            routine={state.routine}
-            lastCameraFinding={state.lastCameraFinding}
-            onSelectSystemZone={handleSelectZoneAndScroll}
-            onOpenManualEdit={() => handleOpenScanTab("manual")}
-            onJumpToWearable={() => handleNavigateSection("wearable")}
-          />
-
-          {/* Module 4: Dynamic Recharts Telemetry + NASA HRP Recommended Habits */}
-          <div className="grid grid-cols-1 gap-5 xl:grid-cols-12">
-            <div className="xl:col-span-7">
-              <TelemetryCharts history={state.history} />
-            </div>
-            <div className="xl:col-span-5">
-              <RecommendedHabitsPanel
-                habits={state.quests}
-                onToggleHabit={handleToggleHabit}
-                onAddCustomHabit={handleAddCustomHabit}
-                onInspectHabit={handleInspectHabit}
+          {/* SECCIÓN 1: Monitor General */}
+          {activeNavSection === "resumen" && (
+            <>
+              <OverviewBentoGrid
+                environmentId={state.environmentId}
+                biomarkers={state.biomarkers}
+                routine={state.routine}
+                zoneStatuses={zoneStatuses}
+                readinessScore={readinessScore}
+                history={state.history}
+                onSelectZoneAndScroll={handleSelectZoneAndScroll}
+                onNavigateWearable={() => handleNavigateSection("wearable")}
+                onOpenScanTab={handleOpenScanTab}
               />
-            </div>
-          </div>
 
-          {/* Apartado independiente: Explicación clínica y sustento oficial NASA */}
-          <HabitsExplanationPanel
-            habits={state.quests}
-            highlightedHabitId={highlightedHabitId}
-            onOpenReferences={() => setReferencesOpen(true)}
-          />
-
-          {/* Bitácora Local de Autoevaluaciones */}
-          <section className="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-[0_6px_24px_rgba(15,23,42,0.04)] sm:p-5">
-            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-              <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-700">
-                <ClipboardList className="h-4 w-4 text-[#1a73e8]" />
-                Bitácora Local de Autoevaluaciones (Persistencia Offline)
-              </h3>
-              <span className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-700">
-                <ShieldCheck className="h-3.5 w-3.5" />
-                Guardado localmente en el dispositivo sin conexión externa
-              </span>
-            </div>
-            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
-              {state.scanLogs.slice(0, 4).map((log) => (
-                <div
-                  key={log.id}
-                  className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 text-xs"
-                >
-                  <div className="flex items-center justify-between font-mono-hud text-[10px]">
-                    <span className="font-semibold uppercase text-[#1a73e8]">
-                      {log.modality}
-                    </span>
-                    <span className="text-slate-400">{log.timestamp}</span>
-                  </div>
-                  <p className="mt-1 line-clamp-2 text-slate-600">
-                    {log.summary}
-                  </p>
+              <section className="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-[0_6px_24px_rgba(15,23,42,0.04)]">
+                <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
+                  <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-700">
+                    <ClipboardList className="h-4 w-4 text-[#1a73e8]" />
+                    Bitácora Local de Autoevaluaciones (Offline)
+                  </h3>
+                  <span className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-700">
+                    <ShieldCheck className="h-3.5 w-3.5" />
+                    Persistencia local activa
+                  </span>
                 </div>
-              ))}
-            </div>
-          </section>
+                <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
+                  {state.scanLogs.slice(0, 4).map((log) => (
+                    <div
+                      key={log.id}
+                      className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 text-xs"
+                    >
+                      <div className="flex items-center justify-between font-mono-hud text-[10px]">
+                        <span className="font-semibold uppercase text-[#1a73e8]">
+                          {log.modality}
+                        </span>
+                        <span className="text-slate-400">{log.timestamp}</span>
+                      </div>
+                      <p className="mt-1 line-clamp-2 text-slate-600">
+                        {log.summary}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            </>
+          )}
 
-          {/* Module 6: Base Científica Dedicada · NASA HRP & Dosimetría CSA */}
-          <ScientificFrameworkSection
-            environmentId={state.environmentId}
-            dailyRadiationMsv={state.biomarkers.dailyRadiationMsv}
-            cumulativeRadiationMsv={state.biomarkers.cumulativeRadiationMsv}
-          />
+          {/* SECCIÓN 2: Escáner Anatómico y Psicológico por Pestañas */}
+          {activeNavSection === "escaner" && (
+            <AnatomicalScanner
+              selectedZone={selectedZone}
+              onSelectZone={setSelectedZone}
+              zoneStatuses={zoneStatuses}
+              biomarkers={state.biomarkers}
+              environmentId={state.environmentId}
+              onOpenScanTab={handleOpenScanTab}
+            />
+          )}
+
+          {/* SECCIÓN 3: Arnés Vestible Bio-Monitor CSA (13 Signos Continuos) */}
+          {activeNavSection === "wearable" && (
+            <WearableHarnessPanel
+              environmentId={state.environmentId}
+              biomarkers={state.biomarkers}
+              onCalibrateOscillometric={handleCalibrateOscillometric}
+              onSelectSystemZone={handleSelectZoneAndScroll}
+            />
+          )}
+
+          {/* SECCIÓN 4: Signos Vitales Físicos, Salud Mental BHP y Detector de Rutina */}
+          {activeNavSection === "biomarcadores" && (
+            <BiomarkersDashboard
+              biomarkers={state.biomarkers}
+              previousBiomarkers={state.previousBiomarkers}
+              routine={state.routine}
+              lastCameraFinding={state.lastCameraFinding}
+              onSelectSystemZone={handleSelectZoneAndScroll}
+              onOpenManualEdit={() => handleOpenScanTab("manual")}
+              onJumpToWearable={() => handleNavigateSection("wearable")}
+            />
+          )}
+
+          {/* SECCIÓN 5: Gráficas de Tendencia + Hábitos Recomendados + Explicación NASA */}
+          {activeNavSection === "informes" && (
+            <>
+              <div className="grid grid-cols-1 gap-5 xl:grid-cols-12">
+                <div className="xl:col-span-7">
+                  <TelemetryCharts history={state.history} />
+                </div>
+                <div className="xl:col-span-5">
+                  <RecommendedHabitsPanel
+                    habits={state.quests}
+                    onToggleHabit={handleToggleHabit}
+                    onAddCustomHabit={handleAddCustomHabit}
+                    onInspectHabit={handleInspectHabit}
+                  />
+                </div>
+              </div>
+
+              <HabitsExplanationPanel
+                habits={state.quests}
+                highlightedHabitId={highlightedHabitId}
+                onOpenReferences={() => setReferencesOpen(true)}
+              />
+            </>
+          )}
+
+          {/* SECCIÓN 6: Base Científica Dedicada · NASA HRP & Dosimetría CSA */}
+          {activeNavSection === "referencias" && (
+            <ScientificFrameworkSection
+              environmentId={state.environmentId}
+              dailyRadiationMsv={state.biomarkers.dailyRadiationMsv}
+              cumulativeRadiationMsv={state.biomarkers.cumulativeRadiationMsv}
+            />
+          )}
         </main>
       </div>
-
-      {/* Control Flotante de Flechas Arriba / Abajo para saltar entre secciones */}
-      <SectionPagerControls
-        activeSection={activeNavSection}
-        onNavigate={handleNavigateSection}
-      />
 
       {/* Module 3: Multimodal Scan Modal (Camera / Manual) */}
       {scanModalOpen && (

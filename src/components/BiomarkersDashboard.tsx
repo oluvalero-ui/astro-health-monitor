@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   Activity,
   AlertTriangle,
@@ -249,9 +249,70 @@ export default function BiomarkersDashboard({
       ? "Fatiga / Apatía Leve"
       : "Ánimo Deprimido";
 
+  const [subView, setSubView] = useState<
+    "fisicos" | "mental" | "rutina" | "todos"
+  >("fisicos");
+
   return (
-    <section id="biomarkers-section" className="space-y-5">
+    <section id="biomarkers-section" className="space-y-4">
+      {/* Barra de Sub-Secciones Limpia (Evita mostrar 20 tarjetas de golpe) */}
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-slate-200/90 bg-white p-3 shadow-[0_6px_24px_rgba(15,23,42,0.04)]">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setSubView("fisicos")}
+            className={`inline-flex cursor-pointer items-center gap-2 rounded-xl border px-3.5 py-2 text-xs font-bold transition ${
+              subView === "fisicos"
+                ? "border-[#1a73e8] bg-[#1a73e8] text-white shadow-xs"
+                : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-white"
+            }`}
+          >
+            <HeartPulse className="h-4 w-4" />
+            1. Signos Vitales Físicos (8)
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setSubView("mental")}
+            className={`inline-flex cursor-pointer items-center gap-2 rounded-xl border px-3.5 py-2 text-xs font-bold transition ${
+              subView === "mental"
+                ? "border-[#1a73e8] bg-[#1a73e8] text-white shadow-xs"
+                : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-white"
+            }`}
+          >
+            <Brain className="h-4 w-4" />
+            2. Salud Mental y Conductual BHP (8)
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setSubView("rutina")}
+            className={`inline-flex cursor-pointer items-center gap-2 rounded-xl border px-3.5 py-2 text-xs font-bold transition ${
+              subView === "rutina"
+                ? "border-[#1a73e8] bg-[#1a73e8] text-white shadow-xs"
+                : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-white"
+            }`}
+          >
+            <CalendarClock className="h-4 w-4" />
+            3. Detector de Rutina ({routineAnalysis.stabilityScore}% Base)
+          </button>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setSubView(subView === "todos" ? "fisicos" : "todos")}
+          className={`cursor-pointer rounded-xl border px-3 py-1.5 text-xs font-semibold transition ${
+            subView === "todos"
+              ? "border-[#0b2559] bg-[#0b2559] text-white"
+              : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+          }`}
+        >
+          {subView === "todos" ? "Agrupar por pestañas" : "Ver todos juntos"}
+        </button>
+      </div>
+
       {/* Routine Change Detector */}
+      {(subView === "rutina" || subView === "todos") && (
       <div
         className={`rounded-2xl border p-4 shadow-[0_6px_24px_rgba(15,23,42,0.04)] sm:p-5 ${
           routineAnalysis.overallStatus === "critical"
@@ -351,8 +412,10 @@ export default function BiomarkersDashboard({
           })}
         </div>
       </div>
+      )}
 
       {/* Biomarker Group A */}
+      {(subView === "fisicos" || subView === "todos") && (
       <div className="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-[0_6px_24px_rgba(15,23,42,0.04)] sm:p-5">
         <div className="mb-3.5 flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
           <div>
@@ -471,8 +534,10 @@ export default function BiomarkersDashboard({
           />
         </div>
       </div>
+      )}
 
       {/* Biomarker Group B */}
+      {(subView === "mental" || subView === "todos") && (
       <div className="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-[0_6px_24px_rgba(15,23,42,0.04)] sm:p-5">
         <div className="mb-3.5 flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
           <div>
@@ -583,6 +648,7 @@ export default function BiomarkersDashboard({
           />
         </div>
       </div>
+      )}
     </section>
   );
 }

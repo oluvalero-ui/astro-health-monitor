@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   Activity,
   AlertCircle,
@@ -103,6 +103,9 @@ export default function AnatomicalScanner({
   const guide = SYSTEM_DIAGNOSTIC_GUIDES[selectedZone];
   const activeStatus = zoneStatuses[selectedZone];
   const activeHex = STATUS_HEX[activeStatus];
+  const [diagnosticTab, setDiagnosticTab] = useState<
+    "protocolo" | "umbrales" | "ciencia"
+  >("protocolo");
 
   const getZoneFill = (zone: SystemZoneId, baseOpacity = 0.25) => {
     const color = STATUS_HEX[zoneStatuses[zone]];
@@ -574,129 +577,207 @@ export default function AnatomicalScanner({
             </div>
           </div>
 
-          {/* 5 Mandatory Plain-Language Diagnostic Sections */}
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-            <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3.5">
-              <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#1a73e8]">
-                <ScanLine className="h-4 w-4" />
-                1. Cómo realizar el examen (Sin ser médico)
-              </h4>
-              <ol className="mt-2 space-y-1.5 text-xs leading-relaxed text-slate-600">
-                {guide.howToPerform.map((step, idx) => (
-                  <li key={idx} className="flex gap-2">
-                    <span className="font-mono-hud font-bold text-[#1a73e8]">
-                      {idx + 1}.
-                    </span>
-                    <span>{step}</span>
-                  </li>
-                ))}
-              </ol>
-            </div>
-
-            <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3.5">
-              <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-700">
-                <Info className="h-4 w-4" />
-                2. ¿Por qué es necesario este examen?
-              </h4>
-              <p className="mt-2 text-xs leading-relaxed text-slate-600">
-                {guide.whyNecessary}
-              </p>
-            </div>
-          </div>
-
-          {/* 3. Impacto de los 5 Peligros Espaciales */}
-          <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3.5">
-            <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-700">
+          {/* Selector de Pestañas Clínicas (Progresive Disclosure sin ruido visual) */}
+          <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-3">
+            <button
+              type="button"
+              onClick={() => setDiagnosticTab("protocolo")}
+              className={`inline-flex cursor-pointer items-center gap-2 rounded-xl border px-3.5 py-2 text-xs font-bold transition ${
+                diagnosticTab === "protocolo"
+                  ? "border-[#1a73e8] bg-[#1a73e8] text-white shadow-xs"
+                  : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-white"
+              }`}
+            >
+              <ScanLine className="h-4 w-4" />
+              1. Protocolo de Examen y Acción
+            </button>
+            <button
+              type="button"
+              onClick={() => setDiagnosticTab("umbrales")}
+              className={`inline-flex cursor-pointer items-center gap-2 rounded-xl border px-3.5 py-2 text-xs font-bold transition ${
+                diagnosticTab === "umbrales"
+                  ? "border-[#1a73e8] bg-[#1a73e8] text-white shadow-xs"
+                  : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-white"
+              }`}
+            >
+              <AlertCircle className="h-4 w-4" />
+              2. Umbrales de Alerta y Triage
+            </button>
+            <button
+              type="button"
+              onClick={() => setDiagnosticTab("ciencia")}
+              className={`inline-flex cursor-pointer items-center gap-2 rounded-xl border px-3.5 py-2 text-xs font-bold transition ${
+                diagnosticTab === "ciencia"
+                  ? "border-[#1a73e8] bg-[#1a73e8] text-white shadow-xs"
+                  : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-white"
+              }`}
+            >
               <ShieldAlert className="h-4 w-4" />
-              3. Impacto de los 5 Peligros Espaciales (NASA HRP)
-            </h4>
-            <div className="mt-2.5 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-5">
-              <div className="rounded-lg border border-slate-200 bg-white p-2.5">
-                <div className="text-[11px] font-bold text-rose-600">
-                  Radiación
-                </div>
-                <p className="mt-1 text-[11px] leading-relaxed text-slate-600">
-                  {guide.fiveHazardsImpact.radiation}
-                </p>
-              </div>
-              <div className="rounded-lg border border-slate-200 bg-white p-2.5">
-                <div className="text-[11px] font-bold text-violet-600">
-                  Aislamiento / Confinamiento
-                </div>
-                <p className="mt-1 text-[11px] leading-relaxed text-slate-600">
-                  {guide.fiveHazardsImpact.isolation}
-                </p>
-              </div>
-              <div className="rounded-lg border border-slate-200 bg-white p-2.5">
-                <div className="text-[11px] font-bold text-blue-600">
-                  Distancia de la Tierra
-                </div>
-                <p className="mt-1 text-[11px] leading-relaxed text-slate-600">
-                  {guide.fiveHazardsImpact.distance}
-                </p>
-              </div>
-              <div className="rounded-lg border border-slate-200 bg-white p-2.5">
-                <div className="text-[11px] font-bold text-amber-600">
-                  Campos de Gravedad
-                </div>
-                <p className="mt-1 text-[11px] leading-relaxed text-slate-600">
-                  {guide.fiveHazardsImpact.gravity}
-                </p>
-              </div>
-              <div className="rounded-lg border border-slate-200 bg-white p-2.5">
-                <div className="text-[11px] font-bold text-teal-600">
-                  Ambientes Cerrados Hostiles
-                </div>
-                <p className="mt-1 text-[11px] leading-relaxed text-slate-600">
-                  {guide.fiveHazardsImpact.closedEnvironment}
-                </p>
-              </div>
-            </div>
+              3. Motivo Clínico y 5 Peligros NASA
+            </button>
           </div>
 
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-            {/* 4. Umbral de Atención */}
-            <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3.5">
+          {/* PESTAÑA 1: Protocolo paso a paso + Contramedida inmediata */}
+          {diagnosticTab === "protocolo" && (
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+                <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#1a73e8]">
+                  <ScanLine className="h-4 w-4" />
+                  Cómo realizar el examen (Sin ser médico)
+                </h4>
+                <ol className="mt-3 space-y-2.5 text-xs leading-relaxed text-slate-700 sm:text-sm">
+                  {guide.howToPerform.map((step, idx) => (
+                    <li
+                      key={idx}
+                      className="flex items-start gap-2.5 rounded-lg border border-slate-200/80 bg-white p-2.5"
+                    >
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-blue-50 font-mono-hud text-xs font-bold text-[#1a73e8]">
+                        0{idx + 1}
+                      </span>
+                      <span>{step}</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+
+              <div className="flex flex-col justify-between rounded-xl border border-emerald-200 bg-emerald-50/45 p-4">
+                <div>
+                  <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-800">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                    Contramedida Preventiva (Acción Inmediata)
+                  </h4>
+                  <ul className="mt-3 space-y-2.5 text-xs leading-relaxed text-slate-700 sm:text-sm">
+                    {guide.preventiveCountermeasures.map((item, idx) => (
+                      <li
+                        key={idx}
+                        className="flex items-start gap-2.5 rounded-lg border border-emerald-200/80 bg-white/90 p-3"
+                      >
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="mt-3 rounded-lg border border-blue-200/70 bg-white/80 p-3 text-xs text-slate-600">
+                  <strong className="text-slate-900">
+                    ¿Por qué evaluarlo hoy?
+                  </strong>{" "}
+                  {guide.whyNecessary}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* PESTAÑA 2: Umbrales de Atención y Escalamiento con Cirujanos de Vuelo */}
+          {diagnosticTab === "umbrales" && (
+            <div className="space-y-4 rounded-xl border border-slate-200 bg-slate-50/70 p-4">
               <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-rose-700">
                 <AlertCircle className="h-4 w-4" />
-                4. Umbral de Atención (Alerta a Cirujanos de Vuelo)
+                Criterios Clínicos de Triage y Alerta a Cirujanos de Vuelo
               </h4>
-              <div className="mt-2 space-y-1.5 text-xs">
-                <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 text-emerald-900">
-                  <strong className="text-emerald-700">Óptimo:</strong>{" "}
-                  {guide.attentionThreshold.optimal}
+
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                <div className="rounded-xl border border-emerald-200 bg-emerald-50/90 p-3.5 text-xs sm:text-sm">
+                  <div className="font-mono-hud text-xs font-bold uppercase text-emerald-800">
+                    ● Nivel Óptimo (Verde)
+                  </div>
+                  <p className="mt-1.5 leading-relaxed text-emerald-950">
+                    {guide.attentionThreshold.optimal}
+                  </p>
                 </div>
-                <div className="rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-amber-900">
-                  <strong className="text-amber-700">Precaución:</strong>{" "}
-                  {guide.attentionThreshold.warning}
+
+                <div className="rounded-xl border border-amber-300 bg-amber-50/90 p-3.5 text-xs sm:text-sm">
+                  <div className="font-mono-hud text-xs font-bold uppercase text-amber-800">
+                    ▲ Nivel Precaución (Amarillo)
+                  </div>
+                  <p className="mt-1.5 leading-relaxed text-amber-950">
+                    {guide.attentionThreshold.warning}
+                  </p>
                 </div>
-                <div className="rounded-lg border border-red-200 bg-red-50 px-2.5 py-1.5 text-red-900">
-                  <strong className="text-red-700">Crítico:</strong>{" "}
-                  {guide.attentionThreshold.critical}
+
+                <div className="rounded-xl border border-red-300 bg-red-50/90 p-3.5 text-xs sm:text-sm">
+                  <div className="font-mono-hud text-xs font-bold uppercase text-red-800">
+                    ■ Nivel Crítico (Rojo)
+                  </div>
+                  <p className="mt-1.5 leading-relaxed text-red-950">
+                    {guide.attentionThreshold.critical}
+                  </p>
                 </div>
-                <p className="pt-1 text-[11px] text-slate-500">
-                  <strong className="text-slate-700">Acción con Tierra:</strong>{" "}
-                  {guide.attentionThreshold.flightSurgeonNote}
-                </p>
+              </div>
+
+              <div className="rounded-xl border border-blue-200 bg-white p-3.5 text-xs leading-relaxed text-slate-700 sm:text-sm">
+                <strong className="text-[#0b2559]">
+                  Protocolo de Contacto con Tierra (Houston / CSA):
+                </strong>{" "}
+                {guide.attentionThreshold.flightSurgeonNote}
               </div>
             </div>
+          )}
 
-            {/* 5. Contramedida Preventiva */}
-            <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-3.5">
-              <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-700">
-                <CheckCircle2 className="h-4 w-4" />
-                5. Contramedida Preventiva (Acción Inmediata)
-              </h4>
-              <ul className="mt-2 space-y-2 text-xs leading-relaxed text-slate-700">
-                {guide.preventiveCountermeasures.map((item, idx) => (
-                  <li key={idx} className="flex items-start gap-2">
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
+          {/* PESTAÑA 3: Motivo Clínico y 5 Peligros Espaciales NASA HRP */}
+          {diagnosticTab === "ciencia" && (
+            <div className="space-y-4">
+              <div className="rounded-xl border border-indigo-200 bg-indigo-50/50 p-4">
+                <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-800">
+                  <Info className="h-4 w-4" />
+                  Fundamento Fisiológico en Vuelo Espacial
+                </h4>
+                <p className="mt-1.5 text-xs leading-relaxed text-slate-700 sm:text-sm">
+                  {guide.whyNecessary}
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+                <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-800">
+                  <ShieldAlert className="h-4 w-4" />
+                  Impacto de los 5 Peligros Espaciales (NASA HRP) en este Sistema
+                </h4>
+                <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  <div className="rounded-xl border border-slate-200 bg-white p-3">
+                    <div className="text-xs font-bold text-rose-600">
+                      1. Radiación Espacial
+                    </div>
+                    <p className="mt-1 text-xs leading-relaxed text-slate-600">
+                      {guide.fiveHazardsImpact.radiation}
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-slate-200 bg-white p-3">
+                    <div className="text-xs font-bold text-violet-600">
+                      2. Aislamiento y Confinamiento
+                    </div>
+                    <p className="mt-1 text-xs leading-relaxed text-slate-600">
+                      {guide.fiveHazardsImpact.isolation}
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-slate-200 bg-white p-3">
+                    <div className="text-xs font-bold text-blue-600">
+                      3. Distancia de la Tierra
+                    </div>
+                    <p className="mt-1 text-xs leading-relaxed text-slate-600">
+                      {guide.fiveHazardsImpact.distance}
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-slate-200 bg-white p-3">
+                    <div className="text-xs font-bold text-amber-600">
+                      4. Campos de Gravedad Alterados
+                    </div>
+                    <p className="mt-1 text-xs leading-relaxed text-slate-600">
+                      {guide.fiveHazardsImpact.gravity}
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-slate-200 bg-white p-3 sm:col-span-2 lg:col-span-1">
+                    <div className="text-xs font-bold text-teal-600">
+                      5. Ambientes Cerrados Hostiles
+                    </div>
+                    <p className="mt-1 text-xs leading-relaxed text-slate-600">
+                      {guide.fiveHazardsImpact.closedEnvironment}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </section>
