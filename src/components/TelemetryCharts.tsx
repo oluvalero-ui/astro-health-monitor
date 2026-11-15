@@ -137,9 +137,9 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
   return (
     <section
       id="informes-section"
-      className="flex h-full flex-col rounded-2xl border border-[#1b2d4b] bg-[#0c1426] p-4 shadow-[0_6px_24px_rgba(15,23,42,0.25)] sm:p-5"
+      className="flex h-full flex-col rounded-2xl border border-[#1b2d4b] bg-[#0c1426] p-4 shadow-[0_14px_34px_rgba(2,6,23,0.45)] sm:p-5"
     >
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-3 border-b border-[#1b2d4b] pb-3">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3 border-b border-[#182742] pb-3">
         <div>
           <div className="flex items-center gap-2">
             <LineIcon className="h-5 w-5 text-sky-400" />
@@ -222,7 +222,7 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
       </div>
 
       {/* Visor de Gráfica Combinada de Alta Precisión */}
-      <div className="h-[295px] w-full flex-1 rounded-xl border border-[#182742] bg-[#081020] p-2.5">
+      <div className="h-[300px] min-h-[300px] w-full rounded-xl border border-[#182742] bg-[#081020] p-2.5">
         {!mounted ? (
           <div className="flex h-full w-full items-center justify-center rounded-xl text-xs text-slate-400">
             Cargando gráficas telemétricas...

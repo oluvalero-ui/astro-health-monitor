@@ -48,9 +48,9 @@ import {
   getCareerRadiationPct,
   getTrend,
   STATUS_HEX,
-  STATUS_LABELS,
   worstStatus,
 } from "@/utils/healthEngine";
+import { StatusPill } from "./ui/StatusPill";
 
 interface BiomarkersDashboardProps {
   biomarkers: BiomarkerData;
@@ -103,7 +103,7 @@ function MetricCard({
     return (
       <span
         className={`inline-flex items-center gap-0.5 text-[11px] font-medium ${
-          goodTrend ? "text-emerald-600" : "text-amber-600"
+          goodTrend ? "text-emerald-400" : "text-amber-400"
         }`}
       >
         {isUp ? (
@@ -131,9 +131,9 @@ function MetricCard({
             }
           : undefined
       }
-      className={`group flex flex-col justify-between rounded-xl border border-slate-200/90 bg-slate-50/70 p-3.5 transition ${
+      className={`group flex flex-col justify-between rounded-xl border border-[#182742] bg-[#091120] p-3.5 transition ${
         onClick
-          ? "cursor-pointer hover:border-blue-300 hover:bg-white hover:shadow-sm"
+          ? "cursor-pointer hover:border-sky-500/45 hover:bg-[#0d192e]"
           : ""
       }`}
     >
@@ -150,26 +150,18 @@ function MetricCard({
             >
               {icon}
             </span>
-            <span className="text-xs font-semibold text-slate-800">{title}</span>
+            <span className="text-xs font-semibold text-slate-200">{title}</span>
           </div>
-          <span
-            className="rounded-full px-2 py-0.5 font-mono-hud text-[10px] font-bold uppercase"
-            style={{
-              backgroundColor: `${hex}1a`,
-              color: hex,
-            }}
-          >
-            {STATUS_LABELS[status]}
-          </span>
+          <StatusPill status={status} />
         </div>
 
         <div className="mt-3 flex items-baseline justify-between gap-2">
           <div className="flex items-baseline gap-1.5">
-            <span className="font-mono-hud text-2xl font-bold text-slate-900">
+            <span className="font-mono-hud text-2xl font-bold text-slate-100">
               {value}
             </span>
             {unit && (
-              <span className="font-mono-hud text-xs text-slate-500">
+              <span className="font-mono-hud text-xs text-slate-400">
                 {unit}
               </span>
             )}
@@ -177,13 +169,13 @@ function MetricCard({
           {renderTrend()}
         </div>
 
-        <p className="mt-1 text-[11px] leading-snug text-slate-500">
+        <p className="mt-1 text-[11px] leading-snug text-slate-400">
           {subtitle}
         </p>
       </div>
 
       {/* Colored Status Bar */}
-      <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-slate-200/75">
+      <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-[#162642]">
         <div
           className="h-full rounded-full transition-all duration-500"
           style={{
@@ -235,20 +227,20 @@ export default function BiomarkersDashboard({
 
   return (
     <section id="biomarkers-section" className="space-y-4">
-      {/* Barra de Sub-Secciones Limpia (Evita mostrar 20 tarjetas de golpe) */}
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-slate-200/90 bg-white p-3 shadow-[0_6px_24px_rgba(15,23,42,0.04)]">
+      {/* Barra de Sub-Secciones Limpia */}
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-[#1b2d4b] bg-[#0c1426] p-3 shadow-[0_14px_34px_rgba(2,6,23,0.45)]">
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => setSubView("fisicos")}
             className={`inline-flex cursor-pointer items-center gap-2 rounded-xl border px-3.5 py-2 text-xs font-bold transition ${
               subView === "fisicos"
-                ? "border-[#1a73e8] bg-[#1a73e8] text-white shadow-xs"
-                : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-white"
+                ? "border-sky-400/60 bg-sky-500/15 text-sky-200"
+                : "border-[#182742] bg-[#091120] text-slate-300 hover:border-sky-500/40 hover:text-slate-100"
             }`}
           >
             <HeartPulse className="h-4 w-4" />
-            1. Tu Cuerpo · Traje de Sensores (13)
+            Fisiológicos · Bio-Monitor 3N (13)
           </button>
 
           <button
@@ -256,12 +248,12 @@ export default function BiomarkersDashboard({
             onClick={() => setSubView("mental")}
             className={`inline-flex cursor-pointer items-center gap-2 rounded-xl border px-3.5 py-2 text-xs font-bold transition ${
               subView === "mental"
-                ? "border-[#1a73e8] bg-[#1a73e8] text-white shadow-xs"
-                : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-white"
+                ? "border-sky-400/60 bg-sky-500/15 text-sky-200"
+                : "border-[#182742] bg-[#091120] text-slate-300 hover:border-sky-500/40 hover:text-slate-100"
             }`}
           >
             <Brain className="h-4 w-4" />
-            2. Tu Ánimo y Descanso (4)
+            Salud Conductual BHP (4)
           </button>
 
           <button
@@ -269,12 +261,12 @@ export default function BiomarkersDashboard({
             onClick={() => setSubView("rutina")}
             className={`inline-flex cursor-pointer items-center gap-2 rounded-xl border px-3.5 py-2 text-xs font-bold transition ${
               subView === "rutina"
-                ? "border-[#1a73e8] bg-[#1a73e8] text-white shadow-xs"
-                : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-white"
+                ? "border-sky-400/60 bg-sky-500/15 text-sky-200"
+                : "border-[#182742] bg-[#091120] text-slate-300 hover:border-sky-500/40 hover:text-slate-100"
             }`}
           >
             <CalendarClock className="h-4 w-4" />
-            3. Tus Horarios del Día ({routineAnalysis.stabilityScore}% al día)
+            Sincronía Circadiana ({routineAnalysis.stabilityScore}%)
           </button>
         </div>
 
@@ -283,26 +275,26 @@ export default function BiomarkersDashboard({
           onClick={() => setSubView(subView === "todos" ? "fisicos" : "todos")}
           className={`cursor-pointer rounded-xl border px-3 py-1.5 text-xs font-semibold transition ${
             subView === "todos"
-              ? "border-[#0b2559] bg-[#0b2559] text-white"
-              : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+              ? "border-sky-400/60 bg-sky-500/20 text-sky-200"
+              : "border-[#182742] bg-[#091120] text-slate-300 hover:border-sky-500/40 hover:text-slate-100"
           }`}
         >
-          {subView === "todos" ? "Separar por temas" : "Ver todos juntos"}
+          {subView === "todos" ? "Separar por áreas" : "Ver todos"}
         </button>
       </div>
 
       {/* Routine Change Detector */}
       {(subView === "rutina" || subView === "todos") && (
       <div
-        className={`rounded-2xl border p-4 shadow-[0_6px_24px_rgba(15,23,42,0.04)] sm:p-5 ${
+        className={`rounded-2xl border p-4 shadow-[0_14px_34px_rgba(2,6,23,0.45)] sm:p-5 ${
           routineAnalysis.overallStatus === "critical"
-            ? "border-red-300 bg-red-50/70"
+            ? "border-red-500/40 bg-red-950/30"
             : routineAnalysis.overallStatus === "warning"
-            ? "border-amber-300 bg-amber-50/60"
-            : "border-slate-200/90 bg-white"
+            ? "border-amber-500/40 bg-amber-950/30"
+            : "border-[#1b2d4b] bg-[#0c1426]"
         }`}
       >
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#182742] pb-3">
           <div className="flex items-start gap-3">
             <div
               className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border"
@@ -316,7 +308,7 @@ export default function BiomarkersDashboard({
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <h2 className="text-base font-bold text-slate-900">
+                <h2 className="text-base font-bold text-slate-100">
                   Tus Horarios de Sueño, Ejercicio, Comida y Agua
                 </h2>
                 <span
@@ -333,7 +325,7 @@ export default function BiomarkersDashboard({
                     : "Retraso importante"}
                 </span>
               </div>
-              <p className="mt-0.5 text-xs text-slate-500">
+              <p className="mt-0.5 text-xs text-slate-400">
                 Te avisa de forma sencilla si hoy dormiste menos, tomaste poca agua o te saltaste alguna comida.
               </p>
             </div>
@@ -341,17 +333,17 @@ export default function BiomarkersDashboard({
 
           <div className="flex items-center gap-3">
             <div className="text-right">
-              <div className="text-[11px] text-slate-500">
+              <div className="text-[11px] text-slate-400">
                 Cumplimiento de hoy
               </div>
-              <div className="font-mono-hud text-xl font-bold text-[#1a73e8]">
+              <div className="font-mono-hud text-xl font-bold text-sky-400">
                 {routineAnalysis.stabilityScore}%
               </div>
             </div>
             <button
               type="button"
               onClick={onOpenManualEdit}
-              className="cursor-pointer rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-blue-400 hover:text-blue-700"
+              className="cursor-pointer rounded-xl border border-[#1b2d4b] bg-[#091120] px-3 py-1.5 text-xs font-semibold text-slate-200 transition hover:border-sky-400 hover:text-sky-300"
             >
               Cambiar Datos
             </button>
@@ -364,20 +356,20 @@ export default function BiomarkersDashboard({
             return (
               <div
                 key={item.id}
-                className="rounded-xl border border-slate-200/90 bg-white p-3 shadow-xs"
+                className="rounded-xl border border-[#182742] bg-[#091120] p-3"
               >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-semibold text-slate-800">
+                  <span className="text-xs font-semibold text-slate-200">
                     {item.label}
                   </span>
                   {item.status === "optimal" ? (
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                    <CheckCircle2 className="h-4 w-4 text-emerald-400" />
                   ) : (
                     <AlertTriangle className="h-4 w-4" style={{ color: hex }} />
                   )}
                 </div>
                 <div className="mt-2 flex items-baseline justify-between text-xs">
-                  <span className="font-mono-hud text-base font-bold text-slate-900">
+                  <span className="font-mono-hud text-base font-bold text-slate-100">
                     {item.currentText}
                   </span>
                   <span className="font-mono-hud text-[11px] text-slate-400">
@@ -396,14 +388,14 @@ export default function BiomarkersDashboard({
 
       {/* Biomarker Group A: Los 13 Signos Fisiológicos Continuos del Arnés 3N */}
       {(subView === "fisicos" || subView === "todos") && (
-      <div className="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-[0_6px_24px_rgba(15,23,42,0.04)] sm:p-5">
-        <div className="mb-3.5 flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+      <div className="rounded-2xl border border-[#1b2d4b] bg-[#0c1426] p-4 shadow-[0_14px_34px_rgba(2,6,23,0.45)] sm:p-5">
+        <div className="mb-3.5 flex flex-wrap items-center justify-between gap-2 border-b border-[#182742] pb-2.5">
           <div>
-            <h3 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-[#1a73e8] sm:text-base">
+            <h3 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-sky-300 sm:text-base">
               <HeartPulse className="h-4 w-4" />
-              Tu Cuerpo en Vivo · 13 Mediciones de tu Traje (Arnés 3N)
+              Biomarcadores Fisiológicos en Tiempo Real (Bio-Monitor 3N)
             </h3>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-400">
               Todo se mide solo con tu chaleco, tu banda en la frente y tu pulsera, sin cables molestos.
             </p>
           </div>
@@ -412,10 +404,10 @@ export default function BiomarkersDashboard({
               <button
                 type="button"
                 onClick={onJumpToWearable}
-                className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-[#1a73e8] transition hover:bg-blue-100"
+                className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-sky-500/35 bg-sky-500/10 px-2.5 py-1 text-[11px] font-semibold text-sky-300 transition hover:bg-sky-500/20"
               >
                 <Watch className="h-3.5 w-3.5" />
-                Ver tu Traje de Sensores (13 mediciones)
+                Ver Bio-Monitor 3N (13 mediciones)
               </button>
             )}
           </div>
@@ -519,18 +511,18 @@ export default function BiomarkersDashboard({
 
       {/* Biomarker Group B */}
       {(subView === "mental" || subView === "todos") && (
-      <div className="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-[0_6px_24px_rgba(15,23,42,0.04)] sm:p-5">
-        <div className="mb-3.5 flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+      <div className="rounded-2xl border border-[#1b2d4b] bg-[#0c1426] p-4 shadow-[0_14px_34px_rgba(2,6,23,0.45)] sm:p-5">
+        <div className="mb-3.5 flex flex-wrap items-center justify-between gap-2 border-b border-[#182742] pb-2.5">
           <div>
-            <h3 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-indigo-700 sm:text-base">
+            <h3 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-cyan-300 sm:text-base">
               <Brain className="h-4 w-4" />
-              Tu Ánimo, Mente y Descanso
+              Salud Conductual y Neuro-Cognitiva (BHP)
             </h3>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-400">
               Cómo te sientes de ánimo, energía mental y tranquilidad durante el viaje.
             </p>
           </div>
-          <span className="font-mono-hud text-[11px] text-slate-500">
+          <span className="font-mono-hud text-[11px] text-slate-400">
             Rostro: {lastCameraFinding}
           </span>
         </div>

@@ -250,20 +250,20 @@ export default function ScientificReferencesContent({
         {SCIENTIFIC_REFERENCES.map((section) => (
           <div
             key={section.id}
-            className="rounded-xl border border-slate-200 bg-slate-50/60 p-4"
+            className="rounded-xl border border-[#182742] bg-[#091120] p-4"
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-[11px] font-bold text-[#1a73e8]">
+              <span className="rounded-full border border-sky-500/35 bg-sky-500/10 px-2.5 py-0.5 text-[11px] font-bold text-sky-300">
                 {section.agency}
               </span>
-              <span className="font-mono-hud text-[11px] text-slate-500">
+              <span className="font-mono-hud text-[11px] text-slate-400">
                 {section.badge}
               </span>
             </div>
-            <h3 className="mt-2 text-sm font-bold text-slate-900 sm:text-base">
+            <h3 className="mt-2 text-sm font-bold text-slate-100 sm:text-base">
               {section.title}
             </h3>
-            <p className="mt-1 text-xs leading-relaxed text-slate-600">
+            <p className="mt-1 text-xs leading-relaxed text-slate-300">
               {section.description}
             </p>
 
@@ -271,13 +271,13 @@ export default function ScientificReferencesContent({
               {section.items.map((item) => (
                 <div
                   key={item.name}
-                  className="rounded-lg border border-slate-200 bg-white p-3 text-xs"
+                  className="rounded-lg border border-[#182742] bg-[#0c1426] p-3 text-xs"
                 >
-                  <div className="font-bold text-slate-900">{item.name}</div>
-                  <p className="mt-1 leading-relaxed text-slate-600">
+                  <div className="font-bold text-slate-100">{item.name}</div>
+                  <p className="mt-1 leading-relaxed text-slate-300">
                     {item.detail}
                   </p>
-                  <p className="mt-1.5 text-[11px] font-medium text-[#1a73e8]">
+                  <p className="mt-1.5 text-[11px] font-medium text-sky-300">
                     Integración en ASTRO-MED: {item.appMapping}
                   </p>
                 </div>
@@ -288,15 +288,15 @@ export default function ScientificReferencesContent({
       </div>
 
       {/* Registro Oficial de 16 Fuentes Verificadas (NASA y CSA) */}
-      <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
+      <div className="rounded-xl border border-[#182742] bg-[#091120] p-4">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <BookOpen className="h-4 w-4 text-[#1a73e8]" />
-            <h3 className="text-sm font-bold text-slate-900 sm:text-base">
+            <BookOpen className="h-4 w-4 text-sky-400" />
+            <h3 className="text-sm font-bold text-slate-100 sm:text-base">
               Registro Oficial de 16 Fuentes Verificadas (NASA HRP, NASA-STD-3001 y CSA)
             </h3>
           </div>
-          <span className="rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 font-mono-hud text-[11px] font-bold text-[#1a73e8]">
+          <span className="rounded-full border border-sky-500/35 bg-sky-500/10 px-2.5 py-0.5 font-mono-hud text-[11px] font-bold text-sky-300">
             16 Referencias Oficiales [1]–[16]
           </span>
         </div>
@@ -308,19 +308,19 @@ export default function ScientificReferencesContent({
               href={ref.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex items-start justify-between gap-2.5 rounded-lg border border-slate-200 bg-white p-3 text-xs transition hover:border-sky-400/60"
+              className="group flex items-start justify-between gap-2.5 rounded-lg border border-[#182742] bg-[#0c1426] p-3 text-xs transition hover:border-sky-400/60"
             >
               <div className="min-w-0">
                 <div className="flex items-center gap-2 font-mono-hud text-[11px]">
-                  <span className="font-bold text-[#1a73e8]">{ref.id}</span>
-                  <span className="font-semibold text-slate-700">
+                  <span className="font-bold text-sky-400">{ref.id}</span>
+                  <span className="font-semibold text-slate-300">
                     {ref.authors} ({ref.year})
                   </span>
                 </div>
-                <p className="mt-1 text-xs leading-snug text-slate-900">
+                <p className="mt-1 text-xs leading-snug text-slate-100">
                   {ref.title}
                 </p>
-                <span className="mt-1 inline-block font-mono-hud text-[10px] text-slate-500">
+                <span className="mt-1 inline-block font-mono-hud text-[10px] text-slate-400">
                   {ref.domain}
                 </span>
               </div>

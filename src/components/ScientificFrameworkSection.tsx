@@ -22,18 +22,18 @@ export default function ScientificFrameworkSection({
   return (
     <section
       id="referencias-section"
-      className="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-[0_6px_24px_rgba(15,23,42,0.04)] sm:p-5"
+      className="rounded-2xl border border-[#1b2d4b] bg-[#0c1426] p-4 shadow-[0_14px_34px_rgba(2,6,23,0.45)] sm:p-5"
     >
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-[#182742] pb-3">
         <div className="flex items-center gap-2.5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-[#1a73e8]">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-400/25 bg-sky-500/15 text-sky-300">
             <BookOpen className="h-5 w-5" />
           </span>
           <div>
-            <h2 className="text-base font-bold text-slate-900 sm:text-lg">
-              Base Científica · NASA HRP y Dosimetría CSA
+            <h2 className="text-base font-bold text-slate-100 sm:text-lg">
+              Estándares NASA-STD-3001 · Human Research Program & Dosimetría CSA
             </h2>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-400">
               Marco oficial de los 5 Peligros del Espacio Humano y monitoreo
               radiológico {env.shortName}.
             </p>

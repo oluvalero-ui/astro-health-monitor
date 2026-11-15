@@ -40,9 +40,9 @@ import {
   evaluateStressStatus,
   evaluateTempStatus,
   STATUS_HEX,
-  STATUS_LABELS,
 } from "@/utils/healthEngine";
 import LivePhysioWaveform from "./LivePhysioWaveform";
+import { StatusPill } from "./ui/StatusPill";
 
 interface WearableHarnessPanelProps {
   environmentId: MissionEnvironmentId;
@@ -68,7 +68,6 @@ function TelemetryBadge({
   onClick,
   className = "",
 }: TelemetryBadgeProps) {
-  const hex = STATUS_HEX[status];
   return (
     <div
       onClick={onClick}
@@ -84,28 +83,20 @@ function TelemetryBadge({
             }
           : undefined
       }
-      className={`rounded-xl border border-slate-200/90 bg-slate-50/75 p-2.5 transition ${
-        onClick ? "cursor-pointer hover:border-blue-300 hover:bg-white" : ""
+      className={`rounded-xl border border-[#182742] bg-[#091120] p-2.5 transition ${
+        onClick ? "cursor-pointer hover:border-sky-500/45 hover:bg-[#0d192e]" : ""
       } ${className}`}
     >
       <div className="flex items-center justify-between gap-1.5">
-        <span className="truncate text-[11px] font-semibold text-slate-700">
+        <span className="truncate text-[11px] font-semibold text-slate-300">
           {label}
         </span>
-        <span
-          className="shrink-0 rounded-full px-1.5 py-0.5 font-mono-hud text-[9px] font-bold uppercase"
-          style={{
-            backgroundColor: `${hex}1a`,
-            color: hex,
-          }}
-        >
-          {STATUS_LABELS[status]}
-        </span>
+        <StatusPill status={status} />
       </div>
-      <div className="mt-1 font-mono-hud text-base font-bold text-slate-900">
+      <div className="mt-1 font-mono-hud text-base font-bold text-slate-100">
         {value}
       </div>
-      <div className="mt-0.5 truncate text-[10px] text-slate-500">{meta}</div>
+      <div className="mt-0.5 truncate text-[10px] text-slate-400">{meta}</div>
     </div>
   );
 }
@@ -136,37 +127,28 @@ export default function WearableHarnessPanel({
     <section
       id="wearable-harness"
       aria-label="Prototipo Físico Único: Arnés 3N Bio-Monitor CSA"
-      className="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-[0_6px_24px_rgba(15,23,42,0.04)] sm:p-5"
+      className="rounded-2xl border border-[#1b2d4b] bg-[#0c1426] p-4 shadow-[0_14px_34px_rgba(2,6,23,0.45)] sm:p-5"
     >
       {/* Section Header — Hardware Único Arnés 3N */}
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-[#182742] pb-3">
         <div className="flex items-start gap-3">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-sky-400/40 bg-sky-500/20 text-sky-300 shadow-sm">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-sky-400/35 bg-sky-500/15 text-sky-300 shadow-sm">
             <Watch className="h-5 w-5" />
           </div>
           <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-base font-bold text-slate-900 sm:text-lg">
-                Tu Traje de Sensores · Arnés 3N (3 Partes del Cuerpo)
-              </h2>
-              <span className="rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 font-mono-hud text-[10px] font-bold uppercase tracking-wider text-[#1a73e8]">
-                13 Signos en Vivo (7 + 4 + 2) · 24/7
-              </span>
-              <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 font-mono-hud text-[10px] font-semibold text-emerald-700">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                Funciona sin Internet
-              </span>
-            </div>
-            <p className="mt-0.5 text-xs text-slate-500">
-              Este traje mide tu salud todo el día en <strong>3 partes</strong>: <strong>1. Chaleco en el Pecho</strong> (corazón, aire y descanso), <strong>2. Banda en la Frente</strong> (presión, oxígeno y calor) y <strong>3. Pulsera y Cuello</strong> (protección de radiación y calma al hablar).
+            <h2 className="text-base font-bold text-slate-100 sm:text-lg">
+              Bio-Monitor 3N · Telemetría Vestible Continua (CSA / NASA)
+            </h2>
+            <p className="mt-0.5 text-xs text-slate-400">
+              Monitoreo autónomo continuo sin internet en 3 nodos corporales: tórax, frente y conjunto muñeca/cuello.
             </p>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 text-xs">
-          <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 font-mono-hud">
-            <span className="text-slate-500">Lugar: </span>
-            <span className="font-bold text-[#0b2559]">{env.shortName}</span>
+          <div className="rounded-xl border border-[#1b2d4b] bg-[#091120] px-3 py-1.5 font-mono-hud">
+            <span className="text-slate-400">Misión: </span>
+            <span className="font-bold text-sky-300">{env.shortName}</span>
             <span className="text-slate-400"> · {env.gravityLabel}</span>
           </div>
         </div>
@@ -176,15 +158,15 @@ export default function WearableHarnessPanel({
       {b.pttCalibrationRequired && (
         <div
           role="alert"
-          className="mb-4 flex flex-col justify-between gap-3 rounded-xl border border-amber-300 bg-amber-50 p-3.5 text-xs text-amber-950 sm:flex-row sm:items-center"
+          className="mb-4 flex flex-col justify-between gap-3 rounded-xl border border-amber-500/40 bg-amber-950/35 p-3.5 text-xs text-amber-100 sm:flex-row sm:items-center"
         >
           <div className="flex items-start gap-2.5">
-            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-400" />
             <div>
-              <div className="font-bold text-amber-900">
+              <div className="font-bold text-amber-200">
                 Conviene ajustar el medidor de presión por el cambio de gravedad
               </div>
-              <p className="mt-0.5 leading-relaxed text-amber-800">
+              <p className="mt-0.5 leading-relaxed text-amber-100/85">
                 Llegaste a <strong>{env.name} ({env.gravityG}g)</strong> y la sangre baja diferente por tu cuerpo. Presiona el botón para comparar tu traje con el brazalete de presión de la nave en 30 segundos.
               </p>
             </div>
@@ -192,7 +174,7 @@ export default function WearableHarnessPanel({
           <button
             type="button"
             onClick={handleCalibrateClick}
-            className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-xl bg-amber-600 px-3.5 py-2 font-mono-hud text-xs font-bold text-white shadow-xs transition hover:bg-amber-700"
+            className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-xl bg-amber-600 px-3.5 py-2 font-mono-hud text-xs font-bold text-white shadow-xs transition hover:bg-amber-500"
           >
             <Stethoscope className="h-4 w-4" />
             Ajustar Presión (30 s)
@@ -201,9 +183,9 @@ export default function WearableHarnessPanel({
       )}
 
       {calFeedbackAt && !b.pttCalibrationRequired && (
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-2.5 text-xs text-emerald-900">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-emerald-500/35 bg-emerald-950/30 px-3.5 py-2.5 text-xs text-emerald-100">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+            <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
             <span>
               <strong>Medidor de presión listo ({calFeedbackAt}):</strong>{" "}
               Tu banda de la frente quedó bien ajustada para medir tu presión sin apretar el brazo.
@@ -218,32 +200,29 @@ export default function WearableHarnessPanel({
       {/* 3 Physical Capture Nodes Grid (7 + 4 + 2 = 13 Continuous Physiological Signs) */}
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-12">
         {/* NODO 1: Chaleco en el Pecho (7 Signos) */}
-        <div className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-xs xl:col-span-5">
+        <div className="flex flex-col justify-between rounded-2xl border border-[#1b2d4b] bg-[#0a1222] p-4 xl:col-span-5">
           <div>
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#182742] pb-2.5">
               <div className="flex items-center gap-2">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-[#1a73e8]">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-sky-400/25 bg-sky-500/15 text-sky-300">
                   <HeartPulse className="h-4 w-4" />
                 </span>
                 <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#0b2559]">
-                    Parte 1 · Chaleco en el Pecho (7 Mediciones)
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-100">
+                    Nodo Torácico (Pecho)
                   </h3>
-                  <p className="text-[11px] text-slate-500">
-                    Escucha tus latidos, tu respiración, el calor de tu piel y tu descanso
+                  <p className="text-[11px] text-slate-400">
+                    Ritmo cardíaco, respiración, calor de la piel y descanso
                   </p>
                 </div>
               </div>
-              <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-mono-hud text-[10px] font-bold text-emerald-700">
-                7 Signos · En vivo
-              </span>
             </div>
 
-            {/* Signo 3: Dibujo de tus Latidos en Vivo */}
-            <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50/90 p-2.5">
+            {/* ECG Continuo · 3 Derivaciones */}
+            <div className="mt-3 rounded-xl border border-[#182742] bg-[#091120] p-2.5">
               <div className="mb-1.5 flex items-center justify-between text-[10px] font-mono-hud">
                 <span className="font-bold text-slate-200">
-                  3. DIBUJO DE TUS LATIDOS EN VIVO (3 VISTAS DEL CORAZÓN)
+                  ECG Continuo · 3 Derivaciones (V1, V2, V3)
                 </span>
                 <span className="text-sky-400">
                   {b.bpm} lat/min · Descanso {Math.min(100, Math.round((b.hrvRmssdMs / 60) * 100))}%
@@ -278,45 +257,45 @@ export default function WearableHarnessPanel({
               </div>
             </div>
 
-            {/* Los 7 Signos del Nodo 1 (Chaleco Torácico) */}
+            {/* Los Signos del Nodo 1 (Chaleco Torácico) */}
             <div className="mt-3 grid grid-cols-2 gap-2">
               <TelemetryBadge
-                label="1. Latidos del Corazón"
+                label="Latidos del Corazón"
                 value={`${b.bpm} lat/min`}
                 meta="Lo normal en calma es 52 a 92"
                 status={evaluateBpmStatus(b.bpm)}
                 onClick={() => onSelectSystemZone?.("corazon")}
               />
               <TelemetryBadge
-                label="2. Descanso del Corazón"
+                label="Descanso del Corazón"
                 value={`${Math.min(100, Math.round((b.hrvRmssdMs / 60) * 100))}% (${b.hrvRmssdMs} ms)`}
                 meta="Qué tan relajado late tu corazón"
                 status={evaluateHrvStatus(b.hrvRmssdMs)}
                 onClick={() => onSelectSystemZone?.("corazon")}
               />
               <TelemetryBadge
-                label="4. Veces que Respiras"
+                label="Veces que Respiras"
                 value={`${b.respiratoryRateRpm} / min`}
                 meta="Respiraciones tranquilas (12 a 20)"
                 status={evaluateRespiratoryRateStatus(b.respiratoryRateRpm)}
                 onClick={() => onSelectSystemZone?.("corazon")}
               />
               <TelemetryBadge
-                label="5. Aire que Entra al Pecho"
+                label="Aire que Entra al Pecho"
                 value={`${b.minuteVentilationLpm.toFixed(1)} L/min`}
                 meta="Cantidad de aire por minuto (5 a 8 L)"
                 status={evaluateMinuteVentilationStatus(b.minuteVentilationLpm)}
                 onClick={() => onSelectSystemZone?.("corazon")}
               />
               <TelemetryBadge
-                label="6. Calor en la Piel"
+                label="Calor en la Piel"
                 value={`${b.skinTempC.toFixed(1)} °C`}
                 meta="Temperatura por fuera del pecho"
                 status={evaluateSkinTempStatus(b.skinTempC)}
                 onClick={() => onSelectSystemZone?.("abdomen")}
               />
               <TelemetryBadge
-                label="7. Postura y Sueño"
+                label="Postura y Sueño"
                 value={`${b.postureScore}% · ${b.sleepHours.toFixed(1)}h`}
                 meta="Posición del cuerpo y horas dormidas"
                 status={
@@ -335,40 +314,37 @@ export default function WearableHarnessPanel({
         </div>
 
         {/* NODO 2: Banda en la Frente (4 Signos) */}
-        <div className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-xs xl:col-span-4">
+        <div className="flex flex-col justify-between rounded-2xl border border-[#1b2d4b] bg-[#0a1222] p-4 xl:col-span-4">
           <div>
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#182742] pb-2.5">
               <div className="flex items-center gap-2">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-[#1a73e8]">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-sky-400/25 bg-sky-500/15 text-sky-300">
                   <Activity className="h-4 w-4" />
                 </span>
                 <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#0b2559]">
-                    Parte 2 · Banda en la Frente (4 Mediciones)
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-100">
+                    Nodo Frontal (Cabeza)
                   </h3>
-                  <p className="text-[11px] text-slate-500">
-                    Mide tu presión sin apretar el brazo, el oxígeno y tu fiebre
+                  <p className="text-[11px] text-slate-400">
+                    Presión arterial sin brazalete, SpO₂ craneal y fiebre
                   </p>
                 </div>
               </div>
-              <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-mono-hud text-[10px] font-bold text-emerald-700">
-                4 Signos · En vivo
-              </span>
             </div>
 
             {/* Explicación sencilla de por qué va en la frente */}
-            <div className="mt-3 rounded-xl border border-blue-200/80 bg-blue-50/70 p-2.5 text-[11px] leading-relaxed text-slate-700">
-              <div className="flex items-center gap-1.5 font-bold text-[#0b2559]">
-                <Wind className="h-3.5 w-3.5 text-[#1a73e8]" />
+            <div className="mt-3 rounded-xl border border-sky-500/25 bg-[#091528] p-2.5 text-[11px] leading-relaxed text-slate-300">
+              <div className="flex items-center gap-1.5 font-bold text-sky-300">
+                <Wind className="h-3.5 w-3.5 text-sky-400" />
                 ¿Por qué se mide en la frente en el espacio?
               </div>
-              <p className="mt-1 text-slate-600">
+              <p className="mt-1 text-slate-300">
                 Sin gravedad, la sangre sube hacia la cabeza y las manos se enfrían. La banda en la frente mide tu <strong>oxígeno y tu presión sin usar brazalete</strong> con mucha más precisión.
               </p>
             </div>
 
             {/* Onda de Pulso en la Frente en Vivo */}
-            <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50/90 p-2.5">
+            <div className="mt-3 rounded-xl border border-[#182742] bg-[#091120] p-2.5">
               <div className="mb-1 flex items-center justify-between font-mono-hud text-[10px]">
                 <span className="font-bold text-sky-300">
                   PULSO EN LA FRENTE · PASO DE SANGRE ({b.pttMs} ms)
@@ -397,7 +373,7 @@ export default function WearableHarnessPanel({
             {/* Los 4 Signos Continuos de la Banda en la Frente */}
             <div className="mt-3 grid grid-cols-2 gap-2">
               <TelemetryBadge
-                label="8. Presión de la Sangre"
+                label="Presión de la Sangre"
                 value={`${b.systolicBP}/${b.diastolicBP} mmHg`}
                 meta="Medida suave sin apretar el brazo (normal 120/80)"
                 status={evaluateBpStatus(b.systolicBP, b.diastolicBP)}
@@ -405,21 +381,21 @@ export default function WearableHarnessPanel({
                 className="col-span-2"
               />
               <TelemetryBadge
-                label="9. Oxígeno en la Cabeza"
+                label="Oxígeno en la Cabeza"
                 value={`${b.spo2Percent}%`}
                 meta="Aire en tu sangre (bien: 95 a 100%)"
                 status={evaluateSpo2Status(b.spo2Percent)}
                 onClick={() => onSelectSystemZone?.("corazon")}
               />
               <TelemetryBadge
-                label="10. Fuerza del Pulso"
+                label="Fuerza del Pulso"
                 value={`${b.perfusionIndex.toFixed(1)}%`}
                 meta="Qué tan bien llega la sangre a la piel"
                 status={evaluatePerfusionIndexStatus(b.perfusionIndex)}
                 onClick={() => onSelectSystemZone?.("corazon")}
               />
               <TelemetryBadge
-                label="11. Calor Interno (Fiebre)"
+                label="Calor Interno (Fiebre)"
                 value={`${b.bodyTempC.toFixed(1)} °C`}
                 meta="Temperatura dentro del cuerpo (normal 36.5 a 37.5 °C)"
                 status={evaluateTempStatus(b.bodyTempC)}
@@ -430,8 +406,8 @@ export default function WearableHarnessPanel({
           </div>
 
           {/* Central vs Peripheral Thermal Contrast Pill */}
-          <div className="mt-3 flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs">
-            <span className="flex items-center gap-1.5 text-slate-600">
+          <div className="mt-3 flex items-center justify-between rounded-xl border border-[#182742] bg-[#091120] px-3 py-2 text-xs">
+            <span className="flex items-center gap-1.5 text-slate-300">
               <Thermometer className="h-3.5 w-3.5 text-sky-400" />
               Diferencia de calor (adentro vs piel):
             </span>
@@ -445,29 +421,26 @@ export default function WearableHarnessPanel({
         </div>
 
         {/* NODO 3: Pulsera y Cuello (2 Signos + Ajuste de Presión) */}
-        <div className="flex flex-col justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs xl:col-span-3">
+        <div className="flex flex-col justify-between gap-3 rounded-2xl border border-[#1b2d4b] bg-[#0a1222] p-4 xl:col-span-3">
           <div>
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#182742] pb-2.5">
               <div className="flex items-center gap-2">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-50 text-amber-500">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-amber-400/25 bg-amber-500/15 text-amber-300">
                   <Radiation className="h-4 w-4" />
                 </span>
                 <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#0b2559]">
-                    Parte 3 · Pulsera y Cuello (2 Mediciones)
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-100">
+                    Nodo Radial (Muñeca y Cuello)
                   </h3>
-                  <p className="text-[11px] text-slate-500">
-                    Vigila la radiación espacial y la calma en tu voz
+                  <p className="text-[11px] text-slate-400">
+                    Dosimetría de radiación espacial y estrés vocal
                   </p>
                 </div>
               </div>
-              <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-mono-hud text-[10px] font-bold text-emerald-700">
-                2 Signos · Activo
-              </span>
             </div>
 
             {/* Centelleo Dosimétrico en Vivo */}
-            <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50/90 p-2.5">
+            <div className="mt-3 rounded-xl border border-[#182742] bg-[#091120] p-2.5">
               <div className="mb-1 flex items-center justify-between font-mono-hud text-[10px]">
                 <span className="font-bold text-amber-300">
                   ESCUDO DE RADIACIÓN · {Math.max(0, Math.min(100, Math.round((1 - b.dailyRadiationMsv / CSA_RADIATION_LIMITS.dailyAlertMsv) * 100)))}% SEGURO
@@ -492,14 +465,14 @@ export default function WearableHarnessPanel({
             {/* Los 2 Signos del Nodo 3 */}
             <div className="mt-3 space-y-2">
               <TelemetryBadge
-                label="12. Protección de Radiación"
+                label="Protección de Radiación"
                 value={`${Math.max(0, Math.min(100, Math.round((1 - b.dailyRadiationMsv / CSA_RADIATION_LIMITS.dailyAlertMsv) * 100)))}% seguro`}
                 meta={`Hoy: ${b.dailyRadiationMsv.toFixed(2)} mSv · Nivel de protección en la nave`}
                 status={evaluateRadiationStatus(b.dailyRadiationMsv)}
                 onClick={() => onSelectSystemZone?.("endocrino")}
               />
               <TelemetryBadge
-                label="13. Calma en tu Voz"
+                label="Calma en tu Voz"
                 value={`${100 - b.facialTension}% tranquilo`}
                 meta={`Tensión hoy: ${b.stressLevel}% · Mide vibración del cuello sin grabarte`}
                 status={evaluateStressStatus(b.stressLevel)}
@@ -508,9 +481,9 @@ export default function WearableHarnessPanel({
             </div>
 
             {/* Indicador de Edad de Calibración */}
-            <div className="mt-2.5 flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs">
-              <span className="flex items-center gap-1.5 text-slate-600">
-                <Mic className="h-3.5 w-3.5 text-[#1a73e8]" />
+            <div className="mt-2.5 flex items-center justify-between rounded-xl border border-[#182742] bg-[#091120] px-3 py-2 text-xs">
+              <span className="flex items-center gap-1.5 text-slate-300">
+                <Mic className="h-3.5 w-3.5 text-sky-400" />
                 Último ajuste de presión:
               </span>
               <span
@@ -523,9 +496,9 @@ export default function WearableHarnessPanel({
           </div>
 
           {/* Ajuste rápido de presión */}
-          <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-3">
+          <div className="rounded-xl border border-[#182742] bg-[#091120] p-3">
             <div className="flex items-center justify-between text-[11px]">
-              <span className="font-bold text-[#0b2559]">
+              <span className="font-bold text-slate-100">
                 Ajuste del Medidor de Presión
               </span>
               <span
@@ -535,13 +508,13 @@ export default function WearableHarnessPanel({
                 {b.pttCalibrationRequired ? "Conviene ajustar" : "Listo"}
               </span>
             </div>
-            <p className="mt-1 text-[10px] leading-snug text-slate-500">
+            <p className="mt-1 text-[10px] leading-snug text-slate-400">
               Si cambias entre el espacio (0g), la Luna o Marte, toca este botón para afinar la lectura de presión.
             </p>
             <button
               type="button"
               onClick={handleCalibrateClick}
-              className="mt-2.5 flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-[#1a73e8] px-3 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-blue-700 active:scale-[0.98]"
+              className="mt-2.5 flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-sky-600 px-3 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-sky-500 active:scale-[0.98]"
             >
               <Stethoscope className="h-3.5 w-3.5" />
               Ajustar Medidor de Presión (30 s)
@@ -551,23 +524,23 @@ export default function WearableHarnessPanel({
       </div>
 
       {/* Derived Hemodynamic & Thermal Indices Strip */}
-      <div className="mt-4 rounded-xl border border-slate-200/90 bg-slate-50/75 p-3.5">
+      <div className="mt-4 rounded-xl border border-[#182742] bg-[#091120] p-3.5">
         <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
-          <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#0b2559]">
-            <Gauge className="h-4 w-4 text-[#1a73e8]" />
+          <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-100">
+            <Gauge className="h-4 w-4 text-sky-400" />
             Resumen Automático de Circulación y Calor (Calculado por tu Traje)
           </h3>
           <span
             className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${
               hemo.orthostaticAlert
-                ? "border-amber-300 bg-amber-50 text-amber-800"
-                : "border-emerald-200 bg-emerald-50 text-emerald-700"
+                ? "border-amber-500/40 bg-amber-950/40 text-amber-200"
+                : "border-emerald-500/35 bg-emerald-950/30 text-emerald-300"
             }`}
           >
             {hemo.orthostaticAlert ? (
-              <AlertTriangle className="h-3.5 w-3.5 text-amber-600" />
+              <AlertTriangle className="h-3.5 w-3.5 text-amber-400" />
             ) : (
-              <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+              <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
             )}
             {hemo.orthostaticAlert
               ? "Cuidado al ponerte de pie (riesgo de mareo)"
@@ -612,42 +585,34 @@ export default function WearableHarnessPanel({
           ].map((item) => (
             <div
               key={item.key}
-              className="rounded-xl border border-slate-200 bg-white p-3"
+              className="rounded-xl border border-[#182742] bg-[#0c1426] p-3"
             >
               <div className="flex items-center justify-between gap-1.5 text-xs">
-                <span className="font-semibold text-slate-700">
+                <span className="font-semibold text-slate-300">
                   {item.title}
                 </span>
-                <span
-                  className="shrink-0 rounded-full px-2 py-0.5 font-mono-hud text-[10px] font-bold uppercase"
-                  style={{
-                    backgroundColor: `${STATUS_HEX[item.status]}1a`,
-                    color: STATUS_HEX[item.status],
-                  }}
-                >
-                  {STATUS_LABELS[item.status]}
-                </span>
+                <StatusPill status={item.status} />
               </div>
               <div className="mt-1.5 flex items-baseline gap-1.5">
-                <span className="font-mono-hud text-xl font-bold text-slate-900">
+                <span className="font-mono-hud text-xl font-bold text-slate-100">
                   {item.value}
                 </span>
-                <span className="font-mono-hud text-xs text-slate-500">
+                <span className="font-mono-hud text-xs text-slate-400">
                   {item.unit}
                 </span>
               </div>
-              <p className="mt-0.5 text-[11px] text-slate-500">{item.note}</p>
+              <p className="mt-0.5 text-[11px] text-slate-400">{item.note}</p>
             </div>
           ))}
         </div>
 
-        <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500">
+        <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400">
           <span className="flex items-center gap-1.5">
-            <Cpu className="h-3.5 w-3.5 text-[#1a73e8]" />
-            Hardware único: Arnés 3N (Chaleco Torácico · Vincha Cefálica · Pulsera/Collar) 100% autónomo.
+            <Cpu className="h-3.5 w-3.5 text-sky-400" />
+            Hardware único: Arnés 3N (Chaleco Torácico · Banda Frontal · Pulsera/Collar) 100% autónomo.
           </span>
-          <span className="flex items-center gap-1 font-mono-hud text-slate-600">
-            <Radiation className="h-3.5 w-3.5 text-amber-600" />
+          <span className="flex items-center gap-1 font-mono-hud text-slate-300">
+            <Radiation className="h-3.5 w-3.5 text-amber-400" />
             PTT calibrado: {b.pttMs} ms
           </span>
         </div>

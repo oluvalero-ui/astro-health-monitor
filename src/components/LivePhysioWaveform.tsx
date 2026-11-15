@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useId, useRef } from "react";
+import React, { useEffect, useId, useRef, useState } from "react";
 
 export type PhysioWaveMode = "ecg" | "ppg" | "abp" | "resp" | "metab" | "rad";
 
@@ -147,17 +147,35 @@ export default function LivePhysioWaveform({
   leadAmplitude = 1,
   phaseOffset = 0,
   heightClass = "h-6",
-  width = 160,
+  width = 260,
   height = 28,
   showGrid = false,
 }: LivePhysioWaveformProps) {
   const rawId = useId();
   const gradId = `wave-grad-${rawId.replace(/:/g, "")}`;
 
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  const [measuredWidth, setMeasuredWidth] = useState<number>(width);
+
   const wavePathRef = useRef<SVGPathElement | null>(null);
   const areaPathRef = useRef<SVGPathElement | null>(null);
   const cursorDotRef = useRef<SVGCircleElement | null>(null);
   const cursorHaloRef = useRef<SVGCircleElement | null>(null);
+
+  useEffect(() => {
+    const el = svgRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const nextW = Math.round(entry.contentRect.width);
+        if (nextW >= 80) {
+          setMeasuredWidth((prev) => (prev !== nextW ? nextW : prev));
+        }
+      }
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const paramsRef = useRef({
     bpm,
@@ -190,8 +208,9 @@ export default function LivePhysioWaveform({
   ]);
 
   useEffect(() => {
-    const numSamples = Math.max(96, Math.floor(width / 1.5));
-    const usableWidth = width - 5;
+    const activeWidth = measuredWidth;
+    const numSamples = Math.max(96, Math.floor(activeWidth / 1.5));
+    const usableWidth = activeWidth - 5;
 
     // Realistic hospital monitor time window in true wall-clock seconds:
     // - Cardiac strips (ECG/PPG/ABP): 4.4 seconds visible (~5 real heartbeats at 68 BPM)
@@ -201,7 +220,7 @@ export default function LivePhysioWaveform({
         ? 7.5
         : mode === "rad"
         ? 6.0
-        : width > 220
+        : activeWidth > 220
         ? 5.2
         : 4.4;
 
@@ -260,11 +279,12 @@ export default function LivePhysioWaveform({
 
     animId = requestAnimationFrame(renderFrame);
     return () => cancelAnimationFrame(animId);
-  }, [mode, width, height]);
+  }, [mode, measuredWidth, height]);
 
   return (
     <svg
-      viewBox={`0 0 ${width} ${height}`}
+      ref={svgRef}
+      viewBox={`0 0 ${measuredWidth} ${height}`}
       className={`${heightClass} w-full overflow-visible`}
       aria-hidden="true"
     >
@@ -280,7 +300,7 @@ export default function LivePhysioWaveform({
         <line
           x1="0"
           y1={height * 0.58}
-          x2={width}
+          x2={measuredWidth}
           y2={height * 0.58}
           stroke="#182742"
           strokeWidth="1"

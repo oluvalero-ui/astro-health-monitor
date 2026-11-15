@@ -17,20 +17,20 @@ export default function ScientificReferencesModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-3 backdrop-blur-sm sm:p-5"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 p-3 backdrop-blur-sm sm:p-5"
       role="dialog"
       aria-modal="true"
-      aria-label="Referencias Científicas NASA HRP y CSA"
+      aria-label="Estándares NASA-STD-3001 · Human Research Program & Dosimetría CSA"
     >
-      <div className="flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
-        <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-5 py-4">
+      <div className="flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-[#1b2d4b] bg-[#0c1426] text-slate-100 shadow-2xl">
+        <div className="flex items-center justify-between border-b border-[#182742] bg-[#091120] px-5 py-4">
           <div className="flex items-center gap-2.5">
-            <BookOpen className="h-5 w-5 text-[#1a73e8]" />
+            <BookOpen className="h-5 w-5 text-sky-400" />
             <div>
-              <h2 className="text-base font-bold text-slate-900 sm:text-lg">
-                Referencias Científicas Oficiales · NASA HRP & CSA
+              <h2 className="text-base font-bold text-slate-100 sm:text-lg">
+                Estándares NASA-STD-3001 · Human Research Program & Dosimetría CSA
               </h2>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-400">
                 Base biomédica del desafío: 5 Peligros del Espacio Humano y
                 Dosimetría de Radiación Canadiense.
               </p>
@@ -39,7 +39,7 @@ export default function ScientificReferencesModal({
           <button
             type="button"
             onClick={onClose}
-            className="cursor-pointer rounded-xl border border-slate-200 bg-white p-1.5 text-slate-500 hover:text-slate-900"
+            className="cursor-pointer rounded-xl border border-[#1b2d4b] bg-[#0c1426] p-1.5 text-slate-400 transition hover:border-sky-400 hover:text-slate-100"
             aria-label="Cerrar referencias"
           >
             <X className="h-5 w-5" />

@@ -8,18 +8,18 @@ export const HABIT_CATEGORY_META: Record<
 > = {
   fisico: {
     label: "Físico y Nutrición",
-    icon: <Dumbbell className="h-3.5 w-3.5 text-amber-600" />,
+    icon: <Dumbbell className="h-3.5 w-3.5 text-amber-400" />,
   },
   hidratacion: {
     label: "Hidratación",
-    icon: <Droplets className="h-3.5 w-3.5 text-[#1a73e8]" />,
+    icon: <Droplets className="h-3.5 w-3.5 text-sky-400" />,
   },
   mental: {
     label: "Salud Mental (BHP)",
-    icon: <Video className="h-3.5 w-3.5 text-indigo-600" />,
+    icon: <Video className="h-3.5 w-3.5 text-cyan-400" />,
   },
   circadiano: {
     label: "Circadiano y Sueño",
-    icon: <Sun className="h-3.5 w-3.5 text-emerald-600" />,
+    icon: <Sun className="h-3.5 w-3.5 text-emerald-400" />,
   },
 };

@@ -342,21 +342,21 @@ export default function MultimodalScanModal({
       aria-modal="true"
       aria-label="Flujos de Software Bajo Demanda · Escaneo Multimodal"
     >
-      <div className="flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
+      <div className="flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-[#1b2d4b] bg-[#0c1426] text-slate-100 shadow-2xl">
         {/* Modal Header */}
-        <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-5 py-3.5">
+        <div className="flex items-center justify-between border-b border-[#182742] bg-[#091120] px-5 py-3.5">
           <div>
-            <h2 className="text-base font-bold text-slate-900 sm:text-lg">
-              Evaluación por Cámara IA y Registro Manual (Complementarios al Arnés 3N)
+            <h2 className="text-base font-bold text-slate-100 sm:text-lg">
+              Evaluación Multimodal · Visión Computacional y Registro Clínico
             </h2>
-            <p className="text-xs text-slate-500">
-              Utiliza la cámara de cabina o el registro manual cuando alguno de los 13 signos continuos del Arnés 3N requiere verificación.
+            <p className="text-xs text-slate-400">
+              Utiliza la cámara de cabina o el registro manual cuando alguno de los signos continuos del Bio-Monitor 3N requiere verificación.
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="cursor-pointer rounded-xl border border-slate-200 bg-white p-1.5 text-slate-500 transition hover:text-slate-900"
+            className="cursor-pointer rounded-xl border border-[#1b2d4b] bg-[#0c1426] p-1.5 text-slate-400 transition hover:border-sky-400 hover:text-slate-100"
             aria-label="Cerrar modal"
           >
             <X className="h-5 w-5" />
@@ -364,30 +364,30 @@ export default function MultimodalScanModal({
         </div>
 
         {/* 2 Modal Tabs */}
-        <div className="grid grid-cols-2 border-b border-slate-200 bg-slate-50/70 text-xs sm:text-sm">
+        <div className="grid grid-cols-2 border-b border-[#182742] bg-[#091120] text-xs sm:text-sm">
           <button
             type="button"
             onClick={() => setActiveTab("camara")}
             className={`flex cursor-pointer items-center justify-center gap-2 border-b-2 px-3 py-3 font-semibold transition ${
               activeTab === "camara"
-                ? "border-[#1a73e8] bg-white text-[#1a73e8]"
-                : "border-transparent text-slate-500 hover:text-slate-800"
+                ? "border-sky-400 bg-[#0c1426] text-sky-300"
+                : "border-transparent text-slate-400 hover:text-slate-200"
             }`}
           >
             <Camera className="h-4 w-4 shrink-0" />
-            <span className="truncate">Cámara IA (Tableta)</span>
+            <span className="truncate">Visión Computacional (Rostro y Postura)</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("manual")}
             className={`flex cursor-pointer items-center justify-center gap-2 border-b-2 px-3 py-3 font-semibold transition ${
               activeTab === "manual"
-                ? "border-[#1a73e8] bg-white text-[#1a73e8]"
-                : "border-transparent text-slate-500 hover:text-slate-800"
+                ? "border-sky-400 bg-[#0c1426] text-sky-300"
+                : "border-transparent text-slate-400 hover:text-slate-200"
             }`}
           >
             <Sliders className="h-4 w-4 shrink-0" />
-            <span className="truncate">Registro Manual</span>
+            <span className="truncate">Registro Clínico Manual</span>
           </button>
         </div>
 
@@ -397,7 +397,7 @@ export default function MultimodalScanModal({
           {activeTab === "camara" && (
             <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
               <div className="space-y-3 lg:col-span-7">
-                <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-slate-950 shadow-inner">
+                <div className="relative overflow-hidden rounded-xl border border-[#1b2d4b] bg-[#070c17] shadow-inner">
                   {cameraMode === "webcam" ? (
                     <div className="relative aspect-[3/2] w-full">
                       <video
@@ -429,9 +429,9 @@ export default function MultimodalScanModal({
                         <span>Analizando microexpresiones y postura...</span>
                         <span>{Math.round(camProgress)}%</span>
                       </div>
-                      <div className="h-2 w-full overflow-hidden rounded-full bg-slate-800">
+                      <div className="h-2 w-full overflow-hidden rounded-full bg-[#162642]">
                         <div
-                          className="h-full bg-[#1a73e8] transition-all"
+                          className="h-full bg-sky-500 transition-all"
                           style={{ width: `${camProgress}%` }}
                         />
                       </div>
@@ -440,7 +440,7 @@ export default function MultimodalScanModal({
                 </div>
 
                 {cameraError && (
-                  <p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                  <p className="rounded-xl border border-amber-500/40 bg-amber-950/35 px-3 py-2 text-xs text-amber-200">
                     {cameraError}
                   </p>
                 )}
@@ -449,9 +449,9 @@ export default function MultimodalScanModal({
                   <button
                     type="button"
                     onClick={startWebcam}
-                    className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-100"
+                    className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-[#1b2d4b] bg-[#091120] px-3 py-2 text-xs font-medium text-slate-200 transition hover:border-sky-500/40 hover:bg-[#0d192e]"
                   >
-                    <Camera className="h-3.5 w-3.5 text-[#1a73e8]" />
+                    <Camera className="h-3.5 w-3.5 text-sky-400" />
                     Activar Cámara Web Real
                   </button>
                   <button
@@ -460,9 +460,9 @@ export default function MultimodalScanModal({
                       stopWebcam();
                       setCameraMode("simulacion");
                     }}
-                    className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-100"
+                    className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-[#1b2d4b] bg-[#091120] px-3 py-2 text-xs font-medium text-slate-200 transition hover:border-sky-500/40 hover:bg-[#0d192e]"
                   >
-                    <VideoOff className="h-3.5 w-3.5 text-amber-600" />
+                    <VideoOff className="h-3.5 w-3.5 text-amber-400" />
                     Usar Simulación Biométrica
                   </button>
                 </div>
@@ -471,18 +471,18 @@ export default function MultimodalScanModal({
               {/* Camera Analysis Controls & Results */}
               <div className="flex flex-col justify-between space-y-4 lg:col-span-5">
                 <div className="space-y-3">
-                  <div className="rounded-xl border border-slate-200 bg-slate-50/75 p-4">
-                    <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#1a73e8]">
+                  <div className="rounded-xl border border-[#182742] bg-[#091120] p-4">
+                    <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-sky-300">
                       <Cpu className="h-4 w-4" />
                       Análisis de Expresiones y Postura
                     </h3>
-                    <p className="mt-1.5 text-xs leading-relaxed text-slate-600">
+                    <p className="mt-1.5 text-xs leading-relaxed text-slate-300">
                       Detecta inclinación encorvada de hombros, tensión ocular y microexpresiones para calcular cansancio mental, estrés, soledad y aburrimiento.
                     </p>
 
                     {cameraMode === "simulacion" && (
                       <div className="mt-3">
-                        <label className="block text-[11px] font-semibold text-slate-700">
+                        <label className="block text-[11px] font-semibold text-slate-300">
                           Escenario de Simulación (Sin cámara):
                         </label>
                         <div className="mt-1.5 grid grid-cols-3 gap-1.5">
@@ -499,8 +499,8 @@ export default function MultimodalScanModal({
                               onClick={() => setSimScenario(id)}
                               className={`cursor-pointer rounded-lg border px-2 py-1.5 text-[11px] font-semibold transition ${
                                 simScenario === id
-                                  ? "border-[#1a73e8] bg-[#1a73e8] text-white"
-                                  : "border-slate-200 bg-white text-slate-600 hover:bg-slate-100"
+                                  ? "border-sky-400/60 bg-sky-500/20 text-sky-200"
+                                  : "border-[#182742] bg-[#0c1426] text-slate-300 hover:text-slate-100"
                               }`}
                             >
                               {label}
@@ -514,7 +514,7 @@ export default function MultimodalScanModal({
                       type="button"
                       disabled={isAnalyzingCam}
                       onClick={handleRunCameraAnalysis}
-                      className="mt-3 flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#1a73e8] px-4 py-2.5 text-xs font-bold text-white transition hover:bg-blue-700 disabled:opacity-50"
+                      className="mt-3 flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-sky-600 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-sky-500 disabled:opacity-50"
                     >
                       <Sparkles className="h-4 w-4" />
                       {isAnalyzingCam
@@ -524,22 +524,22 @@ export default function MultimodalScanModal({
                   </div>
 
                   {camResult && (
-                    <div className="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3.5 text-xs">
-                      <div className="font-bold text-emerald-800">
+                    <div className="rounded-xl border border-emerald-500/35 bg-emerald-950/30 p-3.5 text-xs">
+                      <div className="font-bold text-emerald-300">
                         Resultado Calculado:
                       </div>
-                      <p className="mt-1 text-slate-700">{camResult.summary}</p>
+                      <p className="mt-1 text-slate-200">{camResult.summary}</p>
                       <div className="mt-2.5 grid grid-cols-2 gap-2 font-mono-hud text-[11px]">
-                        <div className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-slate-700">
+                        <div className="rounded-lg border border-[#182742] bg-[#091120] px-2 py-1 text-slate-200">
                           Fatiga Mental: {camResult.mentalFatigue}/100
                         </div>
-                        <div className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-slate-700">
+                        <div className="rounded-lg border border-[#182742] bg-[#091120] px-2 py-1 text-slate-200">
                           Estrés: {camResult.stressLevel}/100
                         </div>
-                        <div className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-slate-700">
+                        <div className="rounded-lg border border-[#182742] bg-[#091120] px-2 py-1 text-slate-200">
                           Soledad: {camResult.lonelinessLevel}/100
                         </div>
-                        <div className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-slate-700">
+                        <div className="rounded-lg border border-[#182742] bg-[#091120] px-2 py-1 text-slate-200">
                           Aburrimiento: {camResult.boredomLevel}/100
                         </div>
                       </div>
@@ -561,7 +561,7 @@ export default function MultimodalScanModal({
                           );
                           onClose();
                         }}
-                        className="mt-3 flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-700"
+                        className="mt-3 flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-emerald-500"
                       >
                         <CheckCircle2 className="h-4 w-4" />
                         Aplicar al Dashboard
@@ -577,8 +577,8 @@ export default function MultimodalScanModal({
           {activeTab === "manual" && (
             <div className="space-y-4">
               {/* Quick Presets */}
-              <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
-                <span className="text-xs font-semibold text-slate-700">
+              <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#182742] bg-[#091120] p-3">
+                <span className="text-xs font-semibold text-slate-200">
                   Cargar perfil rápido de prueba:
                 </span>
                 <div className="flex flex-wrap gap-2">
@@ -602,7 +602,7 @@ export default function MultimodalScanModal({
                         hydrationLiters: 2.5,
                       }));
                     }}
-                    className="cursor-pointer rounded-lg border border-emerald-300 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-100"
+                    className="cursor-pointer rounded-lg border border-emerald-500/35 bg-emerald-950/40 px-2.5 py-1 text-xs font-semibold text-emerald-300 transition hover:bg-emerald-900/50"
                   >
                     Óptimo Nominal
                   </button>
@@ -626,7 +626,7 @@ export default function MultimodalScanModal({
                         hydrationLiters: 1.7,
                       }));
                     }}
-                    className="cursor-pointer rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 hover:bg-amber-100"
+                    className="cursor-pointer rounded-lg border border-amber-500/35 bg-amber-950/40 px-2.5 py-1 text-xs font-semibold text-amber-300 transition hover:bg-amber-900/50"
                   >
                     Precaución Temprana
                   </button>
@@ -652,7 +652,7 @@ export default function MultimodalScanModal({
                         hydrationLiters: 1.1,
                       }));
                     }}
-                    className="cursor-pointer rounded-lg border border-red-300 bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700 hover:bg-red-100"
+                    className="cursor-pointer rounded-lg border border-red-500/35 bg-red-950/40 px-2.5 py-1 text-xs font-semibold text-red-300 transition hover:bg-red-900/50"
                   >
                     Riesgo Crítico
                   </button>
@@ -661,8 +661,8 @@ export default function MultimodalScanModal({
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 {/* Column 1: Physiological */}
-                <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50/75 p-4">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#1a73e8]">
+                <div className="space-y-3 rounded-xl border border-[#182742] bg-[#091120] p-4">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-sky-300">
                     Signos Vitales y Fisiológicos
                   </h4>
 
@@ -728,8 +728,8 @@ export default function MultimodalScanModal({
                 </div>
 
                 {/* Column 2: Sleep, Stress & Routine */}
-                <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50/75 p-4">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-700">
+                <div className="space-y-3 rounded-xl border border-[#182742] bg-[#091120] p-4">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-cyan-300">
                     Descanso, Estrés y Rutina Diaria
                   </h4>
 
@@ -755,7 +755,7 @@ export default function MultimodalScanModal({
                     }
                   />
 
-                  <div className="border-t border-slate-200 pt-2">
+                  <div className="space-y-3 border-t border-[#182742] pt-2">
                     <SliderField
                       label="Desviación de Horario de Sueño (min)"
                       value={draftRoutine.sleepDeviationMin}
@@ -795,7 +795,7 @@ export default function MultimodalScanModal({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="cursor-pointer rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                  className="cursor-pointer rounded-xl border border-[#1b2d4b] bg-[#091120] px-4 py-2 text-xs font-medium text-slate-300 transition hover:border-slate-500 hover:text-slate-100"
                 >
                   Cancelar
                 </button>
@@ -805,7 +805,7 @@ export default function MultimodalScanModal({
                     onApplyManualEntry(draftBio, draftRoutine);
                     onClose();
                   }}
-                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-[#1a73e8] px-4 py-2 text-xs font-bold text-white hover:bg-blue-700"
+                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-sky-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-sky-500"
                 >
                   <CheckCircle2 className="h-4 w-4" />
                   Guardar Evaluación en Dashboard
@@ -841,8 +841,8 @@ function SliderField({
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between text-xs">
-        <span className="text-slate-700">{label}</span>
-        <span className="font-mono-hud font-bold text-[#1a73e8]">
+        <span className="text-slate-300">{label}</span>
+        <span className="font-mono-hud font-bold text-sky-300">
           {step < 1 ? value.toFixed(1) : value} {unit}
         </span>
       </div>
@@ -853,7 +853,7 @@ function SliderField({
         step={step}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="h-1.5 w-full cursor-pointer accent-[#1a73e8]"
+        className="h-1.5 w-full cursor-pointer appearance-none rounded-lg bg-[#182742] accent-sky-400"
       />
     </div>
   );

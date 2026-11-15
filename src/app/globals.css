@@ -123,6 +123,36 @@ body {
   color: #8b9db8 !important;
 }
 
+/* Safety net: navy / near-black text that would vanish on dark surfaces */
+.crew-dragon-theme .text-\[\#0b2559\],
+.crew-dragon-theme [class*="text-[#0b2559]/"],
+.crew-dragon-theme .text-blue-950,
+.crew-dragon-theme [class*="text-blue-950/"],
+.crew-dragon-theme [class*="text-blue-900/"] {
+  color: #e2e8f0 !important;
+}
+
+.crew-dragon-theme [class*="text-emerald-950/"],
+.crew-dragon-theme [class*="text-emerald-900/"] {
+  color: #a7f3d0 !important;
+}
+
+.crew-dragon-theme [class*="text-amber-950/"],
+.crew-dragon-theme [class*="text-amber-900/"] {
+  color: #fde68a !important;
+}
+
+.crew-dragon-theme [class*="text-red-950/"],
+.crew-dragon-theme [class*="text-red-900/"] {
+  color: #fecaca !important;
+}
+
+/* Range inputs: dark track, accent thumb (avoid bright white tracks) */
+.crew-dragon-theme input[type="range"] {
+  accent-color: #38bdf8;
+  color-scheme: dark;
+}
+
 .crew-dragon-theme .text-blue-900,
 .crew-dragon-theme .text-blue-800,
 .crew-dragon-theme .text-blue-700,

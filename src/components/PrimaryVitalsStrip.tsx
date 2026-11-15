@@ -20,10 +20,9 @@ import {
   evaluateSkinTempStatus,
   evaluateSpo2Status,
   evaluateTempStatus,
-  STATUS_HEX,
-  STATUS_LABELS,
   worstStatus,
 } from "@/utils/healthEngine";
+import { StatusPill } from "@/components/ui/StatusPill";
 import LivePhysioWaveform from "./LivePhysioWaveform";
 
 interface PrimaryVitalsStripProps {
@@ -138,15 +137,7 @@ export default function PrimaryVitalsStrip({
             <HeartPulse className="h-3.5 w-3.5 shrink-0" style={{ color: hrColor }} />
             Frec. Cardíaca (ECG)
           </span>
-          <span
-            className="rounded-full px-2 py-0.5 font-mono-hud text-[10px] font-bold"
-            style={{
-              backgroundColor: `${STATUS_HEX[hrStatus]}20`,
-              color: STATUS_HEX[hrStatus],
-            }}
-          >
-            {STATUS_LABELS[hrStatus]}
-          </span>
+          <StatusPill status={hrStatus} />
         </div>
 
         <div className="my-0.5 flex items-baseline justify-between gap-1">
@@ -185,15 +176,7 @@ export default function PrimaryVitalsStrip({
             <Activity className="h-3.5 w-3.5 shrink-0" style={{ color: spo2Color }} />
             Saturación (SpO₂)
           </span>
-          <span
-            className="rounded-full px-2 py-0.5 font-mono-hud text-[10px] font-bold"
-            style={{
-              backgroundColor: `${STATUS_HEX[spo2Status]}20`,
-              color: STATUS_HEX[spo2Status],
-            }}
-          >
-            {STATUS_LABELS[spo2Status]}
-          </span>
+          <StatusPill status={spo2Status} />
         </div>
 
         <div className="my-0.5 flex items-baseline justify-between gap-1">
@@ -232,15 +215,7 @@ export default function PrimaryVitalsStrip({
             <Gauge className="h-3.5 w-3.5 shrink-0 text-sky-400" />
             Presión Óptica (PTT)
           </span>
-          <span
-            className="rounded-full px-2 py-0.5 font-mono-hud text-[10px] font-bold"
-            style={{
-              backgroundColor: `${STATUS_HEX[bpStatus]}20`,
-              color: STATUS_HEX[bpStatus],
-            }}
-          >
-            {STATUS_LABELS[bpStatus]}
-          </span>
+          <StatusPill status={bpStatus} />
         </div>
 
         <div className="my-0.5 flex items-baseline justify-between gap-1">
@@ -279,15 +254,7 @@ export default function PrimaryVitalsStrip({
             <Wind className="h-3.5 w-3.5 shrink-0" style={{ color: respColor }} />
             Ventilación (RIP)
           </span>
-          <span
-            className="rounded-full px-2 py-0.5 font-mono-hud text-[10px] font-bold"
-            style={{
-              backgroundColor: `${STATUS_HEX[respStatus]}20`,
-              color: STATUS_HEX[respStatus],
-            }}
-          >
-            {STATUS_LABELS[respStatus]}
-          </span>
+          <StatusPill status={respStatus} />
         </div>
 
         <div className="my-0.5 flex items-baseline justify-between gap-1">
@@ -325,15 +292,7 @@ export default function PrimaryVitalsStrip({
             <Thermometer className="h-3.5 w-3.5 shrink-0" style={{ color: tempColor }} />
             Temp. Central (Core)
           </span>
-          <span
-            className="rounded-full px-2 py-0.5 font-mono-hud text-[10px] font-bold"
-            style={{
-              backgroundColor: `${STATUS_HEX[tempStatus]}20`,
-              color: STATUS_HEX[tempStatus],
-            }}
-          >
-            {STATUS_LABELS[tempStatus]}
-          </span>
+          <StatusPill status={tempStatus} />
         </div>
 
         <div className="my-0.5 flex items-baseline justify-between gap-1">
@@ -370,15 +329,7 @@ export default function PrimaryVitalsStrip({
             <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-amber-400" />
             Dosimetría (RAD)
           </span>
-          <span
-            className="rounded-full px-2 py-0.5 font-mono-hud text-[10px] font-bold"
-            style={{
-              backgroundColor: `${STATUS_HEX[radStatus]}20`,
-              color: STATUS_HEX[radStatus],
-            }}
-          >
-            {STATUS_LABELS[radStatus]}
-          </span>
+          <StatusPill status={radStatus} />
         </div>
 
         <div className="my-0.5 flex items-baseline justify-between gap-1">

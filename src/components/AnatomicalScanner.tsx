@@ -22,7 +22,8 @@ import {
   MissionEnvironmentId,
   SystemZoneId,
 } from "@/types/astronaut";
-import { STATUS_HEX, STATUS_LABELS } from "@/utils/healthEngine";
+import { STATUS_HEX } from "@/utils/healthEngine";
+import { StatusPill } from "@/components/ui/StatusPill";
 
 interface AnatomicalScannerProps {
   selectedZone: SystemZoneId;
@@ -126,35 +127,35 @@ export default function AnatomicalScanner({
   return (
     <section
       id="scanner-section"
-      className="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-[0_6px_24px_rgba(15,23,42,0.04)] sm:p-5"
+      className="rounded-2xl border border-[#1b2d4b] bg-[#0c1426] p-4 sm:p-5"
     >
       {/* Header */}
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-[#162642] pb-3">
         <div>
           <div className="flex items-center gap-2">
-            <Activity className="h-5 w-5 text-[#1a73e8]" />
-            <h2 className="text-base font-bold text-slate-900 sm:text-lg">
-              Módulo 1 · Escáner Anatómico y Psicológico Interactivo
+            <Activity className="h-5 w-5 text-sky-400" />
+            <h2 className="text-base font-bold text-slate-100 sm:text-lg">
+              Bio-Escáner Anatómico y Neuro-Conductual (NASA HRP)
             </h2>
           </div>
-          <p className="mt-0.5 text-xs text-slate-500">
-            Haz clic en cualquiera de los 6 sistemas de la silueta humana para ver su autoevaluación guiada sin jerga médica.
+          <p className="mt-0.5 text-xs text-slate-400">
+            Selecciona un subsistema para inspeccionar telemetría, umbrales y protocolo clínico.
           </p>
         </div>
 
         {/* Status Legend */}
-        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium">
-          <span className="flex items-center gap-1.5 text-emerald-700">
-            <span className="h-2.5 w-2.5 rounded-full bg-[#10b981]" />
-            Óptimo
+        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-[#1b2d4b] bg-[#091120] px-3 py-1.5 text-xs font-medium">
+          <span className="flex items-center gap-1.5 text-emerald-300">
+            <span className="h-2 w-2 rounded-full bg-[#10b981]" />
+            NOMINAL
           </span>
-          <span className="flex items-center gap-1.5 text-amber-700">
-            <span className="h-2.5 w-2.5 rounded-full bg-[#f59e0b]" />
-            Precaución
+          <span className="flex items-center gap-1.5 text-amber-300">
+            <span className="h-2 w-2 rounded-full bg-[#f59e0b]" />
+            PRECAUCIÓN
           </span>
-          <span className="flex items-center gap-1.5 text-red-700">
-            <span className="h-2.5 w-2.5 rounded-full bg-[#ef4444]" />
-            Crítico
+          <span className="flex items-center gap-1.5 text-red-300">
+            <span className="h-2 w-2 rounded-full bg-[#ef4444]" />
+            CRÍTICO
           </span>
         </div>
       </div>
@@ -176,12 +177,12 @@ export default function AnatomicalScanner({
                   onClick={() => onSelectZone(zoneId)}
                   className={`flex cursor-pointer items-center gap-2 rounded-xl border px-2.5 py-2 text-left text-xs transition ${
                     isSelected
-                      ? "border-[#1a73e8] bg-blue-50 text-blue-950 font-semibold shadow-sm"
-                      : "border-slate-200 bg-slate-50/70 text-slate-600 hover:border-slate-300 hover:bg-white"
+                      ? "border-sky-400/60 bg-sky-500/15 font-semibold text-sky-200"
+                      : "border-[#1b2d4b] bg-[#091120] text-slate-300 hover:border-sky-500/40 hover:text-white"
                   }`}
                 >
                   <span
-                    className="h-2.5 w-2.5 shrink-0 rounded-full"
+                    className="h-2 w-2 shrink-0 rounded-full"
                     style={{ backgroundColor: STATUS_HEX[st] }}
                   />
                   <span className="truncate font-medium">{g.name}</span>
@@ -193,16 +194,11 @@ export default function AnatomicalScanner({
           {/* Interactive SVG Container (Clean Clinical Blueprint Surface) */}
           <div className="relative flex flex-1 items-center justify-center overflow-hidden rounded-2xl border border-[#1c2d4a] bg-[#091224] p-3">
             {/* Scan beam micro-animation */}
-            <div className="pointer-events-none absolute inset-x-4 top-2 h-1 rounded-full bg-gradient-to-r from-transparent via-blue-500/45 to-transparent animate-scanline" />
+            <div className="pointer-events-none absolute inset-x-4 top-2 h-1 rounded-full bg-gradient-to-r from-transparent via-sky-500/35 to-transparent animate-scanline" />
 
             {/* HUD Corner Data */}
-            <div className="pointer-events-none absolute left-3 top-3 font-mono-hud text-[10px] font-semibold text-[#1a73e8]">
-              <div>SCANNER: BIO-HUD v4.2</div>
-              <div>ENTORNO: {environmentId.toUpperCase()}</div>
-            </div>
-            <div className="pointer-events-none absolute right-3 top-3 text-right font-mono-hud text-[10px] text-slate-400">
-              <div>6 SISTEMAS</div>
-              <div>CLIC PARA INSPECCIÓN</div>
+            <div className="pointer-events-none absolute left-3 top-3 font-mono-hud text-[10px] font-medium text-slate-400">
+              ENTORNO: <span className="text-sky-300">{environmentId.toUpperCase()}</span>
             </div>
 
             <svg
@@ -213,8 +209,8 @@ export default function AnatomicalScanner({
             >
               <defs>
                 <radialGradient id="hudGlowLight" cx="50%" cy="45%" r="55%">
-                  <stop offset="0%" stopColor="#1a73e8" stopOpacity="0.1" />
-                  <stop offset="100%" stopColor="#f8fafc" stopOpacity="0" />
+                  <stop offset="0%" stopColor="#1a73e8" stopOpacity="0.12" />
+                  <stop offset="100%" stopColor="#091224" stopOpacity="0" />
                 </radialGradient>
                 <filter id="zoneGlowLight" x="-30%" y="-30%" width="160%" height="160%">
                   <feGaussianBlur stdDeviation="2.5" result="blur" />
@@ -232,7 +228,7 @@ export default function AnatomicalScanner({
                 cy="240"
                 r="160"
                 fill="none"
-                stroke="#cbd5e1"
+                stroke="#182a4a"
                 strokeDasharray="4 6"
                 strokeWidth="1"
               />
@@ -241,7 +237,7 @@ export default function AnatomicalScanner({
                 cy="240"
                 r="112"
                 fill="none"
-                stroke="#cbd5e1"
+                stroke="#182a4a"
                 strokeDasharray="2 5"
                 strokeWidth="1"
               />
@@ -250,17 +246,17 @@ export default function AnatomicalScanner({
                 y1="15"
                 x2="180"
                 y2="475"
-                stroke="#cbd5e1"
+                stroke="#182a4a"
                 strokeWidth="1"
                 strokeDasharray="3 4"
               />
 
-              {/* Base Human Silhouette Outline */}
+              {/* Base Human Silhouette Outline (Dark Clinical Schematic) */}
               <g
-                fill="#ffffff"
-                fillOpacity="0.92"
-                stroke="#94a3b8"
-                strokeWidth="1.6"
+                fill="#0f1d36"
+                fillOpacity="0.95"
+                stroke="#2b4c7e"
+                strokeWidth="1.5"
                 strokeLinejoin="round"
               >
                 <path d="M180 24 C157 24 143 41 143 65 C143 85 154 103 166 108 L166 122 L194 122 L194 108 C206 103 217 85 217 65 C217 41 203 24 180 24 Z" />
@@ -419,12 +415,12 @@ export default function AnatomicalScanner({
                   width="74"
                   height="24"
                   rx="6"
-                  fill={selectedZone === "cerebro" ? "#eff6ff" : "#ffffff"}
-                  stroke={STATUS_HEX[zoneStatuses.cerebro]}
-                  strokeWidth={selectedZone === "cerebro" ? 2 : 1.2}
+                  fill={selectedZone === "cerebro" ? "#0e2240" : "#091326"}
+                  stroke={selectedZone === "cerebro" ? "#38bdf8" : STATUS_HEX[zoneStatuses.cerebro]}
+                  strokeWidth={selectedZone === "cerebro" ? 1.8 : 1.1}
                 />
-                <text x="43" y="39" textAnchor="middle" fill="#0f172a" fontSize="10" fontWeight="600">
-                  1. Cerebro
+                <text x="43" y="39" textAnchor="middle" fill="#e2e8f0" fontSize="10" fontWeight="600">
+                  Cerebro
                 </text>
               </g>
 
@@ -436,12 +432,12 @@ export default function AnatomicalScanner({
                   width="76"
                   height="24"
                   rx="6"
-                  fill={selectedZone === "rostro" ? "#eff6ff" : "#ffffff"}
-                  stroke={STATUS_HEX[zoneStatuses.rostro]}
-                  strokeWidth={selectedZone === "rostro" ? 2 : 1.2}
+                  fill={selectedZone === "rostro" ? "#0e2240" : "#091326"}
+                  stroke={selectedZone === "rostro" ? "#38bdf8" : STATUS_HEX[zoneStatuses.rostro]}
+                  strokeWidth={selectedZone === "rostro" ? 1.8 : 1.1}
                 />
-                <text x="316" y="75" textAnchor="middle" fill="#0f172a" fontSize="10" fontWeight="600">
-                  2. Rostro
+                <text x="316" y="75" textAnchor="middle" fill="#e2e8f0" fontSize="10" fontWeight="600">
+                  Rostro
                 </text>
               </g>
 
@@ -453,12 +449,12 @@ export default function AnatomicalScanner({
                   width="76"
                   height="24"
                   rx="6"
-                  fill={selectedZone === "endocrino" ? "#eff6ff" : "#ffffff"}
-                  stroke={STATUS_HEX[zoneStatuses.endocrino]}
-                  strokeWidth={selectedZone === "endocrino" ? 2 : 1.2}
+                  fill={selectedZone === "endocrino" ? "#0e2240" : "#091326"}
+                  stroke={selectedZone === "endocrino" ? "#38bdf8" : STATUS_HEX[zoneStatuses.endocrino]}
+                  strokeWidth={selectedZone === "endocrino" ? 1.8 : 1.1}
                 />
-                <text x="42" y="133" textAnchor="middle" fill="#0f172a" fontSize="10" fontWeight="600">
-                  4. Endocrino
+                <text x="42" y="133" textAnchor="middle" fill="#e2e8f0" fontSize="10" fontWeight="600">
+                  Endocrino
                 </text>
               </g>
 
@@ -470,12 +466,12 @@ export default function AnatomicalScanner({
                   width="76"
                   height="24"
                   rx="6"
-                  fill={selectedZone === "corazon" ? "#eff6ff" : "#ffffff"}
-                  stroke={STATUS_HEX[zoneStatuses.corazon]}
-                  strokeWidth={selectedZone === "corazon" ? 2 : 1.2}
+                  fill={selectedZone === "corazon" ? "#0e2240" : "#091326"}
+                  stroke={selectedZone === "corazon" ? "#38bdf8" : STATUS_HEX[zoneStatuses.corazon]}
+                  strokeWidth={selectedZone === "corazon" ? 1.8 : 1.1}
                 />
-                <text x="316" y="161" textAnchor="middle" fill="#0f172a" fontSize="10" fontWeight="600">
-                  3. Corazón
+                <text x="316" y="161" textAnchor="middle" fill="#e2e8f0" fontSize="10" fontWeight="600">
+                  Corazón
                 </text>
               </g>
 
@@ -487,12 +483,12 @@ export default function AnatomicalScanner({
                   width="76"
                   height="24"
                   rx="6"
-                  fill={selectedZone === "abdomen" ? "#eff6ff" : "#ffffff"}
-                  stroke={STATUS_HEX[zoneStatuses.abdomen]}
-                  strokeWidth={selectedZone === "abdomen" ? 2 : 1.2}
+                  fill={selectedZone === "abdomen" ? "#0e2240" : "#091326"}
+                  stroke={selectedZone === "abdomen" ? "#38bdf8" : STATUS_HEX[zoneStatuses.abdomen]}
+                  strokeWidth={selectedZone === "abdomen" ? 1.8 : 1.1}
                 />
-                <text x="42" y="243" textAnchor="middle" fill="#0f172a" fontSize="10" fontWeight="600">
-                  5. Abdomen
+                <text x="42" y="243" textAnchor="middle" fill="#e2e8f0" fontSize="10" fontWeight="600">
+                  Abdomen
                 </text>
               </g>
 
@@ -504,22 +500,22 @@ export default function AnatomicalScanner({
                   width="82"
                   height="24"
                   rx="6"
-                  fill={selectedZone === "musculo" ? "#eff6ff" : "#ffffff"}
-                  stroke={STATUS_HEX[zoneStatuses.musculo]}
-                  strokeWidth={selectedZone === "musculo" ? 2 : 1.2}
+                  fill={selectedZone === "musculo" ? "#0e2240" : "#091326"}
+                  stroke={selectedZone === "musculo" ? "#38bdf8" : STATUS_HEX[zoneStatuses.musculo]}
+                  strokeWidth={selectedZone === "musculo" ? 1.8 : 1.1}
                 />
-                <text x="315" y="363" textAnchor="middle" fill="#0f172a" fontSize="10" fontWeight="600">
-                  6. Músculos
+                <text x="315" y="363" textAnchor="middle" fill="#e2e8f0" fontSize="10" fontWeight="600">
+                  Músculos
                 </text>
               </g>
             </svg>
           </div>
         </div>
 
-        {/* RIGHT: 5-Section Non-Jargon Diagnostic Panel */}
+        {/* RIGHT: 5-Section Diagnostic Panel */}
         <div className="flex flex-col gap-3.5 xl:col-span-7">
           {/* Selected Zone Summary Banner */}
-          <div className="rounded-xl border border-slate-200 bg-slate-50/75 p-4">
+          <div className="rounded-xl border border-[#1b2d4b] bg-[#091120] p-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="flex items-start gap-3">
                 <div
@@ -534,21 +530,12 @@ export default function AnatomicalScanner({
                 </div>
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="text-base font-bold text-slate-900 sm:text-lg">
+                    <h3 className="text-base font-bold text-slate-100 sm:text-lg">
                       {guide.name}
                     </h3>
-                    <span
-                      className="rounded-full px-2.5 py-0.5 font-mono-hud text-xs font-bold uppercase"
-                      style={{
-                        backgroundColor: `${activeHex}18`,
-                        color: activeHex,
-                        border: `1px solid ${activeHex}44`,
-                      }}
-                    >
-                      Estado: {STATUS_LABELS[activeStatus]}
-                    </span>
+                    <StatusPill status={activeStatus} showNominal />
                   </div>
-                  <p className="mt-0.5 text-xs text-slate-500">
+                  <p className="mt-0.5 text-xs text-slate-400">
                     {guide.subtitle}
                   </p>
                 </div>
@@ -557,7 +544,7 @@ export default function AnatomicalScanner({
               <button
                 type="button"
                 onClick={() => onOpenScanTab(recommendedScanTab)}
-                className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-[#1a73e8] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-blue-700"
+                className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-[#1a73e8] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-blue-600"
               >
                 <ScanLine className="h-3.5 w-3.5" />
                 Evaluar ahora
@@ -569,7 +556,7 @@ export default function AnatomicalScanner({
               {getZoneLiveValues(selectedZone, biomarkers).map((val) => (
                 <span
                   key={val}
-                  className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 font-mono-hud text-xs font-medium text-slate-700"
+                  className="rounded-lg border border-[#162642] bg-[#0c1426] px-2.5 py-1 font-mono-hud text-xs font-medium text-slate-200"
                 >
                   {val}
                 </span>
@@ -577,61 +564,61 @@ export default function AnatomicalScanner({
             </div>
           </div>
 
-          {/* Selector de Pestañas Clínicas (Progresive Disclosure sin ruido visual) */}
-          <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-3">
+          {/* Selector de Pestañas Clínicas */}
+          <div className="flex flex-wrap gap-2 border-b border-[#162642] pb-3">
             <button
               type="button"
               onClick={() => setDiagnosticTab("protocolo")}
               className={`inline-flex cursor-pointer items-center gap-2 rounded-xl border px-3.5 py-2 text-xs font-bold transition ${
                 diagnosticTab === "protocolo"
-                  ? "border-[#1a73e8] bg-[#1a73e8] text-white shadow-xs"
-                  : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-white"
+                  ? "border-sky-400/60 bg-[#1a73e8] text-white"
+                  : "border-[#1b2d4b] bg-[#091120] text-slate-300 hover:border-sky-500/40 hover:text-white"
               }`}
             >
               <ScanLine className="h-4 w-4" />
-              1. Protocolo de Examen y Acción
+              Protocolo Clínico
             </button>
             <button
               type="button"
               onClick={() => setDiagnosticTab("umbrales")}
               className={`inline-flex cursor-pointer items-center gap-2 rounded-xl border px-3.5 py-2 text-xs font-bold transition ${
                 diagnosticTab === "umbrales"
-                  ? "border-[#1a73e8] bg-[#1a73e8] text-white shadow-xs"
-                  : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-white"
+                  ? "border-sky-400/60 bg-[#1a73e8] text-white"
+                  : "border-[#1b2d4b] bg-[#091120] text-slate-300 hover:border-sky-500/40 hover:text-white"
               }`}
             >
               <AlertCircle className="h-4 w-4" />
-              2. Umbrales de Alerta y Triage
+              Umbrales y Triage
             </button>
             <button
               type="button"
               onClick={() => setDiagnosticTab("ciencia")}
               className={`inline-flex cursor-pointer items-center gap-2 rounded-xl border px-3.5 py-2 text-xs font-bold transition ${
                 diagnosticTab === "ciencia"
-                  ? "border-[#1a73e8] bg-[#1a73e8] text-white shadow-xs"
-                  : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-white"
+                  ? "border-sky-400/60 bg-[#1a73e8] text-white"
+                  : "border-[#1b2d4b] bg-[#091120] text-slate-300 hover:border-sky-500/40 hover:text-white"
               }`}
             >
               <ShieldAlert className="h-4 w-4" />
-              3. Motivo Clínico y 5 Peligros NASA
+              Fundamento NASA HRP
             </button>
           </div>
 
           {/* PESTAÑA 1: Protocolo paso a paso + Contramedida inmediata */}
           {diagnosticTab === "protocolo" && (
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-              <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
-                <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#1a73e8]">
+              <div className="rounded-xl border border-[#1b2d4b] bg-[#091120] p-4">
+                <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-sky-400">
                   <ScanLine className="h-4 w-4" />
-                  Cómo realizar el examen (Sin ser médico)
+                  Procedimiento de Evaluación Clínica
                 </h4>
-                <ol className="mt-3 space-y-2.5 text-xs leading-relaxed text-slate-700 sm:text-sm">
+                <ol className="mt-3 space-y-2.5 text-xs leading-relaxed text-slate-200 sm:text-sm">
                   {guide.howToPerform.map((step, idx) => (
                     <li
                       key={idx}
-                      className="flex items-start gap-2.5 rounded-lg border border-slate-200/80 bg-white p-2.5"
+                      className="flex items-start gap-2.5 rounded-lg border border-[#162642] bg-[#0c1426] p-2.5"
                     >
-                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-blue-50 font-mono-hud text-xs font-bold text-[#1a73e8]">
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-sky-500/10 font-mono-hud text-xs font-bold text-sky-300">
                         0{idx + 1}
                       </span>
                       <span>{step}</span>
@@ -640,27 +627,27 @@ export default function AnatomicalScanner({
                 </ol>
               </div>
 
-              <div className="flex flex-col justify-between rounded-xl border border-emerald-200 bg-emerald-50/45 p-4">
+              <div className="flex flex-col justify-between rounded-xl border border-emerald-500/25 bg-[#091826] p-4">
                 <div>
-                  <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-800">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                  <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-400">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-400" />
                     Contramedida Preventiva (Acción Inmediata)
                   </h4>
-                  <ul className="mt-3 space-y-2.5 text-xs leading-relaxed text-slate-700 sm:text-sm">
+                  <ul className="mt-3 space-y-2.5 text-xs leading-relaxed text-slate-200 sm:text-sm">
                     {guide.preventiveCountermeasures.map((item, idx) => (
                       <li
                         key={idx}
-                        className="flex items-start gap-2.5 rounded-lg border border-emerald-200/80 bg-white/90 p-3"
+                        className="flex items-start gap-2.5 rounded-lg border border-[#162642] bg-[#0c1426] p-3"
                       >
-                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
                         <span>{item}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                <div className="mt-3 rounded-lg border border-blue-200/70 bg-white/80 p-3 text-xs text-slate-600">
-                  <strong className="text-slate-900">
+                <div className="mt-3 rounded-lg border border-[#1b2d4b] bg-[#091120] p-3 text-xs text-slate-300">
+                  <strong className="text-slate-100">
                     ¿Por qué evaluarlo hoy?
                   </strong>{" "}
                   {guide.whyNecessary}
@@ -671,43 +658,43 @@ export default function AnatomicalScanner({
 
           {/* PESTAÑA 2: Umbrales de Atención y Escalamiento con Cirujanos de Vuelo */}
           {diagnosticTab === "umbrales" && (
-            <div className="space-y-4 rounded-xl border border-slate-200 bg-slate-50/70 p-4">
-              <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-rose-700">
+            <div className="space-y-4 rounded-xl border border-[#1b2d4b] bg-[#091120] p-4">
+              <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-300">
                 <AlertCircle className="h-4 w-4" />
                 Criterios Clínicos de Triage y Alerta a Cirujanos de Vuelo
               </h4>
 
               <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-                <div className="rounded-xl border border-emerald-200 bg-emerald-50/90 p-3.5 text-xs sm:text-sm">
-                  <div className="font-mono-hud text-xs font-bold uppercase text-emerald-800">
-                    ● Nivel Óptimo (Verde)
+                <div className="rounded-xl border border-emerald-500/30 bg-[#091d1a] p-3.5 text-xs sm:text-sm">
+                  <div className="font-mono-hud text-xs font-bold uppercase text-emerald-300">
+                    ● Nivel Nominal
                   </div>
-                  <p className="mt-1.5 leading-relaxed text-emerald-950">
+                  <p className="mt-1.5 leading-relaxed text-emerald-100">
                     {guide.attentionThreshold.optimal}
                   </p>
                 </div>
 
-                <div className="rounded-xl border border-amber-300 bg-amber-50/90 p-3.5 text-xs sm:text-sm">
-                  <div className="font-mono-hud text-xs font-bold uppercase text-amber-800">
-                    ▲ Nivel Precaución (Amarillo)
+                <div className="rounded-xl border border-amber-500/35 bg-[#21190c] p-3.5 text-xs sm:text-sm">
+                  <div className="font-mono-hud text-xs font-bold uppercase text-amber-300">
+                    ▲ Nivel Precaución
                   </div>
-                  <p className="mt-1.5 leading-relaxed text-amber-950">
+                  <p className="mt-1.5 leading-relaxed text-amber-100">
                     {guide.attentionThreshold.warning}
                   </p>
                 </div>
 
-                <div className="rounded-xl border border-red-300 bg-red-50/90 p-3.5 text-xs sm:text-sm">
-                  <div className="font-mono-hud text-xs font-bold uppercase text-red-800">
-                    ■ Nivel Crítico (Rojo)
+                <div className="rounded-xl border border-red-500/40 bg-[#231015] p-3.5 text-xs sm:text-sm">
+                  <div className="font-mono-hud text-xs font-bold uppercase text-red-300">
+                    ■ Nivel Crítico
                   </div>
-                  <p className="mt-1.5 leading-relaxed text-red-950">
+                  <p className="mt-1.5 leading-relaxed text-red-100">
                     {guide.attentionThreshold.critical}
                   </p>
                 </div>
               </div>
 
-              <div className="rounded-xl border border-blue-200 bg-white p-3.5 text-xs leading-relaxed text-slate-700 sm:text-sm">
-                <strong className="text-[#0b2559]">
+              <div className="rounded-xl border border-[#1b2d4b] bg-[#0c1426] p-3.5 text-xs leading-relaxed text-slate-300 sm:text-sm">
+                <strong className="text-sky-300">
                   Protocolo de Contacto con Tierra (Houston / CSA):
                 </strong>{" "}
                 {guide.attentionThreshold.flightSurgeonNote}
@@ -718,59 +705,59 @@ export default function AnatomicalScanner({
           {/* PESTAÑA 3: Motivo Clínico y 5 Peligros Espaciales NASA HRP */}
           {diagnosticTab === "ciencia" && (
             <div className="space-y-4">
-              <div className="rounded-xl border border-indigo-200 bg-indigo-50/50 p-4">
-                <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-800">
+              <div className="rounded-xl border border-sky-500/30 bg-[#0d1b33] p-4">
+                <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-sky-300">
                   <Info className="h-4 w-4" />
                   Fundamento Fisiológico en Vuelo Espacial
                 </h4>
-                <p className="mt-1.5 text-xs leading-relaxed text-slate-700 sm:text-sm">
+                <p className="mt-1.5 text-xs leading-relaxed text-slate-200 sm:text-sm">
                   {guide.whyNecessary}
                 </p>
               </div>
 
-              <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
-                <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-800">
+              <div className="rounded-xl border border-[#1b2d4b] bg-[#091120] p-4">
+                <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-300">
                   <ShieldAlert className="h-4 w-4" />
                   Impacto de los 5 Peligros Espaciales (NASA HRP) en este Sistema
                 </h4>
                 <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  <div className="rounded-xl border border-slate-200 bg-white p-3">
-                    <div className="text-xs font-bold text-rose-600">
-                      1. Radiación Espacial
+                  <div className="rounded-xl border border-[#162642] bg-[#0c1426] p-3">
+                    <div className="text-xs font-bold text-red-300">
+                      Radiación Espacial
                     </div>
-                    <p className="mt-1 text-xs leading-relaxed text-slate-600">
+                    <p className="mt-1 text-xs leading-relaxed text-slate-300">
                       {guide.fiveHazardsImpact.radiation}
                     </p>
                   </div>
-                  <div className="rounded-xl border border-slate-200 bg-white p-3">
-                    <div className="text-xs font-bold text-violet-600">
-                      2. Aislamiento y Confinamiento
+                  <div className="rounded-xl border border-[#162642] bg-[#0c1426] p-3">
+                    <div className="text-xs font-bold text-sky-300">
+                      Aislamiento y Confinamiento
                     </div>
-                    <p className="mt-1 text-xs leading-relaxed text-slate-600">
+                    <p className="mt-1 text-xs leading-relaxed text-slate-300">
                       {guide.fiveHazardsImpact.isolation}
                     </p>
                   </div>
-                  <div className="rounded-xl border border-slate-200 bg-white p-3">
-                    <div className="text-xs font-bold text-blue-600">
-                      3. Distancia de la Tierra
+                  <div className="rounded-xl border border-[#162642] bg-[#0c1426] p-3">
+                    <div className="text-xs font-bold text-emerald-300">
+                      Distancia de la Tierra
                     </div>
-                    <p className="mt-1 text-xs leading-relaxed text-slate-600">
+                    <p className="mt-1 text-xs leading-relaxed text-slate-300">
                       {guide.fiveHazardsImpact.distance}
                     </p>
                   </div>
-                  <div className="rounded-xl border border-slate-200 bg-white p-3">
-                    <div className="text-xs font-bold text-amber-600">
-                      4. Campos de Gravedad Alterados
+                  <div className="rounded-xl border border-[#162642] bg-[#0c1426] p-3">
+                    <div className="text-xs font-bold text-amber-300">
+                      Campos de Gravedad Alterados
                     </div>
-                    <p className="mt-1 text-xs leading-relaxed text-slate-600">
+                    <p className="mt-1 text-xs leading-relaxed text-slate-300">
                       {guide.fiveHazardsImpact.gravity}
                     </p>
                   </div>
-                  <div className="rounded-xl border border-slate-200 bg-white p-3 sm:col-span-2 lg:col-span-1">
-                    <div className="text-xs font-bold text-teal-600">
-                      5. Ambientes Cerrados Hostiles
+                  <div className="rounded-xl border border-[#162642] bg-[#0c1426] p-3 sm:col-span-2 lg:col-span-1">
+                    <div className="text-xs font-bold text-teal-300">
+                      Ambientes Cerrados Hostiles
                     </div>
-                    <p className="mt-1 text-xs leading-relaxed text-slate-600">
+                    <p className="mt-1 text-xs leading-relaxed text-slate-300">
                       {guide.fiveHazardsImpact.closedEnvironment}
                     </p>
                   </div>
