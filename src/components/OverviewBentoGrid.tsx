@@ -290,24 +290,56 @@ export default function OverviewBentoGrid({
           </div>
 
           <div className="space-y-2 sm:col-span-7">
+            {/* Barra superior de escala de porcentajes (0% - 100%) */}
+            <div className="rounded-lg border border-[#1a2c4a] bg-[#091120] px-2.5 py-1.5">
+              <div className="flex items-center justify-between font-mono-hud text-[10px] font-semibold text-slate-400">
+                <span>0%</span>
+                <span>25%</span>
+                <span>50%</span>
+                <span className="text-sky-300">80% Nominal</span>
+                <span className="text-emerald-400">100%</span>
+              </div>
+              <div className="relative mt-1 h-1.5 w-full overflow-hidden rounded-full bg-[#15233d]">
+                <div className="absolute inset-y-0 left-0 w-[50%] bg-red-500/35" />
+                <div className="absolute inset-y-0 left-[50%] w-[30%] bg-amber-400/35" />
+                <div className="absolute inset-y-0 left-[80%] w-[20%] bg-emerald-400/45" />
+              </div>
+            </div>
+
             {donutData.map((item) => (
               <button
                 key={item.id}
                 type="button"
                 onClick={() => onSelectZoneAndScroll(item.id)}
-                className="flex w-full cursor-pointer items-center gap-2 rounded-lg px-2 py-1 text-left transition hover:bg-[#13203a]"
+                className="block w-full cursor-pointer rounded-lg px-2 py-1 text-left transition hover:bg-[#13203a]"
               >
-                <span
-                  className="h-2.5 w-2.5 shrink-0 rounded-full"
-                  style={{
-                    backgroundColor: item.color,
-                    boxShadow: `0 0 6px ${item.color}`,
-                  }}
-                />
-                <span className="w-28 truncate text-xs font-medium text-slate-200 sm:w-32">
-                  {item.name}
-                </span>
-                <div className="relative h-2 flex-1 overflow-hidden rounded-full bg-[#15233d]">
+                <div className="mb-1 flex items-center justify-between gap-2">
+                  <span className="flex min-w-0 items-center gap-2">
+                    <span
+                      className="h-2.5 w-2.5 shrink-0 rounded-full"
+                      style={{
+                        backgroundColor: item.color,
+                        boxShadow: `0 0 6px ${item.color}`,
+                      }}
+                    />
+                    <span className="truncate text-xs font-medium text-slate-200">
+                      {item.name}
+                    </span>
+                  </span>
+                  <span className="flex shrink-0 items-center gap-2 font-mono-hud">
+                    <span className="text-xs font-bold text-slate-100">
+                      {item.value}%
+                    </span>
+                    <span
+                      className="w-16 text-right text-[11px] font-semibold"
+                      style={{ color: STATUS_HEX[item.status] }}
+                    >
+                      {STATUS_LABELS[item.status]}
+                    </span>
+                  </span>
+                </div>
+
+                <div className="relative h-2 w-full overflow-hidden rounded-full bg-[#15233d]">
                   <div
                     className="h-full rounded-full transition-all duration-500"
                     style={{
@@ -315,21 +347,20 @@ export default function OverviewBentoGrid({
                       backgroundColor: item.color,
                     }}
                   />
-                  {/* Marca de umbral 80% */}
+                  {/* Marcas de escala 25%, 50% y 80% */}
                   <span
-                    className="pointer-events-none absolute top-0 bottom-0 w-[1.5px] bg-slate-300/45"
+                    className="pointer-events-none absolute top-0 bottom-0 w-px bg-slate-400/20"
+                    style={{ left: "25%" }}
+                  />
+                  <span
+                    className="pointer-events-none absolute top-0 bottom-0 w-px bg-slate-400/25"
+                    style={{ left: "50%" }}
+                  />
+                  <span
+                    className="pointer-events-none absolute top-0 bottom-0 w-[1.5px] bg-sky-200/60"
                     style={{ left: "80%" }}
                   />
                 </div>
-                <span className="w-10 text-right font-mono-hud text-xs font-bold text-slate-100">
-                  {item.value}%
-                </span>
-                <span
-                  className="w-16 text-right font-mono-hud text-[11px] font-semibold"
-                  style={{ color: STATUS_HEX[item.status] }}
-                >
-                  {STATUS_LABELS[item.status]}
-                </span>
               </button>
             ))}
           </div>
