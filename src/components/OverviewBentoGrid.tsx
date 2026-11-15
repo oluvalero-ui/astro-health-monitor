@@ -170,41 +170,111 @@ export default function OverviewBentoGrid({
       Math.round((1 - b.dailyRadiationMsv / CSA_RADIATION_LIMITS.dailyAlertMsv) * 100)
     )
   );
-  const calmPct = Math.max(0, Math.round(100 - (b.lonelinessLevel + b.stressLevel) / 2));
+  const calmPct = Math.max(0, Math.round(100 - (b.mentalFatigue + b.stressLevel) / 2));
   const cleanAirPct = Math.max(0, Math.min(100, Math.round((1 - env.co2MmHg / 6) * 100)));
 
-  const hazardBars = [
+  const hazardBars: {
+    label: string;
+    metric: string;
+    pct: number;
+    status: HealthStatus;
+    color: string;
+    onClick: () => void;
+  }[] = [
     {
       label: "Escudo de Radiación",
+      metric: `${b.dailyRadiationMsv.toFixed(2)} mSv/d`,
       pct: shieldProtectionPct,
-      text: `${shieldProtectionPct}% seguro`,
-      color: b.dailyRadiationMsv > 1.2 ? "#ef4444" : b.dailyRadiationMsv > 0.7 ? "#f59e0b" : "#38bdf8",
+      status:
+        b.dailyRadiationMsv > 1.2
+          ? "critical"
+          : b.dailyRadiationMsv > 0.7
+          ? "warning"
+          : "optimal",
+      color:
+        b.dailyRadiationMsv > 1.2
+          ? "#ef4444"
+          : b.dailyRadiationMsv > 0.7
+          ? "#f59e0b"
+          : "#38bdf8",
+      onClick: onNavigateWearable,
     },
     {
       label: "Fuerza en Huesos",
+      metric: `Índice ${b.boneDensityIndex.toFixed(0)}%`,
       pct: Math.round(b.boneDensityIndex),
-      text: `${Math.round(b.boneDensityIndex)}%`,
-      color: "#0ea5e9",
+      status:
+        b.boneDensityIndex < 82
+          ? "critical"
+          : b.boneDensityIndex < 90
+          ? "warning"
+          : "optimal",
+      color:
+        b.boneDensityIndex < 82
+          ? "#ef4444"
+          : b.boneDensityIndex < 90
+          ? "#f59e0b"
+          : "#0ea5e9",
+      onClick: () => onSelectZoneAndScroll("musculo"),
     },
     {
-      label: "Calma y Ánimo",
+      label: "Calma y Enfoque",
+      metric: `Estrés ${b.stressLevel}%`,
       pct: calmPct,
-      text: `${calmPct}%`,
-      color: calmPct < 45 ? "#f59e0b" : "#2dd4bf",
+      status: calmPct < 45 ? "critical" : calmPct < 68 ? "warning" : "optimal",
+      color: calmPct < 45 ? "#ef4444" : calmPct < 68 ? "#f59e0b" : "#2dd4bf",
+      onClick: () => onSelectZoneAndScroll("cerebro"),
     },
     {
       label: "Aire Limpio en Cabina",
+      metric: `CO₂ ${env.co2MmHg.toFixed(1)} mmHg`,
       pct: cleanAirPct,
-      text: `${cleanAirPct}% puro`,
-      color: env.co2MmHg >= 3.5 ? "#f59e0b" : "#38bdf8",
+      status:
+        env.co2MmHg >= 4.2
+          ? "critical"
+          : env.co2MmHg >= 3.2
+          ? "warning"
+          : "optimal",
+      color:
+        env.co2MmHg >= 4.2
+          ? "#ef4444"
+          : env.co2MmHg >= 3.2
+          ? "#f59e0b"
+          : "#38bdf8",
+      onClick: () => onSelectZoneAndScroll("corazon"),
     },
     {
       label: "Orden en tu Rutina",
+      metric: `Sueño ${b.sleepHours.toFixed(1)}h`,
       pct: routineAnalysis.stabilityScore,
-      text: `${routineAnalysis.stabilityScore}%`,
-      color: routineAnalysis.stabilityScore < 70 ? "#f59e0b" : "#22c55e",
+      status:
+        routineAnalysis.stabilityScore < 55
+          ? "critical"
+          : routineAnalysis.stabilityScore < 75
+          ? "warning"
+          : "optimal",
+      color:
+        routineAnalysis.stabilityScore < 55
+          ? "#ef4444"
+          : routineAnalysis.stabilityScore < 75
+          ? "#f59e0b"
+          : "#22c55e",
+      onClick: () => onSelectZoneAndScroll("endocrino"),
     },
   ];
+
+  const cabinSafetyScore = Math.round(
+    hazardBars.reduce((acc, item) => acc + item.pct, 0) / hazardBars.length
+  );
+  const cabinRingCircumference = 2 * Math.PI * 46;
+  const cabinRingOffset =
+    cabinRingCircumference - (cabinSafetyScore / 100) * cabinRingCircumference;
+  const cabinRingColor =
+    cabinSafetyScore < 55
+      ? "#ef4444"
+      : cabinSafetyScore < 75
+      ? "#f59e0b"
+      : "#38bdf8";
 
   const reportSummaryRows = [
     { label: "Ritmo del corazón", val: `${b.bpm} lat/min`, pct: Math.min(100, Math.round((b.bpm / 140) * 100)), color: "#22c55e" },
@@ -390,7 +460,7 @@ export default function OverviewBentoGrid({
         </div>
       </div>
 
-      {/* CARD 2 (Top-Right): Ambiente de la Nave y Cuidados */}
+      {/* CARD 2 (Top-Right): Ambiente de la Nave y Cuidados (Telemetría ECLSS & 5 Riesgos) */}
       <div className="rounded-2xl border border-[#1b2d4b] bg-[#0c1426] p-5">
         <div className="mb-3 flex items-center justify-between">
           <div>
@@ -398,31 +468,146 @@ export default function OverviewBentoGrid({
               Ambiente de la Nave y Cuidados
             </h2>
             <p className="text-[11px] text-slate-400">
-              Qué tan seguro está el aire, la protección y tu rutina hoy.
+              Soporte vital de cabina (ECLSS), escudo radiológico y estabilidad del día.
             </p>
           </div>
-          <span className="rounded-full border border-sky-500/30 bg-sky-500/10 px-2.5 py-1 font-mono-hud text-xs font-semibold text-sky-300">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-500/30 bg-sky-500/10 px-2.5 py-1 font-mono-hud text-xs font-semibold text-sky-300">
+            <Globe className="h-3.5 w-3.5 text-sky-400" />
             {env.shortName}
           </span>
         </div>
 
         <div className="grid grid-cols-1 items-center gap-4 sm:grid-cols-12">
-          <div className="flex flex-col items-center justify-center sm:col-span-4">
-            <div className="flex h-32 w-32 items-center justify-center rounded-full border border-sky-500/25 bg-[#091224] text-sky-400 shadow-[inset_0_0_24px_rgba(56,189,248,0.12)]">
-              <Globe className="h-20 w-20 stroke-[1.35]" />
+          {/* Izquierda: Anillo Radial de Seguridad de Cabina + Telemetría Física */}
+          <div className="flex flex-col items-center justify-between rounded-xl border border-[#172846] bg-[#081020] p-3 sm:col-span-5">
+            <div className="relative flex h-32 w-32 items-center justify-center">
+              <svg className="h-full w-full -rotate-90" viewBox="0 0 112 112">
+                <circle
+                  cx="56"
+                  cy="56"
+                  r="46"
+                  fill="none"
+                  stroke="#15233d"
+                  strokeWidth="8"
+                />
+                <circle
+                  cx="56"
+                  cy="56"
+                  r="38"
+                  fill="none"
+                  stroke="#1b2e4f"
+                  strokeWidth="1"
+                  strokeDasharray="3 3"
+                />
+                <circle
+                  cx="56"
+                  cy="56"
+                  r="46"
+                  fill="none"
+                  stroke={cabinRingColor}
+                  strokeWidth="8"
+                  strokeLinecap="round"
+                  strokeDasharray={cabinRingCircumference}
+                  strokeDashoffset={cabinRingOffset}
+                  className="transition-all duration-700"
+                />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                <span className="font-mono-hud text-[9px] font-semibold uppercase tracking-wider text-slate-400">
+                  Hábitat
+                </span>
+                <span className="font-mono-hud text-2xl font-extrabold text-slate-100">
+                  {cabinSafetyScore}%
+                </span>
+                <span
+                  className="font-mono-hud text-[10px] font-bold"
+                  style={{ color: cabinRingColor }}
+                >
+                  {cabinSafetyScore >= 75
+                    ? "SEGURO"
+                    : cabinSafetyScore >= 55
+                    ? "CUIDAR"
+                    : "ALERTA"}
+                </span>
+              </div>
             </div>
-            <span className="mt-2 text-center font-mono-hud text-[11px] font-medium text-slate-400">
-              {env.commLatencyLabel}
-            </span>
+
+            <div className="mt-2 grid w-full grid-cols-3 gap-1.5 border-t border-[#162642] pt-2 text-center font-mono-hud">
+              <div className="rounded-lg bg-[#0c162b] px-1.5 py-1">
+                <div className="text-[9px] uppercase text-slate-400">Gravedad</div>
+                <div className="text-[11px] font-bold text-sky-300">
+                  {env.gravityLabel.split(" ")[0]}
+                </div>
+              </div>
+              <div className="rounded-lg bg-[#0c162b] px-1.5 py-1">
+                <div className="text-[9px] uppercase text-slate-400">Presión</div>
+                <div className="text-[11px] font-bold text-slate-200">
+                  {env.cabinPressureKpa} kPa
+                </div>
+              </div>
+              <div className="rounded-lg bg-[#0c162b] px-1.5 py-1">
+                <div className="text-[9px] uppercase text-slate-400">Enlace</div>
+                <div className="text-[11px] font-bold text-emerald-300">
+                  {env.commLatencyLabel.split(" ")[0]}
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="space-y-3 sm:col-span-8">
+          {/* Derecha: Escala Calibrada + 5 Barras Interactivas con Unidad Física y Estado */}
+          <div className="space-y-2 sm:col-span-7">
+            <div className="rounded-lg border border-[#1a2c4a] bg-[#091120] px-2.5 py-1.5">
+              <div className="flex items-center justify-between font-mono-hud text-[10px] font-semibold text-slate-400">
+                <span>0%</span>
+                <span>25%</span>
+                <span>50%</span>
+                <span className="text-sky-300">75% Meta</span>
+                <span className="text-emerald-400">100%</span>
+              </div>
+              <div className="relative mt-1 h-1.5 w-full overflow-hidden rounded-full bg-[#15233d]">
+                <div className="absolute inset-y-0 left-0 w-[50%] bg-red-500/35" />
+                <div className="absolute inset-y-0 left-[50%] w-[25%] bg-amber-400/35" />
+                <div className="absolute inset-y-0 left-[75%] w-[25%] bg-emerald-400/45" />
+              </div>
+            </div>
+
             {hazardBars.map((bar) => (
-              <div key={bar.label} className="flex items-center gap-3 text-xs">
-                <span className="w-36 truncate font-medium text-slate-200">
-                  {bar.label}
-                </span>
-                <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-[#15233d]">
+              <button
+                key={bar.label}
+                type="button"
+                onClick={bar.onClick}
+                className="block w-full cursor-pointer rounded-lg px-2 py-1 text-left transition hover:bg-[#13203a]"
+              >
+                <div className="mb-1 flex items-center justify-between gap-2">
+                  <span className="flex min-w-0 items-center gap-2">
+                    <span
+                      className="h-2.5 w-2.5 shrink-0 rounded-full"
+                      style={{
+                        backgroundColor: bar.color,
+                        boxShadow: `0 0 6px ${bar.color}`,
+                      }}
+                    />
+                    <span className="truncate text-xs font-medium text-slate-200">
+                      {bar.label}
+                    </span>
+                    <span className="hidden rounded border border-[#1f3458] bg-[#091224] px-1.5 py-0.5 font-mono-hud text-[10px] text-slate-400 xl:inline-block">
+                      {bar.metric}
+                    </span>
+                  </span>
+                  <span className="flex shrink-0 items-center gap-2 font-mono-hud">
+                    <span className="text-xs font-bold text-slate-100">
+                      {bar.pct}%
+                    </span>
+                    <span
+                      className="w-16 text-right text-[11px] font-semibold"
+                      style={{ color: STATUS_HEX[bar.status] }}
+                    >
+                      {STATUS_LABELS[bar.status]}
+                    </span>
+                  </span>
+                </div>
+
+                <div className="relative h-2 w-full overflow-hidden rounded-full bg-[#15233d]">
                   <div
                     className="h-full rounded-full transition-all duration-500"
                     style={{
@@ -430,11 +615,20 @@ export default function OverviewBentoGrid({
                       backgroundColor: bar.color,
                     }}
                   />
+                  <span
+                    className="pointer-events-none absolute top-0 bottom-0 w-px bg-slate-400/20"
+                    style={{ left: "25%" }}
+                  />
+                  <span
+                    className="pointer-events-none absolute top-0 bottom-0 w-px bg-slate-400/25"
+                    style={{ left: "50%" }}
+                  />
+                  <span
+                    className="pointer-events-none absolute top-0 bottom-0 w-[1.5px] bg-sky-200/60"
+                    style={{ left: "75%" }}
+                  />
                 </div>
-                <span className="w-20 text-right font-mono-hud text-[11px] font-semibold text-slate-300">
-                  {bar.text}
-                </span>
-              </div>
+              </button>
             ))}
           </div>
         </div>
