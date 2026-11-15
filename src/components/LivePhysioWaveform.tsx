@@ -202,7 +202,9 @@ export default function LivePhysioWaveform({
     const numSamples = Math.max(84, Math.floor(width / 1.6));
     const usableWidth = width - 5;
     const windowDurationSec =
-      mode === "resp" ? 3.8 : width > 220 ? 3.1 : 2.35;
+      mode === "resp" ? 4.2 : width > 220 ? 3.4 : 2.6;
+    // Calm bedside ICU monitor sweep speed (25 mm/s equivalent visual cadence)
+    const timeSpeedFactor = 0.42;
 
     const mapSignalToY = (sig: number): number => {
       const center = height * 0.58;
@@ -214,7 +216,7 @@ export default function LivePhysioWaveform({
     let animId = 0;
 
     const renderFrame = (nowMs: number) => {
-      const nowSec = nowMs / 1000;
+      const nowSec = (nowMs / 1000) * timeSpeedFactor;
       const stepX = usableWidth / (numSamples - 1);
 
       let pathD = "";
