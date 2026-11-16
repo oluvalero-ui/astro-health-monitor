@@ -23,7 +23,7 @@ export const MISSION_ENVIRONMENTS: Record<
     gravityG: 0.0,
     gravityLabel: "0.00g (Microgravity)",
     dailyRadiationMsv: 0.45,
-    radiationFactorLabel: "0.45 mSv/day (Partial magnetosphere shielding)",
+    radiationFactorLabel: "0.45 mSv/day (Earth magnetospheric shielding — ISS)",
     commLatencySeconds: 0.4,
     commLatencyLabel: "< 0.5 sec (Near real-time link)",
     commProtocol: "TDRS Direct Link S/Ku-Band",
@@ -57,24 +57,24 @@ export const MISSION_ENVIRONMENTS: Record<
     agencyProgram: "Cislunar / Deep Space Transit · Orion",
     gravityG: 0.0,
     gravityLabel: "0.00g (Microgravity)",
-    dailyRadiationMsv: 1.25,
-    radiationFactorLabel: "1.25 mSv/day (Outside protective magnetosphere)",
+    dailyRadiationMsv: 1.84,
+    radiationFactorLabel: "1.84 mSv/day (360° GCR free-space transit · NASA MSL/RAD)",
     commLatencySeconds: 110,
     commLatencyLabel: "1 min 50 sec (Round trip ~3.6 min)",
     commProtocol: "Deep Space Network (DSN)",
     cabinPressureKpa: 70.3,
     co2MmHg: 3.1,
     description:
-      "Compact transit cabin beyond Earth's magnetic shielding. Elevated exposure to solar particles and reduced habitable volume.",
+      "Compact transit cabin beyond Earth's magnetic shielding. 360° GCR flux averages 1.84 mSv/day (NASA MSL/RAD) with potential > 5.0 mSv/d SPE alerts via NASA SRAG.",
     boneLoadFactor: 1.15,
     isolationRiskBonus: 10,
     alerts: [
       {
         id: "nave-rad",
-        title: "Elevated Exposure Beyond LEO",
+        title: "360° Deep-Space GCR Exposure (NASA MSL/RAD)",
         severity: "warning",
         detail:
-          "Galactic cosmic radiation increases to ~1.25 mSv/day. Monitor CSA dosimeter and prepare storm shelter protocols.",
+          "Free-space galactic cosmic radiation averages 1.84 mSv/day (Hassler et al., 2014). Monitor exogenous NASA SRAG / CSA dosimetry for SPE surges (> 5.0 mSv/d).",
       },
       {
         id: "nave-space",
@@ -92,15 +92,15 @@ export const MISSION_ENVIRONMENTS: Record<
     agencyProgram: "Lunar South Pole · Artemis Program",
     gravityG: 0.16,
     gravityLabel: "0.16g (1/6 Earth Gravity)",
-    dailyRadiationMsv: 0.95,
-    radiationFactorLabel: "0.95 mSv/day (No atmosphere or magnetic field)",
+    dailyRadiationMsv: 1.15,
+    radiationFactorLabel: "1.15 mSv/day (Lunar surface: 50% planetary block, no atm)",
     commLatencySeconds: 2.6,
     commLatencyLabel: "2.6 sec (Round trip)",
     commProtocol: "Lunar Gateway Relay / Ka-Band",
     cabinPressureKpa: 56.5,
     co2MmHg: 2.8,
     description:
-      "Pressurized lunar surface habitat. Partial gravity slightly aids balance, though bone density loss and abrasive lunar dust risks persist.",
+      "Hypobaric 56.5 kPa exploration habitat (0.16g). Nominal SpO₂ adapts to 94–96% while 50% lunar regolith self-shielding caps GCR at ~1.15 mSv/day.",
     boneLoadFactor: 0.85,
     isolationRiskBonus: 8,
     alerts: [
@@ -113,10 +113,10 @@ export const MISSION_ENVIRONMENTS: Record<
       },
       {
         id: "luna-rad",
-        title: "Surface Radiation & Secondary Ejecta",
+        title: "Surface Radiation (50% Planetary Shielding)",
         severity: "warning",
         detail:
-          "Without atmospheric protection, regolith shielding reduces internal habitat exposure to 0.95 mSv/day.",
+          "With no atmosphere and 50% solid-angle blocking from the lunar sphere, habitat dosimetry measures ~1.15 mSv/day baseline (NASA SRAG).",
       },
     ],
   },
@@ -127,15 +127,15 @@ export const MISSION_ENVIRONMENTS: Record<
     agencyProgram: "Martian Surface Exploration · Sol 142",
     gravityG: 0.38,
     gravityLabel: "0.38g (Martian Gravity)",
-    dailyRadiationMsv: 1.65,
-    radiationFactorLabel: "1.65 mSv/day (Thin atmosphere, high GCR)",
+    dailyRadiationMsv: 0.64,
+    radiationFactorLabel: "0.64 mSv/day (NASA MSL/RAD baseline; SPE > 5.0 mSv/d via SRAG)",
     commLatencySeconds: 860,
     commLatencyLabel: "14 min 20 sec (One-way · 28m 40s RTT)",
     commProtocol: "Medical Autonomy + Store & Forward",
     cabinPressureKpa: 58.0,
     co2MmHg: 3.4,
     description:
-      "Autonomous mobile exploration millions of kilometers from Earth. Real-time consultation with flight surgeons is impossible; extreme visual isolation.",
+      "Hypobaric 58.0 kPa autonomous Mars habitat (0.38g). Quiet surface GCR is 0.64 mSv/day (50% planet block + CO₂ atm; NASA MSL/RAD), surging > 5.0 mSv/d during NASA SRAG SPE alerts.",
     boneLoadFactor: 0.65,
     isolationRiskBonus: 18,
     alerts: [
@@ -145,6 +145,13 @@ export const MISSION_ENVIRONMENTS: Record<
         severity: "critical",
         detail:
           "No real-time medical consultation available. Crew must execute autonomous first-aid and clinical protocols immediately.",
+      },
+      {
+        id: "marte-rad",
+        title: "NASA MSL/RAD Surface GCR & SRAG SPE Alerts",
+        severity: "optimal",
+        detail:
+          "Quiet Mars surface dose is 0.64 mSv/day via 50% planetary blocking + CO₂ atmosphere (Hassler et al., 2014), but surges above > 5.0 mSv/day during Solar Particle Events (SPE).",
       },
       {
         id: "marte-iso",
@@ -436,10 +443,10 @@ export const SYSTEM_DIAGNOSTIC_GUIDES: Record<SystemZoneId, SystemDiagnosticGuid
 
 export const DEFAULT_BIOMARKERS: BiomarkerData = {
   bpm: 68,
-  systolicBP: 118,
-  diastolicBP: 76,
+  systolicBP: 112,
+  diastolicBP: 72,
   bloodGlucoseMgDl: 94,
-  bodyTempC: 36.6,
+  bodyTempC: 37.1,
   hydrationPercent: 86,
   cortisolIndex: 34,
   melatoninIndex: 72,
@@ -462,9 +469,9 @@ export const DEFAULT_BIOMARKERS: BiomarkerData = {
   respiratoryRateRpm: 15,
   minuteVentilationLpm: 6.4,
   hrvRmssdMs: 42,
-  pttMs: 194,
+  pttMs: 198,
   perfusionIndex: 3.8,
-  skinTempC: 33.8,
+  skinTempC: 34.0,
   lastOscillometricCalHours: 4,
   pttCalibrationRequired: false,
 };
@@ -715,10 +722,10 @@ export const DEFAULT_EMERGENCY_CHECKLIST: EmergencyProtocolStep[] = [
 
 export const CSA_RADIATION_LIMITS = {
   dailyNominalMsv: 0.65,
-  dailyAlertMsv: 1.45,
+  dailyAlertMsv: 2.2,
   annualLimitMsv: 200,
   careerLimitMsv: 600,
-  instrumentName: "CSA Radi-N2 / EVARM Dosimeter",
+  instrumentName: "NASA MSL/RAD · SRAG & CSA EVARM Dosimeter",
 };
 
 export const INITIAL_DASHBOARD_STATE: AstronautDashboardState = {

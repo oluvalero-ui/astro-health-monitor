@@ -167,7 +167,16 @@ export function evaluateFacialTensionStatus(tension: number): HealthStatus {
   return "optimal";
 }
 
-export function evaluateSpo2Status(spo2: number): HealthStatus {
+export function evaluateSpo2Status(
+  spo2: number,
+  environmentId: MissionEnvironmentId = "iss"
+): HealthStatus {
+  const isHypobaric = environmentId === "luna" || environmentId === "marte";
+  if (isHypobaric) {
+    if (spo2 < 91) return "critical";
+    if (spo2 < 94) return "warning";
+    return "optimal";
+  }
   if (spo2 < 92) return "critical";
   if (spo2 < 95) return "warning";
   return "optimal";
@@ -302,7 +311,7 @@ export function evaluateAllZoneStatuses(
     corazon: worstStatus([
       evaluateBpmStatus(b.bpm),
       evaluateBpStatus(b.systolicBP, b.diastolicBP),
-      evaluateSpo2Status(b.spo2Percent),
+      evaluateSpo2Status(b.spo2Percent, environmentId),
       evaluateRespiratoryRateStatus(b.respiratoryRateRpm),
       evaluateHrvStatus(b.hrvRmssdMs),
       evaluatePerfusionIndexStatus(b.perfusionIndex),
@@ -470,6 +479,94 @@ export function hydrateBiomarkers(
   };
 }
 
+interface EnvPhysioOffset {
+  hrDelta: number;
+  sysDelta: number;
+  diaDelta: number;
+  pttDelta: number;
+  tempDelta: number;
+  skinTempDelta: number;
+  spo2Delta: number;
+}
+
+const ENV_PHYSIO_OFFSETS: Record<MissionEnvironmentId, EnvPhysioOffset> = {
+  // 0.00g Orbital: cephalad fluid vasodilation (~112/72 mmHg) & mild Space Fever (37.1 °C)
+  iss: {
+    hrDelta: 0,
+    sysDelta: 0,
+    diaDelta: 0,
+    pttDelta: 0,
+    tempDelta: 0,
+    skinTempDelta: 0,
+    spo2Delta: 0,
+  },
+  // 0.00g Transit (70.3 kPa): persistent 0g vasodilation & Space Fever; slight hypobaric drop
+  nave: {
+    hrDelta: 2,
+    sysDelta: 1,
+    diaDelta: 1,
+    pttDelta: -2,
+    tempDelta: 0,
+    skinTempDelta: 0.1,
+    spo2Delta: -1,
+  },
+  // 0.16g Lunar Habitat (56.5 kPa): hypobaric nominal SpO₂ 94% + orthostatic +6 bpm & BP rise
+  luna: {
+    hrDelta: 6,
+    sysDelta: 8,
+    diaDelta: 6,
+    pttDelta: -12,
+    tempDelta: -0.4,
+    skinTempDelta: -0.2,
+    spo2Delta: -4,
+  },
+  // 0.38g Mars Habitat (58.0 kPa): hypobaric nominal SpO₂ 95% + orthostatic +6 bpm & BP rise
+  marte: {
+    hrDelta: 6,
+    sysDelta: 11,
+    diaDelta: 8,
+    pttDelta: -16,
+    tempDelta: -0.4,
+    skinTempDelta: -0.3,
+    spo2Delta: -3,
+  },
+};
+
+export function applyLivePhysioJitter(
+  b: BiomarkerData,
+  tick: number
+): BiomarkerData {
+  const hrWave = [1, -1, 2, 0, -2, 1];
+  const sysWave = [1, 0, -1, 1, -1, 0];
+  const diaWave = [0, 1, -1, 0, 1, -1];
+  const pttWave = [-2, 1, 2, -1, 2, 0];
+  const respWave = [0, 1, 0, -1, 1, 0];
+  const mvWave = [0.1, 0.2, -0.1, -0.2, 0.2, 0.0];
+  const tempWave = [0.05, 0.0, -0.05, 0.05, -0.05, 0.0];
+  const skinWave = [0.0, 0.05, -0.05, 0.0, 0.05, -0.05];
+  const hrvWave = [-1, 1, 0, 1, -1, 1];
+
+  const i = tick % 6;
+  const j = (tick + 2) % 6;
+
+  return {
+    ...b,
+    bpm: clamp(b.bpm + hrWave[i], 38, 165),
+    systolicBP: clamp(b.systolicBP + sysWave[j], 75, 190),
+    diastolicBP: clamp(b.diastolicBP + diaWave[i], 45, 120),
+    pttMs: clamp(b.pttMs + pttWave[j], 125, 290),
+    respiratoryRateRpm: clamp(b.respiratoryRateRpm + respWave[i], 8, 34),
+    minuteVentilationLpm: clamp(
+      Number((b.minuteVentilationLpm + mvWave[i]).toFixed(1)),
+      3.5,
+      15.0
+    ),
+    bodyTempC: clamp(Number((b.bodyTempC + tempWave[i]).toFixed(2)), 35.0, 40.0),
+    skinTempC: clamp(Number((b.skinTempC + skinWave[j]).toFixed(2)), 30.0, 38.5),
+    hrvRmssdMs: clamp(b.hrvRmssdMs + hrvWave[i], 10, 95),
+  };
+}
+
 export function recalculateForEnvironment(
   state: AstronautDashboardState,
   newEnvId: MissionEnvironmentId
@@ -478,6 +575,8 @@ export function recalculateForEnvironment(
 
   const prevEnv = MISSION_ENVIRONMENTS[state.environmentId];
   const nextEnv = MISSION_ENVIRONMENTS[newEnvId];
+  const prevOffset = ENV_PHYSIO_OFFSETS[state.environmentId];
+  const nextOffset = ENV_PHYSIO_OFFSETS[newEnvId];
 
   const isolationDelta = nextEnv.isolationRiskBonus - prevEnv.isolationRiskBonus;
   const boneDelta = (prevEnv.boneLoadFactor - nextEnv.boneLoadFactor) * 4;
@@ -490,6 +589,27 @@ export function recalculateForEnvironment(
   const b = state.biomarkers;
   const updatedBiomarkers: BiomarkerData = {
     ...b,
+    bpm: clamp(b.bpm - prevOffset.hrDelta + nextOffset.hrDelta, 42, 160),
+    systolicBP: clamp(
+      b.systolicBP - prevOffset.sysDelta + nextOffset.sysDelta,
+      78,
+      185
+    ),
+    diastolicBP: clamp(
+      b.diastolicBP - prevOffset.diaDelta + nextOffset.diaDelta,
+      48,
+      115
+    ),
+    bodyTempC: clamp(
+      Number((b.bodyTempC - prevOffset.tempDelta + nextOffset.tempDelta).toFixed(2)),
+      35.2,
+      39.5
+    ),
+    skinTempC: clamp(
+      Number((b.skinTempC - prevOffset.skinTempDelta + nextOffset.skinTempDelta + co2Delta * 0.1).toFixed(2)),
+      30.5,
+      37.8
+    ),
     dailyRadiationMsv: Number(
       (nextEnv.dailyRadiationMsv + (state.emergencyMode ? 0.35 : 0)).toFixed(2)
     ),
@@ -505,9 +625,9 @@ export function recalculateForEnvironment(
       98
     ),
     spo2Percent: clamp(
-      Math.round(b.spo2Percent - (prevEnv.cabinPressureKpa - nextEnv.cabinPressureKpa) * 0.025),
-      88,
-      99
+      b.spo2Percent - prevOffset.spo2Delta + nextOffset.spo2Delta,
+      86,
+      100
     ),
     respiratoryRateRpm: clamp(
       Math.round(b.respiratoryRateRpm + co2Delta * 1.4),
@@ -520,13 +640,12 @@ export function recalculateForEnvironment(
       14.0
     ),
     hrvRmssdMs: clamp(Math.round(b.hrvRmssdMs - isolationDelta * 0.45), 12, 85),
-    pttMs: clamp(Math.round(b.pttMs - gravityDelta * 26), 135, 260),
+    pttMs: clamp(b.pttMs - prevOffset.pttDelta + nextOffset.pttDelta, 130, 265),
     perfusionIndex: clamp(
       Number((b.perfusionIndex - isolationDelta * 0.03 + gravityDelta * 0.5).toFixed(1)),
       0.4,
       10.0
     ),
-    skinTempC: clamp(Number((b.skinTempC + co2Delta * 0.15).toFixed(1)), 30.5, 37.5),
     pttCalibrationRequired:
       newEnvId === "luna" ||
       newEnvId === "marte" ||
@@ -671,16 +790,23 @@ export function restoreNominalFromEmergency(
   state: AstronautDashboardState
 ): AstronautDashboardState {
   const env = MISSION_ENVIRONMENTS[state.environmentId];
+  const offset = ENV_PHYSIO_OFFSETS[state.environmentId];
   const isPartialGravity =
     state.environmentId === "luna" || state.environmentId === "marte";
   const nominalBiomarkers: BiomarkerData = {
     ...DEFAULT_BIOMARKERS,
+    bpm: DEFAULT_BIOMARKERS.bpm + offset.hrDelta,
+    systolicBP: DEFAULT_BIOMARKERS.systolicBP + offset.sysDelta,
+    diastolicBP: DEFAULT_BIOMARKERS.diastolicBP + offset.diaDelta,
+    spo2Percent: DEFAULT_BIOMARKERS.spo2Percent + offset.spo2Delta,
+    bodyTempC: Number((DEFAULT_BIOMARKERS.bodyTempC + offset.tempDelta).toFixed(2)),
+    skinTempC: Number((DEFAULT_BIOMARKERS.skinTempC + offset.skinTempDelta).toFixed(2)),
     dailyRadiationMsv: env.dailyRadiationMsv,
     lonelinessLevel: clamp(DEFAULT_BIOMARKERS.lonelinessLevel + env.isolationRiskBonus, 10, 80),
     boredomLevel: clamp(DEFAULT_BIOMARKERS.boredomLevel + Math.round(env.isolationRiskBonus * 0.7), 10, 80),
     stimulationIndex: clamp(100 - (DEFAULT_BIOMARKERS.boredomLevel + Math.round(env.isolationRiskBonus * 0.7)), 20, 95),
     stressLevel: clamp(DEFAULT_BIOMARKERS.stressLevel + Math.round(env.isolationRiskBonus * 0.5), 10, 80),
-    pttMs: Math.round(194 - env.gravityG * 22),
+    pttMs: DEFAULT_BIOMARKERS.pttMs + offset.pttDelta,
     pttCalibrationRequired: isPartialGravity,
   };
 
@@ -912,7 +1038,9 @@ export function getActiveVitalRecommendations(
   }
 
   // 3. Oxygen Saturation (SpO2)
-  if (b.spo2Percent < 92) {
+  const spo2Status = evaluateSpo2Status(b.spo2Percent, environmentId);
+  const isHypobaricHab = environmentId === "luna" || environmentId === "marte";
+  if (spo2Status === "critical") {
     items.push({
       id: "spo2",
       vitalName: "Oxygen Saturation (SpO₂)",
@@ -922,7 +1050,7 @@ export function getActiveVitalRecommendations(
       problemLabel: "Acute Hypoxemia",
       recommendation: `Don portable emergency O₂ mask (2–4 L/min), inspect cabin ECLSS O₂ supply and CO₂ scrubbers immediately, and cease all physical activity.${hypercapniaNote}`,
     });
-  } else if (b.spo2Percent < 95) {
+  } else if (spo2Status === "warning") {
     items.push({
       id: "spo2",
       vitalName: "Oxygen Saturation (SpO₂)",
@@ -939,9 +1067,12 @@ export function getActiveVitalRecommendations(
       zone: "corazon",
       currentReading: `${b.spo2Percent}%`,
       status: "optimal",
-      problemLabel: "Arterial Oxygenation Optimal",
-      recommendation:
-        "Cranial SpO₂ optimal; keep frontal optical sensor band clean.",
+      problemLabel: isHypobaricHab
+        ? `Hypobaric SpO₂ Nominal (${env.cabinPressureKpa} kPa norm: 94–96%)`
+        : "Arterial Oxygenation Optimal",
+      recommendation: isHypobaricHab
+        ? `Exploration habitat (${env.cabinPressureKpa} kPa) maintains nominal hypobaric SpO₂ between 94–96%; keep frontal optical sensor band seated cleanly.`
+        : "Cranial SpO₂ optimal; keep frontal optical sensor band clean.",
     });
   }
 

@@ -2,6 +2,7 @@
 
 import React, {
   useCallback,
+  useEffect,
   useMemo,
   useState,
   useSyncExternalStore,
@@ -38,6 +39,7 @@ import {
   TelemetryPoint,
 } from "@/types/astronaut";
 import {
+  applyLivePhysioJitter,
   buildEmergencyState,
   calibrateOscillometricCuff,
   clamp,
@@ -49,7 +51,7 @@ import {
   restoreNominalFromEmergency,
 } from "@/utils/healthEngine";
 
-const STORAGE_KEY = "astro-med-hrp-state-v2";
+const STORAGE_KEY = "astro-med-hrp-state-v3";
 const STORAGE_EVENT = "astro-med-storage-change";
 
 const MODALITY_LABELS: Record<string, string> = {
@@ -182,6 +184,22 @@ export default function HomePage() {
   const [referencesOpen, setReferencesOpen] = useState(false);
   const [highlightedHabitId, setHighlightedHabitId] = useState<string | null>(
     null
+  );
+  const [jitterTick, setJitterTick] = useState(0);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setJitterTick((prev) => (prev + 1) % 240);
+    }, 2500);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const liveBiomarkers = useMemo(
+    () =>
+      jitterTick === 0
+        ? state.biomarkers
+        : applyLivePhysioJitter(state.biomarkers, jitterTick),
+    [state.biomarkers, jitterTick]
   );
 
   const handleInspectHabit = (habitId: string) => {
@@ -489,7 +507,8 @@ export default function HomePage() {
 
           {/* Franja Superior de Signos Vitales Primarios (Números Grandes + Ondas en Vivo) */}
           <PrimaryVitalsStrip
-            biomarkers={state.biomarkers}
+            biomarkers={liveBiomarkers}
+            environmentId={state.environmentId}
             readinessScore={readinessScore}
             cabinCo2MmHg={MISSION_ENVIRONMENTS[state.environmentId].co2MmHg}
             onSelectZone={handleSelectZoneAndScroll}
@@ -501,7 +520,7 @@ export default function HomePage() {
             <>
               <OverviewBentoGrid
                 environmentId={state.environmentId}
-                biomarkers={state.biomarkers}
+                biomarkers={liveBiomarkers}
                 routine={state.routine}
                 zoneStatuses={zoneStatuses}
                 readinessScore={readinessScore}
@@ -550,7 +569,7 @@ export default function HomePage() {
               selectedZone={selectedZone}
               onSelectZone={setSelectedZone}
               zoneStatuses={zoneStatuses}
-              biomarkers={state.biomarkers}
+              biomarkers={liveBiomarkers}
               environmentId={state.environmentId}
               onOpenScanTab={handleOpenScanTab}
             />
@@ -560,7 +579,7 @@ export default function HomePage() {
           {activeNavSection === "wearable" && (
             <WearableHarnessPanel
               environmentId={state.environmentId}
-              biomarkers={state.biomarkers}
+              biomarkers={liveBiomarkers}
               onCalibrateOscillometric={handleCalibrateOscillometric}
               onSelectSystemZone={handleSelectZoneAndScroll}
             />
@@ -569,7 +588,8 @@ export default function HomePage() {
           {/* SECCIÓN 4: Signos Vitales Físicos, Salud Mental BHP y Detector de Rutina */}
           {activeNavSection === "biomarcadores" && (
             <BiomarkersDashboard
-              biomarkers={state.biomarkers}
+              environmentId={state.environmentId}
+              biomarkers={liveBiomarkers}
               previousBiomarkers={state.previousBiomarkers}
               routine={state.routine}
               lastCameraFinding={state.lastCameraFinding}

@@ -139,12 +139,15 @@ export default function WearableHarnessPanel({
               Bio-Monitor 3N · Continuous Wearable Telemetry (CSA / NASA)
             </h2>
             <p className="mt-0.5 text-xs text-slate-400">
-              Offline autonomous continuous monitoring (13 physiological signs) across 3 body nodes: thoracic vest, frontal headband, and Node 3 (dosimetric wristband, laryngeal collar &amp; BLE bone-conduction/in-ear earpiece).
+              12 Endogenous Physiological Vital Signs + 1 Exogenous Dosimetry Channel (Synced with NASA SRAG / CSA RAD Telemetry) across thoracic vest, frontal headband, and Node 3.
             </p>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 text-xs">
+          <span className="rounded-xl border border-cyan-500/35 bg-cyan-500/10 px-3 py-1.5 font-mono-hud text-[11px] font-bold text-cyan-200">
+            Pre-Flight Individual Baseline: NASA MedOps / OSDR
+          </span>
           <div className="rounded-xl border border-[#1b2d4b] bg-[#091120] px-3 py-1.5 font-mono-hud">
             <span className="text-slate-400">Mission: </span>
             <span className="font-bold text-sky-300">{env.shortName}</span>
@@ -288,8 +291,8 @@ export default function WearableHarnessPanel({
               />
               <TelemetryBadge
                 label="Skin Temperature"
-                value={`${b.skinTempC.toFixed(1)} °C`}
-                meta="Surface chest thermistor"
+                value={`${b.skinTempC.toFixed(2)} °C`}
+                meta="Surface chest thermistor (±0.05 °C tick)"
                 status={evaluateSkinTempStatus(b.skinTempC)}
                 onClick={() => onSelectSystemZone?.("abdomen")}
               />
@@ -371,8 +374,12 @@ export default function WearableHarnessPanel({
               <TelemetryBadge
                 label="Cranial SpO₂"
                 value={`${b.spo2Percent}%`}
-                meta="Arterial oxygen (nominal 95–100%)"
-                status={evaluateSpo2Status(b.spo2Percent)}
+                meta={
+                  environmentId === "luna" || environmentId === "marte"
+                    ? `Hypobaric ${env.cabinPressureKpa} kPa norm (94–96%)`
+                    : "Arterial oxygen (nominal 95–100%)"
+                }
+                status={evaluateSpo2Status(b.spo2Percent, environmentId)}
                 onClick={() => onSelectSystemZone?.("corazon")}
               />
               <TelemetryBadge
@@ -384,8 +391,12 @@ export default function WearableHarnessPanel({
               />
               <TelemetryBadge
                 label="Core Temperature (ZHF)"
-                value={`${b.bodyTempC.toFixed(1)} °C`}
-                meta="Internal core temp (nominal 36.5–37.5 °C)"
+                value={`${b.bodyTempC.toFixed(2)} °C`}
+                meta={
+                  environmentId === "iss" || environmentId === "nave"
+                    ? "0g Space Fever norm (~37.10 °C)"
+                    : "Internal core temp (nominal 36.5–37.3 °C)"
+                }
                 status={evaluateTempStatus(b.bodyTempC)}
                 onClick={() => onSelectSystemZone?.("abdomen")}
                 className="col-span-2"
@@ -453,9 +464,11 @@ export default function WearableHarnessPanel({
             {/* Node 3 Two Signs */}
             <div className="mt-3 space-y-2">
               <TelemetryBadge
-                label="Radiation Protection"
+                label="Radiation Protection (Exogenous)"
                 value={`${Math.max(0, Math.min(100, Math.round((1 - b.dailyRadiationMsv / CSA_RADIATION_LIMITS.dailyAlertMsv) * 100)))}% safe`}
-                meta={`Today: ${b.dailyRadiationMsv.toFixed(2)} mSv · Internal spacecraft shielding`}
+                meta={`NASA SRAG / RAD: ${b.dailyRadiationMsv.toFixed(2)} mSv/d${
+                  environmentId === "marte" ? " (SPE > 5.0)" : ""
+                }`}
                 status={evaluateRadiationStatus(b.dailyRadiationMsv)}
                 onClick={() => onSelectSystemZone?.("endocrino")}
               />

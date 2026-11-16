@@ -9,7 +9,12 @@ import {
   Thermometer,
   Wind,
 } from "lucide-react";
-import { BiomarkerData, HealthStatus, SystemZoneId } from "@/types/astronaut";
+import {
+  BiomarkerData,
+  HealthStatus,
+  MissionEnvironmentId,
+  SystemZoneId,
+} from "@/types/astronaut";
 import {
   evaluateBpStatus,
   evaluateBpmStatus,
@@ -27,6 +32,7 @@ import LivePhysioWaveform from "./LivePhysioWaveform";
 
 interface PrimaryVitalsStripProps {
   biomarkers: BiomarkerData;
+  environmentId?: MissionEnvironmentId;
   readinessScore: number;
   cabinCo2MmHg: number;
   onSelectZone: (zone: SystemZoneId) => void;
@@ -47,12 +53,13 @@ function getVitalDisplayColor(status: HealthStatus, nominalColor: string): strin
 
 export default function PrimaryVitalsStrip({
   biomarkers: b,
+  environmentId = "iss",
   onSelectZone,
   onOpenWearable,
 }: PrimaryVitalsStripProps) {
   const hrStatus = evaluateBpmStatus(b.bpm);
   const spo2Status = worstStatus([
-    evaluateSpo2Status(b.spo2Percent),
+    evaluateSpo2Status(b.spo2Percent, environmentId),
     evaluatePerfusionIndexStatus(b.perfusionIndex),
   ]);
   const bpStatus = evaluateBpStatus(b.systolicBP, b.diastolicBP);
@@ -116,16 +123,31 @@ export default function PrimaryVitalsStrip({
 
   const radSimpleText =
     radStatus === "optimal"
-      ? "Safe internal cabin dose"
+      ? "Exogenous NASA SRAG / CSA RAD (SPE > 5.0)"
       : radStatus === "warning"
-      ? "Moderate dose, avoid EVA today"
-      : "High radiation, enter shelter";
+      ? "Exogenous RAD elevated · NASA SRAG"
+      : "Exogenous SPE surge · enter shelter";
 
   return (
     <section
       aria-label="Your 6 primary real-time vitals"
-      className="grid grid-cols-2 gap-2.5 lg:grid-cols-6"
+      className="space-y-2"
     >
+      {/* Telemetry Source Separation & Pre-Flight Baseline Strip */}
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#182742] bg-[#091120] px-3 py-1.5 text-[11px]">
+        <div className="flex items-center gap-2 font-mono-hud text-slate-300">
+          <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
+          <span>
+            <strong className="text-sky-300">BIO-MONITOR 3N LIVE (2.5s TICK):</strong>{" "}
+            12 Endogenous Physiological Signs + 1 Exogenous Dosimetry Channel (NASA SRAG / CSA RAD)
+          </span>
+        </div>
+        <span className="rounded-md border border-cyan-500/35 bg-cyan-500/10 px-2 py-0.5 font-mono-hud text-[10px] font-bold text-cyan-200">
+          Pre-Flight Individual Baseline: NASA MedOps / OSDR
+        </span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-6">
       {/* 1. Heart Rate (ECG) */}
       <button
         type="button"
@@ -300,10 +322,10 @@ export default function PrimaryVitalsStrip({
             className="font-mono-hud text-2xl font-bold tracking-tight sm:text-3xl"
             style={{ color: tempColor }}
           >
-            {b.bodyTempC.toFixed(1)}°C
+            {b.bodyTempC.toFixed(2)}°C
           </span>
           <span className="text-[11px] font-medium text-slate-400">
-            Skin {b.skinTempC.toFixed(1)}°C
+            Skin {b.skinTempC.toFixed(2)}°C
           </span>
         </div>
 
@@ -355,6 +377,7 @@ export default function PrimaryVitalsStrip({
           {radSimpleText}
         </p>
       </button>
+      </div>
     </section>
   );
 }

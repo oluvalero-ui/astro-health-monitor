@@ -37,6 +37,7 @@ import {
 } from "@/types/astronaut";
 import {
   computeRoutineDeviations,
+  evaluateRadiationStatus,
   STATUS_HEX,
 } from "@/utils/healthEngine";
 import { StatusPill } from "@/components/ui/StatusPill";
@@ -185,16 +186,11 @@ export default function OverviewBentoGrid({
       label: "Radiation Shielding (GCR / SPE)",
       metric: `${b.dailyRadiationMsv.toFixed(2)} mSv/d`,
       pct: shieldProtectionPct,
-      status:
-        b.dailyRadiationMsv > 1.2
-          ? "critical"
-          : b.dailyRadiationMsv > 0.7
-          ? "warning"
-          : "optimal",
+      status: evaluateRadiationStatus(b.dailyRadiationMsv),
       color:
-        b.dailyRadiationMsv > 1.2
+        evaluateRadiationStatus(b.dailyRadiationMsv) === "critical"
           ? "#ef4444"
-          : b.dailyRadiationMsv > 0.7
+          : evaluateRadiationStatus(b.dailyRadiationMsv) === "warning"
           ? "#f59e0b"
           : "#38bdf8",
       onClick: onNavigateWearable,
