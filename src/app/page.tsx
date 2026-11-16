@@ -618,6 +618,7 @@ export default function HomePage() {
         <MultimodalScanModal
           isOpen={scanModalOpen}
           initialTab={scanInitialTab}
+          environmentId={state.environmentId}
           biomarkers={state.biomarkers}
           routine={state.routine}
           onClose={() => setScanModalOpen(false)}

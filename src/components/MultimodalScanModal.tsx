@@ -2,16 +2,28 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
+  Activity,
+  AlertTriangle,
   Camera,
   CheckCircle2,
   Cpu,
+  Eye,
+  Headphones,
+  HeartPulse,
+  ShieldCheck,
   Sliders,
   Sparkles,
   VideoOff,
+  Volume2,
+  VolumeX,
+  Watch,
   X,
 } from "lucide-react";
+import { MISSION_ENVIRONMENTS } from "@/data/missionData";
 import {
   BiomarkerData,
+  HealthStatus,
+  MissionEnvironmentId,
   RoutineTracking,
 } from "@/types/astronaut";
 
@@ -20,6 +32,7 @@ export type ScanModalTab = "camara" | "manual";
 interface MultimodalScanModalProps {
   isOpen: boolean;
   initialTab: ScanModalTab;
+  environmentId?: MissionEnvironmentId;
   biomarkers: BiomarkerData;
   routine: RoutineTracking;
   onClose: () => void;
@@ -35,9 +48,37 @@ interface MultimodalScanModalProps {
 
 type CameraScenario = "optimo" | "fatigado" | "critico";
 
+const STATUS_BADGE_STYLES: Record<
+  HealthStatus,
+  { border: string; bg: string; text: string; pill: string; label: string }
+> = {
+  optimal: {
+    border: "border-emerald-500/35",
+    bg: "bg-emerald-950/25",
+    text: "text-emerald-300",
+    pill: "border-emerald-500/40 bg-emerald-500/15 text-emerald-300",
+    label: "NOMINAL",
+  },
+  warning: {
+    border: "border-amber-500/40",
+    bg: "bg-amber-950/25",
+    text: "text-amber-300",
+    pill: "border-amber-500/40 bg-amber-500/15 text-amber-300",
+    label: "CAUTION",
+  },
+  critical: {
+    border: "border-red-500/45",
+    bg: "bg-red-950/30",
+    text: "text-red-300",
+    pill: "border-red-500/45 bg-red-500/15 text-red-300",
+    label: "CRITICAL",
+  },
+};
+
 export default function MultimodalScanModal({
   isOpen,
   initialTab,
+  environmentId = "iss",
   biomarkers,
   routine,
   onClose,
@@ -56,6 +97,8 @@ export default function MultimodalScanModal({
   const [simScenario, setSimScenario] = useState<CameraScenario>("optimo");
   const [isAnalyzingCam, setIsAnalyzingCam] = useState(false);
   const [camProgress, setCamProgress] = useState(0);
+  const [isSpeakingAstro, setIsSpeakingAstro] = useState(false);
+  const [astroConfirmedText, setAstroConfirmedText] = useState<string | null>(null);
   const [camResult, setCamResult] = useState<{
     mentalFatigue: number;
     stressLevel: number;
@@ -114,13 +157,19 @@ export default function MultimodalScanModal({
     }
   }, []);
 
-  // Stop webcam whenever modal closes or switches away from camera tab
+  // Stop webcam and ASTRO speech whenever modal closes or switches away from camera tab
   useEffect(() => {
     if (!isOpen || activeTab !== "camara") {
       stopWebcam();
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
     }
     return () => {
       stopWebcam();
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
     };
   }, [isOpen, activeTab, stopWebcam]);
 
@@ -333,7 +382,144 @@ export default function MultimodalScanModal({
     }, 240);
   };
 
+  const handleCloseModal = () => {
+    stopWebcam();
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
+    setIsSpeakingAstro(false);
+    onClose();
+  };
+
   if (!isOpen) return null;
+
+  const env = MISSION_ENVIRONMENTS[environmentId];
+  const activeScenario: CameraScenario = camResult
+    ? camResult.mentalFatigue >= 70
+      ? "critico"
+      : camResult.mentalFatigue >= 45
+      ? "fatigado"
+      : "optimo"
+    : simScenario;
+
+  // Stage 1: Optical Deduction vs. NASA HRP Scientific Baseline
+  const opticalFatigue =
+    camResult?.mentalFatigue ??
+    (activeScenario === "optimo" ? 24 : activeScenario === "fatigado" ? 58 : 82);
+  const facsTension =
+    camResult?.facialTension ??
+    (activeScenario === "optimo" ? 19 : activeScenario === "fatigado" ? 56 : 80);
+  const perclosPct =
+    activeScenario === "optimo" ? 8.4 : activeScenario === "fatigado" ? 17.6 : 24.8;
+  const blinkRateRpm =
+    activeScenario === "optimo" ? 14 : activeScenario === "fatigado" ? 9 : 5;
+  const perclosStatus: HealthStatus =
+    perclosPct > 20 ? "critical" : perclosPct >= 15 ? "warning" : "optimal";
+  const facsStatus: HealthStatus =
+    facsTension >= 70 ? "critical" : facsTension >= 45 ? "warning" : "optimal";
+  const cervicalTilt =
+    activeScenario === "optimo" ? "3°" : activeScenario === "fatigado" ? "14°" : "29°";
+  const puffyFaceComp =
+    env.gravityG === 0
+      ? "1.8 L cephalad shift (-14% edema offset)"
+      : env.gravityG <= 0.2
+      ? "0.9 L lunar shift (-6% offset)"
+      : "0.4 L Martian shift (-2% offset)";
+
+  // Stage 2: Automated Physical Cross-Check with 3N Harness & Cabin
+  const node1Status: HealthStatus =
+    biomarkers.hrvRmssdMs < 25 || biomarkers.bpm > 98 || biomarkers.respiratoryRateRpm > 22
+      ? "critical"
+      : biomarkers.hrvRmssdMs < 38 || biomarkers.bpm > 88 || biomarkers.respiratoryRateRpm > 19
+      ? "warning"
+      : "optimal";
+  const node1Verdict =
+    activeScenario === "optimo" && node1Status === "optimal"
+      ? `Confirmed nominal: vagal HRV (${biomarkers.hrvRmssdMs} ms) & ${biomarkers.bpm} bpm align with low optical fatigue (${opticalFatigue}/100).`
+      : node1Status === "critical" || (opticalFatigue >= 50 && node1Status !== "optimal")
+      ? `Autonomic fatigue corroborated: HRV (${biomarkers.hrvRmssdMs} ms) & ${biomarkers.bpm} bpm confirm optical strain (${opticalFatigue}/100).`
+      : `Partial divergence: optical fatigue at ${opticalFatigue}/100 while chest ECG/RIP retains baseline reserve (${biomarkers.hrvRmssdMs} ms).`;
+
+  const node2Status: HealthStatus =
+    biomarkers.spo2Percent < 94 ||
+    biomarkers.perfusionIndex < 1.8 ||
+    biomarkers.systolicBP >= 145 ||
+    biomarkers.systolicBP < 92
+      ? "critical"
+      : biomarkers.spo2Percent < 96 ||
+        biomarkers.perfusionIndex < 2.4 ||
+        biomarkers.systolicBP >= 134
+      ? "warning"
+      : "optimal";
+  const node2Verdict =
+    node2Status === "optimal"
+      ? `Cerebral perfusion nominal: ${biomarkers.systolicBP}/${biomarkers.diastolicBP} mmHg PTT & SpO₂ ${biomarkers.spo2Percent}% rule out hypoperfusion / SANS.`
+      : `Vascular stress alert: PI ${biomarkers.perfusionIndex.toFixed(1)}% & PTT ${biomarkers.systolicBP}/${biomarkers.diastolicBP} mmHg track orthostatic / SANS strain.`;
+
+  const isHypercapnia = env.co2MmHg > 3.0;
+  const node3Status: HealthStatus =
+    isHypercapnia || biomarkers.stressLevel >= 72 || biomarkers.sleepHours < 5.0
+      ? "critical"
+      : env.co2MmHg > 2.3 || biomarkers.stressLevel >= 48 || biomarkers.sleepHours < 6.5
+      ? "warning"
+      : "optimal";
+  const node3Verdict = isHypercapnia
+    ? `Cabin hypercapnia factor: CO₂ ${env.co2MmHg.toFixed(1)} mmHg (> 3.0 limit) amplifies facial/vocal fatigue (${biomarkers.stressLevel}%).`
+    : `Laryngeal strain ${biomarkers.stressLevel}% & cabin CO₂ ${env.co2MmHg.toFixed(1)} mmHg isolate workload / ${biomarkers.sleepHours.toFixed(1)} h sleep factor.`;
+
+  // Stage 3: Active Functional Confirmation (PVT + ASTRO Node 3 Loop)
+  const effectivePvtMs =
+    activeScenario === "optimo"
+      ? Math.min(biomarkers.reactionTimeMs, 254)
+      : activeScenario === "fatigado"
+      ? Math.max(biomarkers.reactionTimeMs, 318)
+      : Math.max(biomarkers.reactionTimeMs, 415);
+  const pvtStatus: HealthStatus =
+    effectivePvtMs > 350 ? "critical" : effectivePvtMs >= 280 ? "warning" : "optimal";
+  const harnessAlignedWithOptical =
+    (activeScenario === "optimo" && node1Status === "optimal") ||
+    (activeScenario === "fatigado" &&
+      (node1Status !== "optimal" || node3Status !== "optimal" || pvtStatus !== "optimal")) ||
+    (activeScenario === "critico" &&
+      (node1Status === "critical" || pvtStatus === "critical"));
+  const alignedSystemsCount = harnessAlignedWithOptical ? 3 : 2;
+  const certaintyPct =
+    activeScenario === "optimo"
+      ? harnessAlignedWithOptical
+        ? "98.4"
+        : "91.2"
+      : activeScenario === "fatigado"
+      ? harnessAlignedWithOptical
+        ? "96.8"
+        : "89.4"
+      : harnessAlignedWithOptical
+      ? "99.1"
+      : "93.6";
+
+  const handleConfirmWithAstro = () => {
+    if (typeof window === "undefined") return;
+    if (isSpeakingAstro && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      setIsSpeakingAstro(false);
+      return;
+    }
+
+    const spokenDiagnosis =
+      activeScenario === "optimo"
+        ? `Cross-validation complete at ${certaintyPct} percent certainty. Optical PERCLOS at ${perclosPct} percent and microgravity fluid baseline match nominal chest HRV of ${biomarkers.hrvRmssdMs} milliseconds, frontal oxygenation of ${biomarkers.spo2Percent} percent, and PVT reaction time of ${effectivePvtMs} milliseconds. Crew readiness confirmed via Node 3 earpiece.`
+        : `Cross-validation complete at ${certaintyPct} percent certainty: optical PERCLOS fatigue at ${perclosPct} percent aligns with 3N harness telemetry (${biomarkers.hrvRmssdMs} milliseconds HRV, cabin CO2 ${env.co2MmHg.toFixed(1)} millimeters of mercury) and ${effectivePvtMs} millisecond PVT latency. Please confirm subjective symptoms through the Node 3 laryngeal collar.`;
+
+    setAstroConfirmedText(spokenDiagnosis);
+    if (!("speechSynthesis" in window)) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(spokenDiagnosis);
+    utterance.lang = "en-US";
+    utterance.rate = 1.02;
+    utterance.onend = () => setIsSpeakingAstro(false);
+    utterance.onerror = () => setIsSpeakingAstro(false);
+    setIsSpeakingAstro(true);
+    window.speechSynthesis.speak(utterance);
+  };
 
   return (
     <div
@@ -342,12 +528,12 @@ export default function MultimodalScanModal({
       aria-modal="true"
       aria-label="On-Demand Software Workflows · Multimodal Scan"
     >
-      <div className="flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-[#1b2d4b] bg-[#0c1426] text-slate-100 shadow-2xl">
+      <div className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-[#1b2d4b] bg-[#0c1426] text-slate-100 shadow-2xl">
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-[#182742] bg-[#091120] px-5 py-3.5">
           <div>
             <h2 className="text-base font-bold text-slate-100 sm:text-lg">
-              Multimodal Assessment · Computer Vision & Clinical Entry
+              Multimodal Assessment · Computer Vision &amp; Clinical Entry
             </h2>
             <p className="text-xs text-slate-400">
               Use the cabin camera or manual entry whenever continuous telemetry from Bio-Monitor 3N requires verification.
@@ -355,7 +541,7 @@ export default function MultimodalScanModal({
           </div>
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleCloseModal}
             className="cursor-pointer rounded-xl border border-[#1b2d4b] bg-[#0c1426] p-1.5 text-slate-400 transition hover:border-sky-400 hover:text-slate-100"
             aria-label="Close modal"
           >
@@ -559,7 +745,7 @@ export default function MultimodalScanModal({
                             },
                             camResult.summary
                           );
-                          onClose();
+                          handleCloseModal();
                         }}
                         className="mt-3 flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-emerald-500"
                       >
@@ -568,6 +754,248 @@ export default function MultimodalScanModal({
                       </button>
                     </div>
                   )}
+                </div>
+              </div>
+
+              {/* 3-STAGE MULTIMODAL CROSS-VALIDATION PIPELINE */}
+              <div className="space-y-3 rounded-2xl border border-[#1b2d4b] bg-[#070c17] p-4 lg:col-span-12">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#182742] pb-2.5">
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-sky-400/30 bg-sky-500/15 text-sky-300">
+                      <ShieldCheck className="h-4 w-4" />
+                    </span>
+                    <div>
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-slate-100 sm:text-sm">
+                        Multimodal Cross-Validation (3-Stage Verification Pipeline)
+                      </h3>
+                      <p className="text-[11px] text-slate-400">
+                        Scientific optical deduction calibrated against NASA HRP baseline, continuous Bio-Monitor 3N nodes, and active PVT + ASTRO voice confirmation.
+                      </p>
+                    </div>
+                  </div>
+                  <span
+                    className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-mono-hud text-[11px] font-bold ${
+                      STATUS_BADGE_STYLES[perclosStatus].pill
+                    }`}
+                  >
+                    {perclosStatus === "optimal" ? (
+                      <ShieldCheck className="h-3.5 w-3.5" />
+                    ) : (
+                      <AlertTriangle className="h-3.5 w-3.5" />
+                    )}
+                    {certaintyPct}% CONFIRMED · {alignedSystemsCount}/3 SYSTEMS CONCORDANT
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 gap-3 xl:grid-cols-3">
+                  {/* STAGE 1: Optical Deduction vs. NASA HRP Baseline */}
+                  <div className="flex flex-col justify-between rounded-xl border border-[#182742] bg-[#091120] p-3.5">
+                    <div>
+                      <div className="flex items-center justify-between gap-2 border-b border-[#182742] pb-2">
+                        <span className="flex items-center gap-1.5 font-mono-hud text-[11px] font-bold uppercase tracking-wider text-sky-300">
+                          <Eye className="h-3.5 w-3.5" />
+                          Stage 1 · Optical vs. NASA HRP
+                        </span>
+                        <span
+                          className={`rounded border px-1.5 py-0.5 font-mono-hud text-[10px] font-bold ${STATUS_BADGE_STYLES[perclosStatus].pill}`}
+                        >
+                          {STATUS_BADGE_STYLES[perclosStatus].label}
+                        </span>
+                      </div>
+
+                      <div className="mt-2.5 space-y-2 text-[11px]">
+                        <div className="rounded-lg border border-[#182742] bg-[#070c17] p-2">
+                          <div className="flex items-center justify-between">
+                            <span className="font-semibold text-slate-200">
+                              PERCLOS Index (NASA HRP)
+                            </span>
+                            <span
+                              className={`font-mono-hud font-bold ${STATUS_BADGE_STYLES[perclosStatus].text}`}
+                            >
+                              {perclosPct.toFixed(1)}% · {blinkRateRpm} blinks/min
+                            </span>
+                          </div>
+                          <p className="mt-0.5 text-[10px] text-slate-400">
+                            Nominal &lt;15%, Caution 15–20%, Critical &gt;20% microsleep threshold (Basner et al., 2015).
+                          </p>
+                        </div>
+
+                        <div className="rounded-lg border border-[#182742] bg-[#070c17] p-2">
+                          <div className="flex items-center justify-between">
+                            <span className="font-semibold text-slate-200">
+                              FACS Geometric Vectors
+                            </span>
+                            <span
+                              className={`font-mono-hud font-bold ${STATUS_BADGE_STYLES[facsStatus].text}`}
+                            >
+                              {facsTension}/100 tension · Tilt {cervicalTilt}
+                            </span>
+                          </div>
+                          <p className="mt-0.5 text-[10px] text-slate-400">
+                            Tracks superciliary arch (AU4), periocular tightening, and jaw clenching vectors.
+                          </p>
+                        </div>
+
+                        <div className="rounded-lg border border-[#182742] bg-[#070c17] p-2">
+                          <div className="flex items-center justify-between">
+                            <span className="font-semibold text-slate-200">
+                              0g Puffy-Face Baseline
+                            </span>
+                            <span className="font-mono-hud font-bold text-cyan-300">
+                              {env.gravityG}g ACTIVE
+                            </span>
+                          </div>
+                          <p className="mt-0.5 text-[10px] text-slate-400">
+                            {puffyFaceComp} — rules out cephalad fluid-shift edema as false fatigue (Mader et al., 2022).
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* STAGE 2: Automated Physical Cross-Check with 3N Harness & Cabin */}
+                  <div className="flex flex-col justify-between rounded-xl border border-[#182742] bg-[#091120] p-3.5">
+                    <div>
+                      <div className="flex items-center justify-between gap-2 border-b border-[#182742] pb-2">
+                        <span className="flex items-center gap-1.5 font-mono-hud text-[11px] font-bold uppercase tracking-wider text-emerald-300">
+                          <Activity className="h-3.5 w-3.5" />
+                          Stage 2 · 3N Harness &amp; Cabin
+                        </span>
+                        <span className="font-mono-hud text-[10px] font-semibold text-slate-400">
+                          LIVE CROSS-CHECK
+                        </span>
+                      </div>
+
+                      <div className="mt-2.5 space-y-2 text-[11px]">
+                        <div
+                          className={`rounded-lg border p-2 ${STATUS_BADGE_STYLES[node1Status].border} bg-[#070c17]`}
+                        >
+                          <div className="flex items-center justify-between gap-1">
+                            <span className="flex items-center gap-1 font-semibold text-slate-200">
+                              <HeartPulse className="h-3.5 w-3.5 text-sky-400" />
+                              Node 1 (Thoracic Vest)
+                            </span>
+                            <span className="font-mono-hud text-[10px] font-bold text-sky-300">
+                              HRV {biomarkers.hrvRmssdMs} ms · {biomarkers.bpm} bpm · {biomarkers.respiratoryRateRpm} rpm
+                            </span>
+                          </div>
+                          <p className="mt-0.5 text-[10px] leading-snug text-slate-400">
+                            {node1Verdict}
+                          </p>
+                        </div>
+
+                        <div
+                          className={`rounded-lg border p-2 ${STATUS_BADGE_STYLES[node2Status].border} bg-[#070c17]`}
+                        >
+                          <div className="flex items-center justify-between gap-1">
+                            <span className="flex items-center gap-1 font-semibold text-slate-200">
+                              <Activity className="h-3.5 w-3.5 text-emerald-400" />
+                              Node 2 (Frontal Headband)
+                            </span>
+                            <span className="font-mono-hud text-[10px] font-bold text-emerald-300">
+                              {biomarkers.systolicBP}/{biomarkers.diastolicBP} mmHg · PI {biomarkers.perfusionIndex.toFixed(1)}% · SpO₂ {biomarkers.spo2Percent}%
+                            </span>
+                          </div>
+                          <p className="mt-0.5 text-[10px] leading-snug text-slate-400">
+                            {node2Verdict}
+                          </p>
+                        </div>
+
+                        <div
+                          className={`rounded-lg border p-2 ${STATUS_BADGE_STYLES[node3Status].border} bg-[#070c17]`}
+                        >
+                          <div className="flex items-center justify-between gap-1">
+                            <span className="flex items-center gap-1 font-semibold text-slate-200">
+                              <Watch className="h-3.5 w-3.5 text-amber-400" />
+                              Node 3 &amp; Cabin ECLSS
+                            </span>
+                            <span className="font-mono-hud text-[10px] font-bold text-amber-300">
+                              Collar {biomarkers.stressLevel}% · CO₂ {env.co2MmHg.toFixed(1)} · {biomarkers.dailyRadiationMsv.toFixed(2)} mSv
+                            </span>
+                          </div>
+                          <p className="mt-0.5 text-[10px] leading-snug text-slate-400">
+                            {node3Verdict}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* STAGE 3: Active Functional Confirmation (PVT + ASTRO Node 3 Voice Loop) */}
+                  <div className="flex flex-col justify-between rounded-xl border border-[#182742] bg-[#091120] p-3.5">
+                    <div className="space-y-2.5">
+                      <div className="flex items-center justify-between gap-2 border-b border-[#182742] pb-2">
+                        <span className="flex items-center gap-1.5 font-mono-hud text-[11px] font-bold uppercase tracking-wider text-cyan-300">
+                          <Headphones className="h-3.5 w-3.5" />
+                          Stage 3 · PVT + ASTRO Loop
+                        </span>
+                        <span
+                          className={`rounded border px-1.5 py-0.5 font-mono-hud text-[10px] font-bold ${STATUS_BADGE_STYLES[pvtStatus].pill}`}
+                        >
+                          PVT {effectivePvtMs} ms
+                        </span>
+                      </div>
+
+                      <div className="rounded-lg border border-[#182742] bg-[#070c17] p-2.5 text-[11px]">
+                        <div className="flex items-center justify-between">
+                          <span className="font-semibold text-slate-200">
+                            Psychomotor Vigilance (PVT)
+                          </span>
+                          <span
+                            className={`font-mono-hud font-bold ${STATUS_BADGE_STYLES[pvtStatus].text}`}
+                          >
+                            {effectivePvtMs} ms (NASA &lt; 280 ms)
+                          </span>
+                        </div>
+                        <p className="mt-1 text-[10px] text-slate-400">
+                          Cross-verifies cognitive reaction speed against optical PERCLOS drowsiness and autonomic HRV.
+                        </p>
+                      </div>
+
+                      <div className="rounded-lg border border-emerald-500/35 bg-emerald-950/25 p-2.5 text-[11px]">
+                        <div className="text-[10px] font-mono-hud font-bold uppercase tracking-wider text-emerald-300">
+                          Multimodal Diagnostic Certainty
+                        </div>
+                        <div className="mt-0.5 font-mono-hud text-sm font-bold text-slate-100">
+                          {certaintyPct}% Confirmed
+                        </div>
+                        <div className="mt-0.5 text-[10px] text-emerald-200/90">
+                          Optical CV + Bio-Monitor 3N ({alignedSystemsCount}/3) + NASA HRP Baseline
+                        </div>
+                      </div>
+
+                      {astroConfirmedText && (
+                        <div className="rounded-lg border border-cyan-500/30 bg-[#070c17] p-2 text-[10.5px] leading-relaxed text-cyan-100">
+                          <strong className="font-mono-hud text-cyan-300">
+                            ASTRO (Node 3 BLE Earpiece):
+                          </strong>{" "}
+                          {astroConfirmedText}
+                        </div>
+                      )}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleConfirmWithAstro}
+                      className={`mt-3 flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold transition ${
+                        isSpeakingAstro
+                          ? "border border-amber-400/60 bg-amber-600 text-white hover:bg-amber-500"
+                          : "border border-cyan-400/45 bg-cyan-600 text-white hover:bg-cyan-500"
+                      }`}
+                    >
+                      {isSpeakingAstro ? (
+                        <>
+                          <VolumeX className="h-4 w-4" />
+                          Stop ASTRO Audio (Node 3)
+                        </>
+                      ) : (
+                        <>
+                          <Volume2 className="h-4 w-4" />
+                          Confirm with &ldquo;ASTRO&rdquo; (Node 3 Loop)
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -794,7 +1222,7 @@ export default function MultimodalScanModal({
               <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
-                  onClick={onClose}
+                  onClick={handleCloseModal}
                   className="cursor-pointer rounded-xl border border-[#1b2d4b] bg-[#091120] px-4 py-2 text-xs font-medium text-slate-300 transition hover:border-slate-500 hover:text-slate-100"
                 >
                   Cancel
@@ -803,7 +1231,7 @@ export default function MultimodalScanModal({
                   type="button"
                   onClick={() => {
                     onApplyManualEntry(draftBio, draftRoutine);
-                    onClose();
+                    handleCloseModal();
                   }}
                   className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-sky-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-sky-500"
                 >
