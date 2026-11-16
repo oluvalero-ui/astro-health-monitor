@@ -6,6 +6,7 @@ import {
   AlertTriangle,
   CheckCircle2,
   Gauge,
+  Headphones,
   HeartPulse,
   Mic,
   Radiation,
@@ -138,7 +139,7 @@ export default function WearableHarnessPanel({
               Bio-Monitor 3N · Continuous Wearable Telemetry (CSA / NASA)
             </h2>
             <p className="mt-0.5 text-xs text-slate-400">
-              Offline autonomous continuous monitoring across 3 body nodes: thoracic vest, frontal headband, and wrist/neck array.
+              Offline autonomous continuous monitoring (13 physiological signs) across 3 body nodes: thoracic vest, frontal headband, and Node 3 (dosimetric wristband, laryngeal collar &amp; BLE bone-conduction/in-ear earpiece).
             </p>
           </div>
         </div>
@@ -417,10 +418,10 @@ export default function WearableHarnessPanel({
                 </span>
                 <div>
                   <h3 className="text-xs font-bold uppercase tracking-wider text-slate-100">
-                    Radial Node (Wrist & Neck)
+                    Node 3: Wrist, Laryngeal Collar &amp; Earpiece
                   </h3>
                   <p className="text-[11px] text-slate-400">
-                    Space radiation dosimetry & vocal strain
+                    Dosimetric Wristband, Laryngeal Collar &amp; Bone-Conduction / In-Ear BLE Earpiece
                   </p>
                 </div>
               </div>
@@ -461,10 +462,33 @@ export default function WearableHarnessPanel({
               <TelemetryBadge
                 label="Vocal Equanimity"
                 value={`${100 - b.facialTension}% calm`}
-                meta={`Strain today: ${b.stressLevel}% · Neck accelerometry without voice capture`}
+                meta={`Strain today: ${b.stressLevel}% · Piezo laryngeal collar (~60 dBA ECLSS noise-immune)`}
                 status={evaluateStressStatus(b.stressLevel)}
                 onClick={() => onSelectSystemZone?.("cerebro")}
               />
+            </div>
+
+            {/* Node 3 Two-Way Hands-Free ASTRO Audio Loop (Hardware Description, 13 Signs Intact) */}
+            <div className="mt-2.5 rounded-xl border border-[#182742] bg-[#091120] p-2.5 text-[11px] leading-relaxed text-slate-300">
+              <div className="flex items-center justify-between gap-1.5 font-mono-hud text-[10px] font-bold uppercase tracking-wider text-cyan-300">
+                <span className="flex items-center gap-1.5">
+                  <Headphones className="h-3.5 w-3.5 text-cyan-400" />
+                  Two-Way Hands-Free &ldquo;ASTRO&rdquo; Audio Loop
+                </span>
+                <span className="rounded border border-cyan-500/30 bg-cyan-500/10 px-1.5 py-0.5 text-[9px] text-cyan-200">
+                  BLE · 0g PRIVATE
+                </span>
+              </div>
+              <ul className="mt-1.5 space-y-1 text-[10.5px] text-slate-300">
+                <li>
+                  <strong className="text-slate-100">Piezoelectric Laryngeal Collar:</strong>{" "}
+                  Captures crew speech via mechanical micro-vibrations (100% immune to constant ~60 dBA cabin ECLSS fan noise).
+                </li>
+                <li>
+                  <strong className="text-slate-100">Bone-Conduction / In-Ear BLE Earpiece:</strong>{" "}
+                  Delivers <strong className="text-cyan-300">&ldquo;ASTRO&rdquo;</strong> clinical alerts and spoken guidance directly to the ear—creating a private, hands-free two-way channel that avoids disturbing crew sleep shifts.
+                </li>
+              </ul>
             </div>
 
             {/* Calibration Age Pill */}

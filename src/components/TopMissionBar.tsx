@@ -232,8 +232,16 @@ export default function TopMissionBar({
       q.includes("mental") ||
       q.includes("harness") ||
       q.includes("suit") ||
+      q.includes("vest") ||
+      q.includes("sensor") ||
       q.includes("wearable") ||
+      q.includes("bio-monitor") ||
+      q.includes("biomonitor") ||
       q.includes("3n") ||
+      q.includes("earpiece") ||
+      q.includes("bone") ||
+      q.includes("laryngeal") ||
+      q.includes("collar") ||
       q.includes("scanner") ||
       q.includes("manual") ||
       q.includes("nasa") ||
@@ -324,11 +332,15 @@ export default function TopMissionBar({
       q.includes("wearable") ||
       q.includes("bio-monitor") ||
       q.includes("biomonitor") ||
-      q.includes("3n")
+      q.includes("3n") ||
+      q.includes("earpiece") ||
+      q.includes("bone") ||
+      q.includes("laryngeal") ||
+      q.includes("collar")
     ) {
       onNavigateSection("wearable");
       speakAstroText(
-        `Switching to the Bio-Monitor 3N telemetry harness view. Here you can inspect all 13 continuous streams across your 3 body nodes. What else would you like to check?`
+        `Switching to the Bio-Monitor 3N telemetry harness view. Here you can inspect all 13 continuous streams across your 3 body nodes, plus our private two-way link via the Node 3 laryngeal collar and BLE bone-conduction earpiece. What else would you like to check?`
       );
       return;
     }
@@ -832,7 +844,7 @@ export default function TopMissionBar({
                 ? "border-cyan-400/70 bg-cyan-500/20 text-cyan-200"
                 : "border-cyan-500/35 bg-cyan-500/10 text-cyan-200 hover:bg-cyan-500/20"
             }`}
-            title="ASTRO Voice Assistant: ask about vitals or navigate sections"
+            title="ASTRO Voice Assistant (0g Voice) · Hands-free two-way link via Node 3 Laryngeal Collar & Bone-Conduction / In-Ear BLE Earpiece (3N Harness)"
           >
             {listening ? (
               <>
@@ -916,9 +928,12 @@ export default function TopMissionBar({
                 <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-cyan-400/40 bg-cyan-500/20 text-cyan-300">
                   <Sparkles className="h-4 w-4" />
                 </span>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className="font-mono-hud text-xs font-bold tracking-wider text-cyan-300">
-                    ASTRO · VOICE ASSISTANT
+                    ASTRO · VOICE ASSISTANT (0g)
+                  </span>
+                  <span className="rounded-full border border-cyan-500/30 bg-cyan-500/10 px-2 py-0.5 font-mono-hud text-[10px] text-cyan-200">
+                    Node 3 Link: Laryngeal Collar (~60 dBA immune) + BLE Bone-Conduction Earpiece
                   </span>
                   <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 font-mono-hud text-[10px] text-emerald-300">
                     Section: {SECTION_DISPLAY_NAMES[activeSection] ?? activeSection.toUpperCase()}

@@ -121,13 +121,16 @@ export default function ScientificReferencesContent({
           </div>
           <div className="rounded-lg border border-[#182742] bg-[#0c1426] p-3 text-xs">
             <div className="font-bold text-slate-100">
-              Radial Node & Gravity Calibration
+              Node 3: Dosimetric Wristband, Laryngeal Collar &amp; BLE Earpiece
             </div>
             <p className="mt-1 leading-relaxed text-slate-300">
-              Pairs personal wrist dosimetry (mSv/day) with laryngeal neck
-              accelerometry (quantifying vocal cord strain without audio
-              recording). When gravity changes (0g, 0.16g, 0.38g), a 30 s cuff
-              check recalibrates optical PTT vascular curves.
+              Integrates personal wrist dosimetry (mSv/day), a piezoelectric
+              laryngeal collar (capturing vocal strain and crew speech via
+              mechanical micro-vibrations, 100% immune to ~60 dBA ECLSS fan
+              noise), and a low-power bone-conduction / in-ear BLE earpiece
+              that returns private, hands-free &ldquo;ASTRO&rdquo; clinical
+              guidance without disturbing crew sleep shifts. Includes 30 s cuff
+              calibration for gravity transitions.
             </p>
           </div>
         </div>

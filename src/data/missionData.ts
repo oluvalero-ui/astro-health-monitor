@@ -835,7 +835,7 @@ export const SCIENTIFIC_REFERENCES: ScientificReferenceSection[] = [
         detail:
           "Canadian biomedical programs prioritize non-invasive sensors (guided ultrasound, optical/salivary assays, wearable Bio-Monitor) operable by non-physician crew.",
         appMapping:
-          "Modular Bio-Monitor 3N wearable network (Chest · Head · Finger), facial/posture CV scanner, and plain-language clinical guides.",
+          "Modular Bio-Monitor 3N wearable network (Thoracic Vest · Frontal Headband · Node 3 Wristband, Laryngeal Collar & BLE Bone-Conduction Earpiece), facial/posture CV scanner, and plain-language clinical guides.",
       },
     ],
   },
