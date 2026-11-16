@@ -17,141 +17,141 @@ export const MISSION_ENVIRONMENTS: Record<
 > = {
   iss: {
     id: "iss",
-    name: "Estación Espacial (ISS)",
-    shortName: "ISS (Órbita Baja)",
-    agencyProgram: "Órbita Terrestre Baja · 408 km",
+    name: "International Space Station (ISS)",
+    shortName: "ISS (Low Earth Orbit)",
+    agencyProgram: "Low Earth Orbit · 408 km",
     gravityG: 0.0,
-    gravityLabel: "0.00g (Microgravedad)",
+    gravityLabel: "0.00g (Microgravity)",
     dailyRadiationMsv: 0.45,
-    radiationFactorLabel: "0.45 mSv/día (Protección parcial magnetosfera)",
+    radiationFactorLabel: "0.45 mSv/day (Partial magnetosphere shielding)",
     commLatencySeconds: 0.4,
-    commLatencyLabel: "< 0.5 seg (Enlace casi real)",
-    commProtocol: "Enlace Directo TDRS S/Ku-Band",
+    commLatencyLabel: "< 0.5 sec (Near real-time link)",
+    commProtocol: "TDRS Direct Link S/Ku-Band",
     cabinPressureKpa: 101.3,
     co2MmHg: 2.3,
     description:
-      "Laboratorio orbital con soporte rápido desde Tierra, ciclos de 16 amaneceres cada 24 h y ejercicio resistivo diario obligatorio (ARED).",
+      "Orbital laboratory with rapid Earth Flight Surgeon support, 16 orbital sunrise cycles per 24 h, and mandatory daily resistive exercise (ARED).",
     boneLoadFactor: 1.0,
     isolationRiskBonus: 0,
     alerts: [
       {
         id: "iss-co2",
-        title: "Acumulación localizada de CO₂",
+        title: "Localized CO₂ Accumulation",
         severity: "optimal",
         detail:
-          "Ventilación nominal (2.3 mmHg). En microgravedad el aire no circula solo; mantener ventiladores activos cerca del rostro.",
+          "Nominal ventilation (2.3 mmHg). In microgravity, air does not circulate naturally; keep personal airflow fans active near the face.",
       },
       {
         id: "iss-circadian",
-        title: "16 ciclos día/noche orbitales",
+        title: "16 Orbital Day/Night Cycles",
         severity: "warning",
         detail:
-          "Luz solar externa cambia cada 45 min. Usar iluminación LED programada de cabina para proteger la melatonina.",
+          "External sunlight shifts every 45 min. Use scheduled cabin LED lighting (SSLA) to protect melatonin synthesis.",
       },
     ],
   },
   nave: {
     id: "nave",
-    name: "Nave Espacial (Tránsito)",
-    shortName: "Nave Espacial",
-    agencyProgram: "Tránsito Cislunar / Espacio Profundo · Orion",
+    name: "Spacecraft (Transit)",
+    shortName: "Spacecraft",
+    agencyProgram: "Cislunar / Deep Space Transit · Orion",
     gravityG: 0.0,
-    gravityLabel: "0.00g (Microgravedad)",
+    gravityLabel: "0.00g (Microgravity)",
     dailyRadiationMsv: 1.25,
-    radiationFactorLabel: "1.25 mSv/día (Fuera de magnetosfera protectora)",
+    radiationFactorLabel: "1.25 mSv/day (Outside protective magnetosphere)",
     commLatencySeconds: 110,
-    commLatencyLabel: "1 min 50 seg (Ida y vuelta ~3.6 min)",
-    commProtocol: "Red de Espacio Profundo (DSN)",
+    commLatencyLabel: "1 min 50 sec (Round trip ~3.6 min)",
+    commProtocol: "Deep Space Network (DSN)",
     cabinPressureKpa: 70.3,
     co2MmHg: 3.1,
     description:
-      "Cabina compacta de tránsito fuera de la protección magnética terrestre. Mayor exposición a partículas solares y espacio habitable reducido.",
+      "Compact transit cabin beyond Earth's magnetic shielding. Elevated exposure to solar particles and reduced habitable volume.",
     boneLoadFactor: 1.15,
     isolationRiskBonus: 10,
     alerts: [
       {
         id: "nave-rad",
-        title: "Exposición elevada fuera de órbita baja",
+        title: "Elevated Exposure Beyond LEO",
         severity: "warning",
         detail:
-          "La radiación cósmica galáctica sube a ~1.25 mSv/día. Vigilar dosímetro CSA y preparar refugio ante tormentas solares.",
+          "Galactic cosmic radiation increases to ~1.25 mSv/day. Monitor CSA dosimeter and prepare storm shelter protocols.",
       },
       {
         id: "nave-space",
-        title: "Confinamiento en volumen reducido",
+        title: "Confinement in Reduced Volume",
         severity: "warning",
         detail:
-          "Menor espacio físico aumenta el estrés interpersonal y fatiga postural. Priorizar pausas cognitivas y estiramientos.",
+          "Smaller habitable volume elevates interpersonal stress and postural fatigue. Prioritize cognitive breaks and stretching.",
       },
     ],
   },
   luna: {
     id: "luna",
-    name: "Base Lunar (Programa Artemis)",
-    shortName: "Base Lunar Artemis",
-    agencyProgram: "Polo Sur Lunar · Programa Artemis",
+    name: "Lunar Base (Artemis Program)",
+    shortName: "Artemis Lunar Base",
+    agencyProgram: "Lunar South Pole · Artemis Program",
     gravityG: 0.16,
-    gravityLabel: "0.16g (1/6 Gravedad Terrestre)",
+    gravityLabel: "0.16g (1/6 Earth Gravity)",
     dailyRadiationMsv: 0.95,
-    radiationFactorLabel: "0.95 mSv/día (Sin atmósfera ni campo magnético)",
+    radiationFactorLabel: "0.95 mSv/day (No atmosphere or magnetic field)",
     commLatencySeconds: 2.6,
-    commLatencyLabel: "2.6 seg (Ida y vuelta)",
-    commProtocol: "Relé Lunar Gateway / Banda Ka",
+    commLatencyLabel: "2.6 sec (Round trip)",
+    commProtocol: "Lunar Gateway Relay / Ka-Band",
     cabinPressureKpa: 56.5,
     co2MmHg: 2.8,
     description:
-      "Hábitat presurizado en superficie lunar. Gravedad parcial ayuda levemente al equilibrio, pero persiste pérdida ósea y riesgo por polvo lunar.",
+      "Pressurized lunar surface habitat. Partial gravity slightly aids balance, though bone density loss and abrasive lunar dust risks persist.",
     boneLoadFactor: 0.85,
     isolationRiskBonus: 8,
     alerts: [
       {
         id: "luna-dust",
-        title: "Control de polvo lunar abrasivo",
+        title: "Abrasive Lunar Dust Mitigation",
         severity: "warning",
         detail:
-          "Tras caminatas lunares (EVA), verificar sellos y filtración de aire para evitar irritación respiratoria o cutánea.",
+          "After lunar EVAs, inspect suit seals and air filtration to prevent respiratory or dermal irritation.",
       },
       {
         id: "luna-rad",
-        title: "Radiación superficial y eyección secundaria",
+        title: "Surface Radiation & Secondary Ejecta",
         severity: "warning",
         detail:
-          "Sin atmósfera protectora, el blindaje de regolito reduce exposición dentro del hábitat a 0.95 mSv/día.",
+          "Without atmospheric protection, regolith shielding reduces internal habitat exposure to 0.95 mSv/day.",
       },
     ],
   },
   marte: {
     id: "marte",
-    name: "Rover en Marte",
-    shortName: "Rover en Marte",
-    agencyProgram: "Exploración Superficial Marciana · Sol 142",
+    name: "Mars Surface Rover",
+    shortName: "Mars Rover",
+    agencyProgram: "Martian Surface Exploration · Sol 142",
     gravityG: 0.38,
-    gravityLabel: "0.38g (Gravedad Marciana)",
+    gravityLabel: "0.38g (Martian Gravity)",
     dailyRadiationMsv: 1.65,
-    radiationFactorLabel: "1.65 mSv/día (Atmósfera muy tenue, alto GCR)",
+    radiationFactorLabel: "1.65 mSv/day (Thin atmosphere, high GCR)",
     commLatencySeconds: 860,
-    commLatencyLabel: "14 min 20 seg (Solo ida · 28m 40s RTT)",
-    commProtocol: "Autonomía Médica + Almacenar y Reenviar",
+    commLatencyLabel: "14 min 20 sec (One-way · 28m 40s RTT)",
+    commProtocol: "Medical Autonomy + Store & Forward",
     cabinPressureKpa: 58.0,
     co2MmHg: 3.4,
     description:
-      "Exploración móvil autónoma a millones de kilómetros de la Tierra. Imposibilidad de conversaciones en vivo con médicos y alto aislamiento visual.",
+      "Autonomous mobile exploration millions of kilometers from Earth. Real-time consultation with flight surgeons is impossible; extreme visual isolation.",
     boneLoadFactor: 0.65,
     isolationRiskBonus: 18,
     alerts: [
       {
         id: "marte-comms",
-        title: "Latencia extrema con cirujanos de vuelo (14m 20s)",
+        title: "Extreme Latency to Flight Surgeons (14m 20s)",
         severity: "critical",
         detail:
-          "No hay consultas médicas en tiempo real. La tripulación debe ejecutar primeros auxilios y protocolos autónomos de inmediato.",
+          "No real-time medical consultation available. Crew must execute autonomous first-aid and clinical protocols immediately.",
       },
       {
         id: "marte-iso",
-        title: "Efecto 'Tierra como punto pálido' y Sol de 24h39m",
+        title: "'Earth-out-of-View' Effect & 24h39m Sol",
         severity: "warning",
         detail:
-          "Mayor riesgo de soledad, aburrimiento y desajuste del sueño por día marciano más largo. Cumplir tareas diarias.",
+          "Increased risk of loneliness, monotony, and circadian drift caused by the longer Martian Sol. Maintain daily countermeasures.",
       },
     ],
   },
@@ -160,276 +160,276 @@ export const MISSION_ENVIRONMENTS: Record<
 export const SYSTEM_DIAGNOSTIC_GUIDES: Record<SystemZoneId, SystemDiagnosticGuide> = {
   cerebro: {
     id: "cerebro",
-    name: "Cerebro / Mente",
-    shortTitle: "Cerebro y Salud Mental",
+    name: "Brain / Behavioral",
+    shortTitle: "Neurocognitive & Behavioral Health",
     subtitle:
-      "Cansancio mental, estrés, tristeza/depresión, soledad, aburrimiento y sueño",
+      "Mental fatigue, stress, depressive mood, loneliness, monotony, and sleep architecture",
     monitoredVariables: [
-      "Cansancio mental y tiempo de reacción",
-      "Nivel de estrés y riesgo de depresión",
-      "Sensación de soledad y aburrimiento",
-      "Horas y regularidad del sueño",
+      "Mental fatigue and reaction time",
+      "Stress index and depressive mood risk",
+      "Perceived loneliness and boredom",
+      "Sleep duration and circadian regularity",
     ],
     howToPerform: [
-      "Siéntate tranquilo durante 2 minutos frente a la consola sin usar luces brillantes.",
-      "Completa el cuestionario rápido de 30 segundos sobre ánimo, energía y ganas de socializar.",
-      "Realiza la prueba de toque rápido en pantalla (evalúa cuánto tardas en reaccionar).",
-      "Verifica en tu reloj de misión cuántas horas dormiste sin interrupciones la noche anterior.",
+      "Sit quietly for 2 minutes in front of the console away from glare or bright lights.",
+      "Complete the 30-second self-report check on mood, energy, and social motivation.",
+      "Perform the on-screen reaction-time tap test to measure psychomotor speed.",
+      "Verify uninterrupted sleep hours from the previous night on your mission wrist log.",
     ],
     whyNecessary:
-      "En el espacio tu cerebro trabaja sin referencias naturales de día y noche, lejos de tu familia y con tareas muy repetitivas. Si el cansancio mental o la tristeza crecen sin avisar, puedes cometer errores peligrosos al operar la nave o desconectarte de tus compañeros.",
+      "In space your brain operates without natural sunrise/sunset cues, far from family, under repetitive workloads. Unnoticed mental fatigue or depressive drift increases human error during critical spacecraft operations and degrades crew cohesion.",
     fiveHazardsImpact: {
       radiation:
-        "Las partículas cósmicas atraviesan el casco y pueden inflamar suavemente las neuronas, provocando lentitud mental o cambios de ánimo.",
+        "Cosmic particles penetrate spacecraft hull shielding and can induce low-grade neuroinflammation, slowing cognition or altering mood.",
       isolation:
-        "Estar meses con el mismo grupo pequeño en un lugar cerrado aumenta la sensación de soledad, irritabilidad y aburrimiento.",
+        "Spending months with a small crew in a confined module increases loneliness, irritability, and chronic monotony.",
       distance:
-        "Cuando la Tierra se ve diminuta o las llamadas tardan minutos en llegar, el astronauta siente que está completamente solo ante problemas.",
+        "When Earth shrinks out of view and communication delays reach minutes, crew members experience acute psychological autonomy pressure.",
       gravity:
-        "Al flotar, sube más sangre hacia la cabeza y aumenta la presión dentro del cráneo, causando dolor de cabeza y sueño fragmentado.",
+        "Cephalad fluid shift raises intracranial pressure in microgravity, contributing to headaches and fragmented sleep.",
       closedEnvironment:
-        "El ruido constante de ventiladores, olores reciclados y niveles altos de CO₂ provocan pesadez mental y dificultad para concentrarse.",
+        "Continuous fan noise, recycled cabin odors, and elevated CO₂ cause cognitive heaviness and difficulty concentrating.",
     },
     attentionThreshold: {
-      optimal: "Sueño ≥ 7 h, reacción < 320 ms, estrés y tristeza < 40/100.",
+      optimal: "Sleep ≥ 7 h, reaction < 320 ms, stress and depression risk < 40/100.",
       warning:
-        "Dormir menos de 6 horas por 2 días seguidos, reacción > 370 ms, o aburrimiento/soledad > 60/100.",
+        "Sleep < 6 hours for 2 consecutive nights, reaction > 370 ms, or boredom/loneliness > 60/100.",
       critical:
-        "Sueño < 4.5 horas, reacción > 470 ms, o signos claros de agotamiento mental, tristeza profunda (> 75) o confusión.",
+        "Sleep < 4.5 hours, reaction > 470 ms, or clear signs of exhaustion, deep sadness (> 75), or disorientation.",
       flightSurgeonNote:
-        "Si pasa a Amarillo por 48h o Rojo una sola vez, enviar resumen al psicólogo de vuelo en Tierra y reasignar tareas críticas.",
+        "If Caution persists for 48h or any Critical trigger occurs, transmit summary to Ground Flight Psychologist and reassign critical ops.",
     },
     preventiveCountermeasures: [
-      "Tomar una pausa de 15 minutos con luz cálida y música o un videomensaje grabado de familiares.",
-      "Mantener horario fijo para dormir usando antifaz y tapones auditivos.",
-      "Cambiar de actividad durante 20 minutos (juegos de agilidad mental o charla con un compañero) para cortar la monotonía.",
+      "Take a 15-minute break under warm lighting with music or a pre-recorded family video message.",
+      "Maintain a fixed sleep schedule using sleep mask and acoustic ear protection.",
+      "Switch activities for 20 minutes (cognitive agility exercises or peer conversation) to break monotony.",
     ],
   },
   rostro: {
     id: "rostro",
-    name: "Rostro / Postura",
-    shortTitle: "Expresión y Lenguaje Corporal",
+    name: "Face / Posture",
+    shortTitle: "Facial & Postural Telemetry",
     subtitle:
-      "Expresiones faciales, tensión ocular y postura corporal detectadas por cámara",
+      "Facial micro-expressions, ocular tension, and upper-body posture tracked via camera",
     monitoredVariables: [
-      "Postura de hombros y cuello (encorvamiento)",
-      "Tensión facial y frecuencia de parpadeo",
-      "Señales visuales de cansancio o apatía",
+      "Shoulder and cervical posture (slump angle)",
+      "Facial tension and blink rate",
+      "Visual markers of exhaustion or flat affect",
     ],
     howToPerform: [
-      "Abre la pestaña 'Cámara: Lenguaje Corporal y Expresiones' dentro de Nueva Evaluación.",
-      "Colócate a unos 50 cm de la cámara de la consola con iluminación frontal pareja.",
-      "Mira hacia la cámara durante 5 segundos de forma natural sin forzar una sonrisa.",
-      "El sistema medirá automáticamente la caída de hombros, la apertura de ojos y la rigidez del rostro.",
+      "Open the 'Computer Vision (Face & Posture)' tab inside New Clinical Assessment.",
+      "Position yourself ~50 cm from the console camera under even frontal lighting.",
+      "Look steadily toward the camera for 5 seconds with a relaxed expression.",
+      "The system automatically quantifies shoulder droop, eye aperture, and facial muscle stiffness.",
     ],
     whyNecessary:
-      "Muchas veces los astronautas dicen 'estoy bien' por orgullo profesional, aunque estén agotados o deprimidos. La cámara detecta señales silenciosas en el cuerpo y la cara antes de que la persona admita que necesita descanso.",
+      "Crew members frequently report feeling 'nominal' out of mission duty even while fatigued or depressed. Optical computer vision detects silent neuromuscular cues before subjective distress is acknowledged.",
     fiveHazardsImpact: {
       radiation:
-        "La fatiga biológica provocada por dosis acumuladas de radiación se refleja rápido como párpados pesados y menor expresividad.",
+        "Cumulative radiation-related biological fatigue manifests early as heavy eyelids and reduced facial expressiveness.",
       isolation:
-        "Pasar semanas aislado reduce la expresión emocional del rostro ('rostro plano') y hace que la persona adopte posturas cerradas.",
+        "Weeks of confinement flatten emotional expressiveness ('flat affect') and encourage closed, hunched postures.",
       distance:
-        "Con comunicación diferida, los psicólogos en Tierra no pueden verte en vivo todo el tiempo; la cámara local llena ese vacío.",
+        "With delayed communications, ground psychologists cannot observe crew continuously; onboard vision fills this monitoring gap.",
       gravity:
-        "Sin gravedad, los líquidos suben a la cara ('cara hinchada espacial') y la columna se estira; si no hay ejercicio, aparece postura encorvada al trabajar en consolas.",
+        "Without gravity, fluids pool in the face ('puffy-face syndrome') and spinal elongation causes forward slouching over consoles.",
       closedEnvironment:
-        "El aire seco y las partículas flotantes irritan los ojos, aumentando el parpadeo tenso y la fatiga visual frente a pantallas.",
+        "Dry recycled cabin air and particulates irritate the eyes, increasing strained blinking and visual screen fatigue.",
     },
     attentionThreshold: {
-      optimal: "Postura erguida ≥ 75/100 y tensión facial < 35/100.",
+      optimal: "Upright posture ≥ 75/100 and facial tension < 35/100.",
       warning:
-        "Hombros caídos repetidos (postura < 65) o tensión ocular/facial entre 45 y 70.",
+        "Repeated shoulder slump (posture < 65) or facial/ocular tension between 45 and 70.",
       critical:
-        "Postura de agotamiento severo (< 45/100), mirada perdida o tensión > 75/100 acompañada de micro-siestas involuntarias.",
+        "Severe exhaustion posture (< 45/100), vacant gaze, or tension > 75/100 with involuntary micro-sleeps.",
       flightSurgeonNote:
-        "Adjuntar captura de métricas faciales al reporte diario y suspender caminatas espaciales o manejo de brazo robótico hasta descansar.",
+        "Attach camera biometric capture to daily medical log and suspend EVAs or robotics ops pending recovery.",
     },
     preventiveCountermeasures: [
-      "Hacer 5 minutos de estiramientos de cuello, espalda y pecho cada 2 horas de trabajo en pantalla.",
-      "Aplicar gotas lubricantes oculares y apartar la vista de monitores mirando a otro módulo.",
-      "Conversar cara a cara con un compañero de tripulación durante la comida.",
+      "Perform 5 minutes of neck, dorsal, and chest stretches every 2 hours of console work.",
+      "Apply lubricating eye drops and shift gaze away from displays toward a distant module bulkhead.",
+      "Engage in face-to-face conversation with a crewmate during meal periods.",
     ],
   },
   corazon: {
     id: "corazon",
-    name: "Corazón / Tórax",
-    shortTitle: "Corazón y Circulación",
+    name: "Heart / Thorax",
+    shortTitle: "Cardiovascular & Pulmonary",
     subtitle:
-      "Pulsaciones por minuto (BPM), presión arterial y capacidad cardiovascular",
+      "Heart rate (BPM), arterial blood pressure, and autonomic vascular adaptation",
     monitoredVariables: [
-      "Pulsaciones por minuto (BPM) en reposo",
-      "Presión arterial (mmHg)",
-      "Adaptación de flujo sanguíneo en microgravedad",
+      "Resting heart rate (BPM)",
+      "Arterial blood pressure (mmHg)",
+      "Microgravity hemodynamic fluid shift",
     ],
     howToPerform: [
-      "Coloca el sensor óptico en tu dedo o la banda pectoral de telemetría tras 5 minutos sentado/quieto.",
-      "Ponte el brazalete automático de presión arterial en el brazo izquierdo a la altura del corazón.",
-      "Presiona 'Medir' y no hables ni muevas el brazo durante 40 segundos.",
-      "Anota o sincroniza las pulsaciones (BPM) y los dos números de la presión arterial.",
+      "Ensure the Bio-Monitor 3N chest harness or finger SpO₂ optical clip is seated after 5 min at rest.",
+      "Place the automated BP cuff on the left arm aligned at heart level.",
+      "Initiate measurement and remain silent and still for 40 seconds.",
+      "Confirm synchronized BPM and systolic/diastolic pressure readings on the console.",
     ],
     whyNecessary:
-      "En la Tierra, tu corazón trabaja duro cada segundo para subir la sangre desde los pies contra la gravedad. En el espacio no tiene que hacer ese esfuerzo y puede volverse más débil y pequeño si no se vigila, causando mareos peligrosos al aterrizar o en una emergencia.",
+      "On Earth, the heart works continuously against gravity to pump blood upward from the legs. In space, reduced workload causes myocardial atrophy and orthostatic intolerance, creating syncope risk during landing or planetary EVAs.",
     fiveHazardsImpact: {
       radiation:
-        "La radiación espacial prolongada puede endurecer poco a poco las arterias y aumentar el riesgo cardiovascular a largo plazo.",
+        "Prolonged space radiation accelerates arterial stiffness and long-term cardiovascular disease risk.",
       isolation:
-        "El estrés emocional por encierro dispara adrenalina, acelerando el pulso en reposo y subiendo la presión arterial.",
+        "Chronic confinement elevates sympathetic adrenaline, raising resting heart rate and arterial pressure.",
       distance:
-        "Si ocurre un problema cardíaco lejos de la Tierra no hay ambulancia posible; detectar cambios de ritmo temprano salva vidas.",
+        "Deep-space crews have no emergency medevac option; early arrhythmia or hypotension detection is life-critical.",
       gravity:
-        "En microgravedad, unos 2 litros de sangre suben de las piernas al pecho y cabeza; el corazón cambia de forma y reduce su volumen.",
+        "In microgravity, ~2 liters of fluid shift from legs to thorax and head, remodeling cardiac chamber volume.",
       closedEnvironment:
-        "Si sube el CO₂ o el calor en la cabina, el corazón debe latir más rápido para repartir oxígeno suficiente.",
+        "Elevated cabin CO₂ or thermal load forces cardiac output upward to sustain oxygen delivery.",
     },
     attentionThreshold: {
-      optimal: "Pulso en reposo 55–85 BPM y presión cercana a 110–125 / 70–82 mmHg.",
+      optimal: "Resting HR 55–85 BPM and BP around 110–125 / 70–82 mmHg.",
       warning:
-        "Pulso en reposo > 95 BPM o < 48 BPM, o presión > 135/88 o < 95/60 mmHg.",
+        "Resting HR > 95 or < 48 BPM, or BP > 135/88 or < 95/60 mmHg.",
       critical:
-        "Pulso > 115 BPM en reposo, presión < 85/55 o > 155/95 mmHg, o sensación de mareo/palpitaciones en el pecho.",
+        "Resting HR > 115 BPM, BP < 85/55 or > 155/95 mmHg, or presyncope/palpitations.",
       flightSurgeonNote:
-        "Alerta prioritaria a los médicos de vuelo en Tierra. Enviar trazo de pulso y detener ejercicio intenso hasta valoración.",
+        "Issue priority alert to Ground Flight Surgeons. Downlink ECG strip and halt strenuous exercise pending evaluation.",
     },
     preventiveCountermeasures: [
-      "Cumplir 30–45 minutos de bicicleta fija o cinta de correr con arnés todos los días.",
-      "Beber líquidos con electrolitos antes de levantarse o entrar a zonas de mayor gravedad (Luna/Marte).",
-      "Practicar respiración lenta (inhala 4 seg, exhala 6 seg) si el pulso sube por estrés.",
+      "Complete 30–45 minutes of daily aerobic cycling (CEVIS) or harnessed treadmill running (T2).",
+      "Consume electrolyte fluids prior to re-entry or transitions into partial gravity (Moon/Mars).",
+      "Practice paced breathing (4 sec inhale, 6 sec exhale) when stress spikes heart rate.",
     ],
   },
   endocrino: {
     id: "endocrino",
-    name: "Sistema Endocrino / Inmunológico",
-    shortTitle: "Hormonas y Defensas",
+    name: "Endocrine / Immune",
+    shortTitle: "Hormones & Immune Defense",
     subtitle:
-      "Equilibrio hormonal (cortisol de estrés vs. melatonina del sueño) y defensas del cuerpo",
+      "Hormonal equilibrium (stress cortisol vs. sleep melatonin) and radiation immunity",
     monitoredVariables: [
-      "Índice de Cortisol (hormona del estrés)",
-      "Índice de Melatonina (hormona del sueño)",
-      "Dosis de radiación acumulada (CSA mSv)",
+      "Cortisol index (stress biomarker)",
+      "Melatonin index (circadian hormone)",
+      "Cumulative radiation dose (CSA mSv)",
     ],
     howToPerform: [
-      "Al despertar y antes de dormir, toma una muestra rápida de saliva con la tira reactiva del kit médico.",
-      "Inserta la tira en el lector portátil de la cabina durante 60 segundos para leer cortisol y melatonina.",
-      "Revisa tu dosímetro personal de radiación (inspirado en el sistema canadiense CSA) y registra los mSv del día.",
+      "Upon waking and prior to sleep, collect a rapid salivary sample using the medical kit swab.",
+      "Insert test strip into the portable cabin reader for 60 seconds to quantify cortisol and melatonin.",
+      "Verify your personal radiation dosimeter (CSA Radi-N2 architecture) and log daily mSv.",
     ],
     whyNecessary:
-      "Las hormonas son los mensajeros que le dicen a tu cuerpo cuándo estar alerta, cuándo dormir y cómo defenderse de infecciones. En el espacio el reloj interno se desordena y las defensas bajan, haciendo que virus dormidos (como un herpes simple) o alergias puedan reactivarse.",
+      "Hormones coordinate alertness, sleep cycles, and immune pathogen defense. In orbit, disrupted circadian cues and immune dysregulation can trigger viral reactivation (e.g., herpesviruses) or hypersensitivity reactions.",
     fiveHazardsImpact: {
       radiation:
-        "La radiación daña células de defensa en la sangre y altera glándulas que regulan hormonas y defensas.",
+        "Ionizing radiation damages circulating lymphocytes and disrupts neuroendocrine regulatory glands.",
       isolation:
-        "La tensión psicológica continua mantiene elevado el cortisol, lo cual frena el sistema inmune y dificulta cicatrizar.",
+        "Sustained psychological strain elevates baseline cortisol, suppressing immune recovery and tissue healing.",
       distance:
-        "A millones de kilómetros los medicamentos caducan o son limitados; mantener defensas fuertes evita enfermarse sin hospital.",
+        "Millions of kilometers from Earth, onboard pharmacy shelf-life is finite; maintaining innate immunity is essential.",
       gravity:
-        "La falta de gravedad altera cómo se comunican las células de defensa, reduciendo su capacidad de responder rápido a bacterias.",
+        "Microgravity alters leukocyte signaling pathways, slowing immune activation against bacterial pathogens.",
       closedEnvironment:
-        "En una cabina cerrada compartes aire y agua reciclada con los mismos microbios; si tus defensas bajan, los contagios son inmediatos.",
+        "Recycled cabin air and water circulate shared crew microbiomes; depressed immunity raises cross-infection risk.",
     },
     attentionThreshold: {
-      optimal: "Cortisol < 48/100, Melatonina entre 55–85/100 y radiación diaria estable.",
+      optimal: "Cortisol < 48/100, Melatonin 55–85/100, daily radiation within nominal range.",
       warning:
-        "Cortisol entre 55–72/100 o Melatonina < 45/100 por desajuste de horario.",
+        "Cortisol 55–72/100 or Melatonin < 45/100 from circadian schedule misalignment.",
       critical:
-        "Cortisol > 75/100 (estrés agudo sostenido), Melatonina < 30/100, o radiación diaria superior al límite de alerta.",
+        "Cortisol > 75/100 (sustained acute stress), Melatonin < 30/100, or daily radiation above alert threshold.",
       flightSurgeonNote:
-        "Reportar al equipo médico de Tierra para ajustar ciclos de luz azul/roja, suplemento de melatonina y revisar refugio radiológico.",
+        "Report to Ground Medical Team to recalibrate SSLA blue/red lighting, administer melatonin protocol, and verify storm shelter.",
     },
     preventiveCountermeasures: [
-      "Usar luz azul intensa durante las primeras horas de trabajo y luz tenue sin pantallas 1 hora antes de dormir.",
-      "Respetar pausas de descanso para bajar el cortisol tras actividades extravehiculares.",
-      "Mantener limpieza estricta de manos y filtros de cabina.",
+      "Expose eyes to bright blue-enriched lighting early in wake cycle and dim red-shifted light 1 h before sleep.",
+      "Enforce structured recovery pauses to lower cortisol after EVA or emergency drills.",
+      "Maintain strict hand hygiene and HEPA/charcoal cabin filter inspection.",
     ],
   },
   abdomen: {
     id: "abdomen",
-    name: "Abdomen / Metabolismo",
-    shortTitle: "Energía, Azúcar e Hidratación",
+    name: "Abdomen / Metabolism",
+    shortTitle: "Glycemia, Hydration & Nutrition",
     subtitle:
-      "Azúcar en la sangre (mg/dL), balance de agua en el cuerpo y nutrición",
+      "Blood glucose (mg/dL), total body hydration balance, core temperature, and nutrition",
     monitoredVariables: [
-      "Azúcar en la sangre (mg/dL)",
-      "Hidratación (% de balance hídrico)",
-      "Temperatura corporal (°C) y comidas cumplidas",
+      "Blood glucose (mg/dL)",
+      "Hydration status (% fluid balance)",
+      "Core body temperature (°C) and ration compliance",
     ],
     howToPerform: [
-      "Usa el sensor cutáneo continuo en el brazo (o punción capilar rápida) para leer tu glucosa en mg/dL.",
-      "Revisa tu botella dosificadora para confirmar cuántos litros de agua has bebido hoy (meta: 2.5 L).",
-      "Si sientes hinchazón o pesadez digestiva, aplica el cabezal de ultrasonido portátil con gel sobre el abdomen siguiendo las marcas guía.",
+      "Scan your continuous dermal glucose patch (or capillary strip) to obtain mg/dL.",
+      "Check metered hydration pouch consumption to verify daily intake (target: 2.5 L).",
+      "If experiencing bloating or GI discomfort, perform guided portable ultrasound over abdominal landmarks.",
     ],
     whyNecessary:
-      "En el espacio cambia la sensación de sed y el sabor de la comida, por lo que muchos astronautas comen o beben menos sin darse cuenta. Si baja el azúcar te mareas y pierdes fuerza; si te deshidratas, pueden formarse cálculos en los riñones.",
+      "Altered thirst signaling and blunted taste buds in microgravity frequently lead crew to undereat and underhydrate silently. Hypoglycemia causes rapid cognitive decline, while dehydration precipitates renal stones.",
     fiveHazardsImpact: {
       radiation:
-        "Puede alterar la flora intestinal normal y dificultar que el cuerpo aproveche vitaminas y antioxidantes.",
+        "Space radiation disrupts intestinal microbiota and impairs micronutrient/antioxidant absorption.",
       isolation:
-        "El estrés o aburrimiento cambia el apetito: hace que saltes comidas o pierdas el gusto por las raciones espaciales.",
+        "Monotony and stress reduce appetite, leading to skipped meals or menu fatigue.",
       distance:
-        "No llegan alimentos frescos de reabastecimiento en misiones a Marte; cada caloría y litro de agua reciclada cuenta.",
+        "Deep-space transit and Mars missions lack fresh resupply; every calorie and liter of reclaimed water matters.",
       gravity:
-        "Al flotar, los líquidos se distribuyen distinto y engañan al cerebro haciéndole creer que ya tiene suficiente agua, provocando deshidratación silenciosa.",
+        "Central blood volume redistribution blunts thirst baroreceptors, masking progressive dehydration.",
       closedEnvironment:
-        "La comida deshidratada o enlatada y el agua reciclada requieren vigilar sales minerales y digestión lenta por falta de gravedad.",
+        "Thermostabilized rations and reclaimed water require strict mineral monitoring alongside slower GI transit.",
     },
     attentionThreshold: {
-      optimal: "Azúcar 75–115 mg/dL, hidratación ≥ 80%, temperatura 36.2–37.2 °C.",
+      optimal: "Glucose 75–115 mg/dL, hydration ≥ 80%, core temp 36.2–37.2 °C.",
       warning:
-        "Azúcar 65–74 o 125–155 mg/dL, hidratación entre 68–79%, o saltarse una comida principal.",
+        "Glucose 65–74 or 125–155 mg/dL, hydration 68–79%, or missed primary ration.",
       critical:
-        "Azúcar < 65 mg/dL (riesgo de desmayo) o > 180 mg/dL, hidratación < 68%, o temperatura > 38.0 °C.",
+        "Glucose < 65 mg/dL (syncope risk) or > 180 mg/dL, hydration < 68%, or core temp > 38.0 °C.",
       flightSurgeonNote:
-        "Si la glucosa cae de 65 mg/dL o la hidratación baja de 68%, tratar como prioridad inmediata antes de notificar al cirujano de vuelo.",
+        "If glucose drops below 65 mg/dL or hydration < 68%, treat immediately aboard prior to Flight Surgeon notification.",
     },
     preventiveCountermeasures: [
-      "Beber un sobre de gel de glucosa o jugo espacial de inmediato si el azúcar baja de 70 mg/dL.",
-      "Programar alarmas cada 90 minutos para tomar 250 ml de agua con sales minerales.",
-      "Completar las 3 raciones diarias aunque no sientas hambre.",
+      "Ingest a glucose gel packet or carbohydrate drink immediately if glucose falls below 70 mg/dL.",
+      "Schedule 90-minute hydration timers to drink 250 mL electrolyte solution.",
+      "Complete all 3 daily food rations even if subjective hunger is low.",
     ],
   },
   musculo: {
     id: "musculo",
-    name: "Sistema Musculoesquelético",
-    shortTitle: "Huesos y Músculos",
+    name: "Musculoskeletal",
+    shortTitle: "Bone Density & Muscle",
     subtitle:
-      "Cansancio físico, fuerza muscular y pérdida de densidad de los huesos",
+      "Physical fatigue, muscular strength, and skeletal mineral density loss",
     monitoredVariables: [
-      "Cansancio físico acumulado (0–100)",
-      "Índice de densidad ósea (%)",
-      "Minutos diarios de ejercicio resistivo (ARED)",
+      "Cumulative physical fatigue (0–100)",
+      "Bone mineral density index (%)",
+      "Daily resistive exercise minutes (ARED)",
     ],
     howToPerform: [
-      "Después del ejercicio diario, evalúa del 1 al 10 qué tan fatigadas sientes piernas y espalda baja.",
-      "Una vez por semana, usa el escáner portátil de ultrasonido sobre el talón o fémur para medir la densidad del hueso.",
-      "Comprueba en el registro de ejercicio que completaste los minutos diarios de levantamiento de resistencia.",
+      "After daily exercise, rate perceived lower-limb and lumbar fatigue on a 1–10 scale.",
+      "Once weekly, scan calcaneus or proximal femur with portable ultrasound densitometry.",
+      "Confirm total resistive load minutes logged in your daily ARED training schedule.",
     ],
     whyNecessary:
-      "Sin el peso de la gravedad, los huesos liberan calcio y se vuelven frágiles muy rápido (hasta 1–1.5% por mes), y los músculos de las piernas se encogen. Si llegas a la Luna o Marte con huesos débiles, una simple caída puede causar una fractura grave.",
+      "Without gravitational loading, bones release calcium at 1–1.5% per month while postural leg muscles atrophy rapidly. Arriving on the Moon or Mars with fragile bones turns minor falls into mission-ending fractures.",
     fiveHazardsImpact: {
       radiation:
-        "La radiación cósmica acelera la destrucción del hueso sano y retrasa la reparación de fibras musculares fatigadas.",
+        "Cosmic ionizing radiation accelerates osteoclast bone resorption and impairs muscle fiber repair.",
       isolation:
-        "La falta de motivación por aburrimiento o tristeza suele hacer que el astronauta se salte sus rutinas de pesas.",
+        "Low motivation from mood decline can cause missed ARED heavy-load sessions.",
       distance:
-        "En Marte no hay rescate inmediato ni cirugía ortopédica avanzada ante una fractura o lesión lumbar.",
+        "No medevac or advanced orthopedic surgery exists on Mars for long-bone or lumbar injuries.",
       gravity:
-        "Es el peligro número uno para este sistema: en 0g (y parcialmente en 0.16g/0.38g) el esqueleto no recibe impacto y pierde calcio rápidamente.",
+        "Primary hazard for this system: in 0g (and partially 0.16g/0.38g), skeletal mechanoreceptors lack impact loading.",
       closedEnvironment:
-        "Los módulos pequeños limitan el movimiento natural de caminar; todo esfuerzo físico debe hacerse en máquinas compactas.",
+        "Compact habitats restrict natural ambulation; all mechanical stimulus must come from compact resistance hardware.",
     },
     attentionThreshold: {
-      optimal: "Cansancio físico < 45/100, densidad ósea ≥ 94% y ≥ 90 min de ejercicio.",
+      optimal: "Physical fatigue < 45/100, bone density ≥ 94%, ≥ 90 min daily exercise.",
       warning:
-        "Cansancio físico 50–74/100, densidad ósea 89–93% o dolor muscular persistente por más de 2 días.",
+        "Physical fatigue 50–74/100, bone density 89–93%, or persistent soreness > 48 h.",
       critical:
-        "Cansancio físico ≥ 75/100, densidad ósea < 89% o dolor articular agudo que impida usar el traje espacial.",
+        "Physical fatigue ≥ 75/100, bone density < 89%, or acute joint pain precluding EVA suit donning.",
       flightSurgeonNote:
-        "Reducir carga de pesas por 48 h, revisar vitamina D/calcio con el médico de vuelo y programar revisión por ultrasonido.",
+        "Reduce resistive load for 48 h, review Vitamin D/calcium status with Flight Surgeon, and schedule ultrasound check.",
     },
     preventiveCountermeasures: [
-      "Realizar 60 min de ejercicio de resistencia (ARED o bandas de alta carga) + 30 min de ejercicio aeróbico.",
-      "Tomar el suplemento diario de Vitamina D y mantener buena hidratación para evitar cálculos por exceso de calcio en orina.",
-      "Realizar estiramientos suaves de espalda baja antes de dormir.",
+      "Complete 60 min resistive training (ARED or high-load bands) + 30 min aerobic conditioning daily.",
+      "Take daily 800 IU Vitamin D supplement and sustain high hydration to reduce renal stone risk from calcium loss.",
+      "Perform gentle lumbar decompression stretches before sleep.",
     ],
   },
 };
@@ -484,7 +484,7 @@ export const DEFAULT_ROUTINE: RoutineTracking = {
 
 export const DEFAULT_HISTORY: TelemetryPoint[] = [
   {
-    label: "Día 133",
+    label: "Day 133",
     bpm: 66,
     glucose: 96,
     hydration: 88,
@@ -498,7 +498,7 @@ export const DEFAULT_HISTORY: TelemetryPoint[] = [
     routineStability: 94,
   },
   {
-    label: "Día 134",
+    label: "Day 134",
     bpm: 70,
     glucose: 93,
     hydration: 85,
@@ -512,7 +512,7 @@ export const DEFAULT_HISTORY: TelemetryPoint[] = [
     routineStability: 91,
   },
   {
-    label: "Día 135",
+    label: "Day 135",
     bpm: 74,
     glucose: 89,
     hydration: 81,
@@ -526,7 +526,7 @@ export const DEFAULT_HISTORY: TelemetryPoint[] = [
     routineStability: 86,
   },
   {
-    label: "Día 136",
+    label: "Day 136",
     bpm: 72,
     glucose: 91,
     hydration: 83,
@@ -540,7 +540,7 @@ export const DEFAULT_HISTORY: TelemetryPoint[] = [
     routineStability: 88,
   },
   {
-    label: "Día 137",
+    label: "Day 137",
     bpm: 69,
     glucose: 95,
     hydration: 85,
@@ -554,7 +554,7 @@ export const DEFAULT_HISTORY: TelemetryPoint[] = [
     routineStability: 92,
   },
   {
-    label: "Día 138",
+    label: "Day 138",
     bpm: 68,
     glucose: 94,
     hydration: 86,
@@ -572,77 +572,77 @@ export const DEFAULT_HISTORY: TelemetryPoint[] = [
 export const DEFAULT_QUESTS: MissionQuest[] = [
   {
     id: "quest-ared",
-    title: "120–150 min ejercicio combinado (ARED + CEVIS/T2)",
+    title: "120–150 min combined exercise (ARED + CEVIS/T2)",
     category: "fisico",
-    durationLabel: "120–150 min/día",
+    durationLabel: "120–150 min/day",
     description:
-      "Combina cada día dos bloques de entrenamiento: ~60 min de fuerza con resistencia en el equipo ARED (sentadillas, peso muerto y tracción) y de 60 a 90 min aeróbicos en bicicleta fija (CEVIS) o banda caminadora (T2).",
+      "Daily two-block training protocol: ~60 min of resistive strength loading on ARED (squats, deadlifts, heel raises) plus 60 to 90 min aerobic conditioning on cycle ergometer (CEVIS) or treadmill (T2).",
     impactDescription:
-      "Sin gravedad los huesos y músculos dejan de cargar peso corporal: sin este estímulo mecánico diario se pierde entre 1 % y 1.5 % de densidad ósea al mes, aparece atrofia muscular y el corazón pierde tolerancia al esfuerzo.",
-    nasaStandard: "NASA HRP ISS: 2 a 2.5 h/día (resistencia + cardio)",
+      "Without gravity, bone and skeletal muscle lose mechanical loading: without this daily countermeasure, bone mineral density declines 1% to 1.5% per month alongside muscle atrophy and aerobic deconditioning.",
+    nasaStandard: "NASA HRP ISS: 2 to 2.5 h/day (resistive + aerobic)",
     nasaSource: "NASA HRP · Countermeasures for Bone & Muscle Loss",
     previousComparison:
-      "Ajustado al alza frente al borrador previo (antes 60 min solo ARED) para igualar la pauta oficial ISS.",
+      "Upgraded from prior 60-min ARED draft to match official ISS operational guidelines.",
     completed: false,
   },
   {
     id: "quest-hydration",
-    title: "Hidratación ≥ 2.5 L/día (NASA-STD-3001)",
+    title: "Hydration ≥ 2.5 L/day (NASA-STD-3001)",
     category: "hidratacion",
     durationLabel: "≥ 32 mL/kg",
     description:
-      "Consiste en distribuir tomas constantes de agua a lo largo de la jornada hasta cubrir al menos 2.5 L en hombres o 2.1 L en mujeres (~32 mL por kilo de peso), añadiendo líquido extra tras el ejercicio.",
+      "Distribute steady fluid intake throughout the wake cycle to meet ≥ 2.5 L (men) or ≥ 2.1 L (women) (~32 mL/kg body mass), adding extra electrolytes after exercise.",
     impactDescription:
-      "En microgravedad los líquidos suben hacia el torso y la cabeza, baja el volumen sanguíneo total y el calcio óseo pasa a la orina. Mantener alta la ingesta diluye la orina y previene cálculos renales, la 2.ª causa potencial de evacuación médica en la ISS.",
-    nasaStandard: "NASA-STD-3001: ≥ 32 mL/kg/día (~2.1–2.5 L base)",
+      "In microgravity, fluids shift toward the thorax and head, lowering total plasma volume while mobilized bone calcium enters the urine. High fluid intake dilutes urine and prevents renal stones—a leading cause of orbital medical evacuation risk.",
+    nasaStandard: "NASA-STD-3001: ≥ 32 mL/kg/day (~2.1–2.5 L baseline)",
     nasaSource: "NASA-STD-3001 · HRP Risk of Renal Stone Formation",
     previousComparison:
-      "Validado contra NASA-STD-3001; incorpora diferenciación clínica base y prevención renal.",
+      "Validated against NASA-STD-3001 with renal stone prophylaxis.",
     completed: false,
   },
   {
     id: "quest-family",
-    title: "Pausa psicosocial / Enlace familiar (Protocolo BHP)",
+    title: "Psychosocial Break / Family Link (BHP Protocol)",
     category: "mental",
-    durationLabel: "20–30 min/día",
+    durationLabel: "20–30 min/day",
     description:
-      "Consiste en apartarse de las consolas técnicas para conectar con casa (llamada o videomensajes asíncronos si hay demora de señal), compartir un momento recreativo grupal o preparar sesiones psicológicas privadas (PPC).",
+      "Step away from technical consoles to connect with Earth/family (real-time call or asynchronous video messages under latency), share crew recreation, or prepare private psychological conferences (PPC).",
     impactDescription:
-      "Convivir meses en un módulo cerrado, con tripulaciones pequeñas y lejos de la Tierra, desgasta el estado de ánimo, aumenta la sensación de aislamiento y monotonía, y favorece fatiga mental o tensiones de equipo.",
-    nasaStandard: "NASA BHP: Ocio protegido, soporte familiar y PPC",
+      "Prolonged confinement in small crews far from Earth erodes mood, increases isolation and monotony, and raises the risk of cognitive fatigue or team friction.",
+    nasaStandard: "NASA BHP: Protected leisure, family link & PPC",
     nasaSource: "NASA HRP · Behavioral Health & Performance (BHP)",
     previousComparison:
-      "Validado con prácticas oficiales BHP en ISS/CHAPEA; añade respaldo explícito para enlaces asíncronos.",
+      "Aligned with official ISS/CHAPEA BHP standards; adds asynchronous deep-space messaging.",
     completed: false,
   },
   {
     id: "quest-circadian",
-    title: "Iluminación circadiana SSLA y sueño protegido (8–8.5 h)",
+    title: "SSLA Circadian Lighting & Protected Sleep (8–8.5 h)",
     category: "circadiano",
     durationLabel: "8–8.5 h + SSLA",
     description:
-      "Consiste en ajustar las luminarias LED de cabina (SSLA) a luz clara azulada en el día y luz cálida tenue de 60 a 90 min antes de dormir, asegurando entre 8 y 8.5 h continuas de descanso con antifaz y tapones.",
+      "Tune cabin Solid State Lighting Assemblies (SSLA) to blue-enriched daytime spectrum and dim warm lighting 60–90 min before sleep, securing 8 to 8.5 h uninterrupted rest with sleep mask and earplugs.",
     impactDescription:
-      "En órbita hay 16 amaneceres y atardeceres cada 24 h y ruido continuo de ventilación, por lo que muchos tripulantes duermen solo ~6 h reales; esto desregula melatonina y cortisol y reduce atención y memoria.",
-    nasaStandard: "NASA SSLA + NASA-STD-3001: 8–8.5 h oportunidad de sueño",
+      "Earth orbit produces 16 sunrises/sunsets every 24 h alongside continuous ventilation noise, limiting typical crew sleep to ~6 h; circadian misalignment dysregulates melatonin/cortisol and degrades vigilance.",
+    nasaStandard: "NASA SSLA + NASA-STD-3001: 8–8.5 h sleep opportunity",
     nasaSource: "NASA HRP · ISS Solid State Lighting Assemblies (SSLA)",
     previousComparison:
-      "Ampliado vs. versión previa: incorpora la meta oficial de 8–8.5 h de descanso junto a SSLA.",
+      "Expanded to pair SSLA spectral tuning with the official 8–8.5 h sleep window.",
     completed: false,
   },
   {
     id: "quest-csa-check",
-    title: "Vitamina D (800 UI), nutrición y dosimetría CSA",
+    title: "Vitamin D (800 IU), Nutrition & CSA Dosimetry",
     category: "fisico",
-    durationLabel: "800 UI + 3 tomas",
+    durationLabel: "800 IU + 3 rations",
     description:
-      "Consiste en tomar el suplemento diario de 800 UI de Vitamina D junto con las comidas ricas en calcio y antioxidantes del día, y registrar la lectura diaria del dosímetro CSA Radi-N2 en mSv.",
+      "Take the daily 800 IU Vitamin D supplement alongside 3 calcium- and antioxidant-rich meals, and log the daily CSA Radi-N2 personal dosimeter reading in mSv.",
     impactDescription:
-      "El blindaje de la nave bloquea la radiación UV solar e impide que el cuerpo produzca Vitamina D; sin ella no se absorbe ni fija el calcio óseo pese al ejercicio, mientras que dieta antioxidante y control mSv ayudan ante radiación espacial.",
-    nasaStandard: "NASA Nutrition: 800 UI/día Vit. D + dosímetro Radi-N2",
+      "Spacecraft hull shielding blocks solar UV needed for endogenous Vitamin D synthesis; without it, dietary calcium cannot stabilize bone mass, while antioxidants and mSv tracking mitigate cosmic radiation effects.",
+    nasaStandard: "NASA Nutrition: 800 IU/day Vit. D + Radi-N2 dosimeter",
     nasaSource: "NASA HRP Space Nutrition · CSA Radi-N2 Dosimetry",
     previousComparison:
-      "Actualizado: incorpora la dosis oficial diaria de 800 UI de Vitamina D ausente anteriormente.",
+      "Updated to include the mandatory 800 IU daily Vitamin D protocol.",
     completed: false,
   },
 ];
@@ -674,41 +674,41 @@ export const DEFAULT_EMERGENCY_CHECKLIST: EmergencyProtocolStep[] = [
   {
     id: "em-1",
     stepNumber: 1,
-    title: "Estabilización Física Inmediata (Primeros 2 min)",
+    title: "Immediate Physical Stabilization (First 2 min)",
     instruction:
-      "Detener toda operación crítica o EVA. Sentar/sujetar al astronauta, administrar 300 ml de solución electrolítica y gel de glucosa oral (15 g) por caída de azúcar en sangre.",
+      "Halt all critical operations or EVAs. Secure crew member in restraint seat, administer 300 mL electrolyte solution and oral glucose gel (15 g) for acute glycemic drop.",
     completed: false,
   },
   {
     id: "em-2",
     stepNumber: 2,
-    title: "Verificación de Cabina y Oxígeno",
+    title: "Cabin Atmosphere & O₂ Verification",
     instruction:
-      "Confirmar en panel ambiental que el CO₂ esté bajo control (< 4.0 mmHg) y encender ventilación dirigida para descartar hipoxia o estrés térmico.",
+      "Confirm environmental console shows CO₂ within safe threshold (< 4.0 mmHg) and activate directed airflow fans to rule out hypoxia or hypercapnia.",
     completed: false,
   },
   {
     id: "em-3",
     stepNumber: 3,
-    title: "Empaquetado Automático de Telemetría Médica",
+    title: "Automated Medical Telemetry Packaging",
     instruction:
-      "Adjuntar en el canal prioritario: pulso (BPM), glucosa (mg/dL), presión arterial, lectura de estrés/cortisol y captura de lenguaje corporal de cámara.",
+      "Bundle priority telemetry packet: heart rate (BPM), glucose (mg/dL), arterial BP, stress/cortisol index, and camera posture/facial capture.",
     completed: false,
   },
   {
     id: "em-4",
     stepNumber: 4,
-    title: "Enlace con Cirujanos de Vuelo en Tierra (Houston / CSA)",
+    title: "Ground Flight Surgeon Uplink (Houston / CSA)",
     instruction:
-      "Transmitir alerta médica código Ámbar/Rojo usando el protocolo activo del entorno. Si existe latencia alta (Nave o Marte), ejecutar guía autónoma sin esperar respuesta.",
+      "Transmit Code Amber/Red medical alert via active mission protocol. Under high comm latency (Spacecraft or Mars), execute autonomous onboard protocol without waiting.",
     completed: false,
   },
   {
     id: "em-5",
     stepNumber: 5,
-    title: "Reevaluación en 15 Minutos y Reposo Asistido",
+    title: "15-Minute Re-Evaluation & Assisted Rest",
     instruction:
-      "Repetir lectura de glucosa y frecuencia cardíaca a los 15 minutos, asignar relevo de guardia a un compañero y activar luz suave de recuperación.",
+      "Repeat blood glucose and heart rate checks at T+15 min, transfer watch duty to a crewmate, and enable low-glare recovery lighting.",
     completed: false,
   },
 ];
@@ -718,15 +718,15 @@ export const CSA_RADIATION_LIMITS = {
   dailyAlertMsv: 1.45,
   annualLimitMsv: 200,
   careerLimitMsv: 600,
-  instrumentName: "Dosímetro CSA Radi-N2 / EVARM",
+  instrumentName: "CSA Radi-N2 / EVARM Dosimeter",
 };
 
 export const INITIAL_DASHBOARD_STATE: AstronautDashboardState = {
   environmentId: "iss",
   telemedicineEnabled: true,
   missionDay: 138,
-  astronautName: "Cmdte. Elena Vance",
-  crewRole: "Especialista de Misión · Biología & Operaciones",
+  astronautName: "Cmdr. Elena Vance",
+  crewRole: "Mission Specialist · Biology & Operations",
   biomarkers: DEFAULT_BIOMARKERS,
   previousBiomarkers: {
     ...DEFAULT_BIOMARKERS,
@@ -741,21 +741,21 @@ export const INITIAL_DASHBOARD_STATE: AstronautDashboardState = {
   emergencyMode: false,
   emergencyChecklist: DEFAULT_EMERGENCY_CHECKLIST,
   lastUltrasoundFinding:
-    "Densidad ósea femoral y flujo hídrico dentro de parámetros nominales.",
+    "Femoral bone mineral density and fluid distribution within nominal baseline.",
   lastCameraFinding:
-    "Postura erguida (85/100) y microexpresión serena sin signos de agotamiento.",
+    "Upright posture (85/100) and calm micro-expression with zero exhaustion markers.",
   scanLogs: [
     {
       id: "log-1",
       timestamp: "07:15 UTC",
       modality: "manual",
-      summary: "Chequeo matutino nominal tras 7.4h de sueño.",
+      summary: "Nominal morning check following 7.4 h sleep.",
     },
     {
       id: "log-2",
       timestamp: "10:30 UTC",
       modality: "camara",
-      summary: "Evaluación facial: tensión ocular baja (22/100), buen enfoque.",
+      summary: "Facial assessment: low ocular tension (22/100), clear focus.",
     },
   ],
 };
@@ -773,69 +773,69 @@ export const SCIENTIFIC_REFERENCES: ScientificReferenceSection[] = [
   {
     id: "nasa-hrp",
     agency: "NASA Human Research Program (HRP)",
-    badge: "5 Peligros de los Vuelos Espaciales",
-    title: "Los 5 Riesgos Fundamentales de la Exploración Espacial Humana",
+    badge: "5 Hazards of Human Spaceflight",
+    title: "The 5 Fundamental Hazards of Human Space Exploration",
     description:
-      "Marco científico oficial de la NASA utilizado para diseñar las evaluaciones anatómicas, biomarcadores conductuales y contramedidas preventivas de este software.",
+      "Official NASA biomedical framework used to architect the anatomical diagnostics, behavioral biomarkers, and preventive countermeasures in this platform.",
     items: [
       {
-        name: "1. Radiación Espacial",
+        name: "1. Space Radiation",
         detail:
-          "Fuera del escudo magnético terrestre los astronautas reciben radiación cósmica galáctica (GCR) y eventos de partículas solares, elevando riesgos neurológicos, cardiovasculares y de cáncer.",
+          "Beyond Earth's magnetosphere, astronauts receive galactic cosmic radiation (GCR) and solar particle events, elevating neurological, cardiovascular, and carcinogenesis risks.",
         appMapping:
-          "Monitoreado en mSv/día y acumulados según el entorno de misión (ISS, Nave, Luna, Marte).",
+          "Monitored in mSv/day and cumulative mission dose calibrated per mission environment (ISS, Spacecraft, Moon, Mars).",
       },
       {
-        name: "2. Aislamiento y Confinamiento",
+        name: "2. Isolation & Confinement",
         detail:
-          "Convivir meses en espacios pequeños con tripulaciones reducidas provoca declive del ánimo, trastornos de sueño, aburrimiento crónico, soledad y conflictos.",
+          "Months inside confined modules with small crews lead to mood degradation, sleep disruption, chronic monotony, loneliness, and team friction.",
         appMapping:
-          "Evaluado con índices de Soledad, Aburrimiento, Estrés, Depresión, Detector de Rutina y Cámara de Lenguaje Corporal.",
+          "Tracked via Loneliness, Boredom, Stress, Depression indices, Routine Change Detector, and Camera Posture Telemetry.",
       },
       {
-        name: "3. Distancia de la Tierra",
+        name: "3. Distance from Earth",
         detail:
-          "En tránsito espacial o en Marte la latencia alcanza hasta 20+ minutos por sentido, impidiendo asistencia médica en tiempo real o evacuación de emergencia.",
+          "In deep-space transit or on Mars, one-way signal latency reaches 20+ minutes, precluding live flight surgeon intervention or medical evacuation.",
         appMapping:
-          "Protocolo autónomo paso a paso para contacto con cirujanos de vuelo y guías sin jerga médica para tripulantes no médicos.",
+          "Step-by-step autonomous clinical action plans paired with Ground Surgeon uplink checklists written for non-physician crew.",
       },
       {
-        name: "4. Campos de Gravedad Alterados",
+        name: "4. Altered Gravity Fields",
         detail:
-          "Pasar de 1g terrestre a 0g, 0.16g (Luna) o 0.38g (Marte) causa desplazamiento cefálico de fluidos, desacondicionamiento cardiovascular y pérdida acelerada de hueso y músculo.",
+          "Transitioning from 1g to 0g, 0.16g (Moon), or 0.38g (Mars) induces cephalad fluid shift, cardiovascular deconditioning, and rapid bone/muscle loss.",
         appMapping:
-          "Recálculo automático de gravedad y riesgos musculoesqueléticos, cardiovasculares e hídricos + hábitos NASA (ARED + aeróbico CEVIS/T2).",
+          "Dynamic gravity-weighted bone/cardio/hydration modeling plus NASA exercise countermeasures (ARED + CEVIS/T2).",
       },
       {
-        name: "5. Ambientes Cerrados Hostiles",
+        name: "5. Hostile / Closed Environments",
         detail:
-          "Cabinas recicladas enfrentan acumulación localizada de CO₂, microbios resistentes, ruido continuo, polvo lunar abrasivo y ciclos de iluminación artificiales.",
+          "Closed life-support habitats face localized CO₂ buildup, microbial persistence, acoustic noise, abrasive lunar dust, and non-24h solar illumination.",
         appMapping:
-          "Telemetría ambiental de cabina, calibración circadiana de melatonina/cortisol y alertas por entorno.",
+          "Cabin environmental telemetry, SSLA circadian melatonin/cortisol tracking, and environment-specific hazard alerts.",
       },
     ],
   },
   {
     id: "csa-radiation",
-    agency: "Agencia Espacial Canadiense (CSA / ASC)",
-    badge: "Monitoreo Radiológico & Salud en Órbita",
-    title: "Programa de Dosimetría de Radiación y Contramedidas Médicas CSA",
+    agency: "Canadian Space Agency (CSA / ASC)",
+    badge: "Radiological & Orbital Health Monitoring",
+    title: "CSA Radiation Dosimetry & Autonomous Health Countermeasures",
     description:
-      "Inspirado en los instrumentos canadienses a bordo de la Estación Espacial Internacional (como Radi-N2 y EVARM) y la iniciativa Deep Space Healthcare Challenge de la CSA y NASA.",
+      "Inspired by Canadian instrumentation aboard the International Space Station (Radi-N2 and EVARM) and the CSA/NASA Deep Space Healthcare Challenge.",
     items: [
       {
-        name: "Detección de Neutrones y Dosimetría Activa (Radi-N2 / EVARM)",
+        name: "Neutron Detection & Active Dosimetry (Radi-N2 / EVARM)",
         detail:
-          "La CSA desarrolla detectores de burbujas y dosímetros personales que distinguen la dosis real absorbida por órganos y tejidos ante radiación secundaria dentro de las naves y durante caminatas espaciales.",
+          "CSA develops bubble detectors and personal skin/organ dosimeters that measure absorbed secondary radiation inside spacecraft hulls and during EVAs.",
         appMapping:
-          "Tarjeta dedicada de Exposición a Radiación (mSv/día y dosis acumulada) integrada con cada escenario espacial.",
+          "Dedicated Radiation Exposure card (daily mSv and cumulative mission dose) integrated across every mission profile.",
       },
       {
-        name: "Detección Temprana de Cambios Fisiológicos y Autonomía",
+        name: "Early Physiological Detection & Crew Autonomy",
         detail:
-          "Los programas biomédicos canadienses enfatizan monitoreo no invasivo (ultrasonido guiado, análisis óptico/salival y sensores portátiles) operable por astronautas sin formación médica clínica.",
+          "Canadian biomedical programs prioritize non-invasive sensors (guided ultrasound, optical/salivary assays, wearable Bio-Monitor) operable by non-physician crew.",
         appMapping:
-          "Red vestible modular (Pecho · Cabeza · Dedo), cámara de expresiones/postura y guías paso a paso redactadas en lenguaje simple.",
+          "Modular Bio-Monitor 3N wearable network (Chest · Head · Finger), facial/posture CV scanner, and plain-language clinical guides.",
       },
     ],
   },

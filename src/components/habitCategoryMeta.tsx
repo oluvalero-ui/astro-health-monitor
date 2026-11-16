@@ -7,19 +7,19 @@ export const HABIT_CATEGORY_META: Record<
   { label: string; icon: React.ReactNode }
 > = {
   fisico: {
-    label: "Físico y Nutrición",
+    label: "Physical & Nutrition",
     icon: <Dumbbell className="h-3.5 w-3.5 text-amber-400" />,
   },
   hidratacion: {
-    label: "Hidratación",
+    label: "Hydration",
     icon: <Droplets className="h-3.5 w-3.5 text-sky-400" />,
   },
   mental: {
-    label: "Salud Mental (BHP)",
+    label: "Behavioral Health (BHP)",
     icon: <Video className="h-3.5 w-3.5 text-cyan-400" />,
   },
   circadiano: {
-    label: "Circadiano y Sueño",
+    label: "Circadian & Sleep",
     icon: <Sun className="h-3.5 w-3.5 text-emerald-400" />,
   },
 };

@@ -41,7 +41,7 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
   );
 
   const latest = history[history.length - 1] ?? {
-    label: "Hoy",
+    label: "Today",
     bpm: 70,
     glucose: 94,
     hydration: 86,
@@ -71,21 +71,21 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
     activeTab === "vitales"
       ? [
           {
-            label: "Corazón Hoy (Promedio)",
-            value: `${latest.bpm} lat/min`,
-            sub: `Prom. ${avgBpm} lat/min · Meta 52–92`,
+            label: "Heart Rate Today (Avg)",
+            value: `${latest.bpm} bpm`,
+            sub: `Avg ${avgBpm} bpm · Target 52–92`,
             color: latest.bpm <= 92 ? "#22c55e" : "#f59e0b",
           },
           {
-            label: "Agua en el Cuerpo",
+            label: "Body Hydration",
             value: `${latest.hydration}%`,
-            sub: `Prom. ${avgHydration}% · Meta ≥ 80%`,
+            sub: `Avg ${avgHydration}% · Target ≥ 80%`,
             color: latest.hydration >= 80 ? "#38bdf8" : "#f59e0b",
           },
           {
-            label: "Energía (Azúcar)",
+            label: "Blood Glucose",
             value: `${latest.glucose} mg/dL`,
-            sub: "Rango seguro: 74–120 mg/dL",
+            sub: "Safe range: 74–120 mg/dL",
             color:
               latest.glucose >= 74 && latest.glucose <= 120
                 ? "#2dd4bf"
@@ -95,41 +95,41 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
       : activeTab === "carga"
       ? [
           {
-            label: "Calidad de Sueño",
+            label: "Sleep Quality",
             value: `${latest.melatonin}%`,
-            sub: "Meta saludable: ≥ 70%",
+            sub: "Healthy target: ≥ 70%",
             color: latest.melatonin >= 70 ? "#38bdf8" : "#f59e0b",
           },
           {
-            label: "Cansancio del Cuerpo",
+            label: "Physical Fatigue",
             value: `${latest.physicalFatigue}%`,
-            sub: "Ideal mantener bajo 50%",
+            sub: "Ideal threshold < 50%",
             color: latest.physicalFatigue <= 50 ? "#22c55e" : "#f59e0b",
           },
           {
-            label: "Tensión Hormonal",
+            label: "Cortisol Strain",
             value: `${latest.cortisol}%`,
-            sub: "Ideal mantener bajo 50%",
+            sub: "Ideal threshold < 50%",
             color: latest.cortisol <= 50 ? "#2dd4bf" : "#ef4444",
           },
         ]
       : [
           {
-            label: "Orden en tu Rutina",
+            label: "Routine Synchrony",
             value: `${latest.routineStability}%`,
-            sub: `Prom. ${avgRoutine}% · Meta ≥ 80%`,
+            sub: `Avg ${avgRoutine}% · Target ≥ 80%`,
             color: latest.routineStability >= 80 ? "#22c55e" : "#f59e0b",
           },
           {
-            label: "Cansancio de la Mente",
+            label: "Cognitive Fatigue",
             value: `${latest.mentalFatigue}%`,
-            sub: "Ideal mantener bajo 45%",
+            sub: "Ideal threshold < 45%",
             color: latest.mentalFatigue <= 45 ? "#38bdf8" : "#f59e0b",
           },
           {
-            label: "Nivel de Tensión (Estrés)",
+            label: "Stress Level",
             value: `${latest.stress}%`,
-            sub: "Ideal mantener bajo 45%",
+            sub: "Ideal threshold < 45%",
             color: latest.stress <= 45 ? "#2dd4bf" : "#ef4444",
           },
         ];
@@ -144,15 +144,15 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
           <div className="flex items-center gap-2">
             <LineIcon className="h-5 w-5 text-sky-400" />
             <h2 className="text-base font-bold text-slate-100">
-              Evolución y Bandas de Control Clínico
+              Clinical Control Bands & Longitudinal Trends
             </h2>
             <span className="hidden items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 font-mono-hud text-[10px] font-semibold text-emerald-300 sm:inline-flex">
               <ShieldCheck className="h-3 w-3" />
-              Banda Segura NASA
+              NASA Safe Band
             </span>
           </div>
           <p className="mt-0.5 text-xs text-slate-400">
-            Gráfico combinado de área, barras y banda segura para ver de un vistazo si tus niveles siguen dentro de la meta.
+            Combined area, bar, and control-band telemetry verifying whether vitals remain within mission limits.
           </p>
         </div>
 
@@ -167,7 +167,7 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
             }`}
           >
             <HeartPulse className="h-3.5 w-3.5 text-emerald-400" />
-            Corazón, Agua y Energía
+            Heart, Fluid & Glucose
           </button>
           <button
             type="button"
@@ -179,7 +179,7 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
             }`}
           >
             <Activity className="h-3.5 w-3.5 text-sky-400" />
-            Descanso vs. Cansancio
+            Rest vs. Fatigue
           </button>
           <button
             type="button"
@@ -191,7 +191,7 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
             }`}
           >
             <Brain className="h-3.5 w-3.5 text-teal-400" />
-            Rutina y Calma Mental
+            Routine & Cognitive Calm
           </button>
         </div>
       </div>
@@ -225,7 +225,7 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
       <div className="h-[300px] min-h-[300px] w-full rounded-xl border border-[#182742] bg-[#081020] p-2.5">
         {!mounted ? (
           <div className="flex h-full w-full items-center justify-center rounded-xl text-xs text-slate-400">
-            Cargando gráficas telemétricas...
+            Loading telemetry charts...
           </div>
         ) : activeTab === "vitales" ? (
           <ResponsiveContainer width="100%" height="100%">
@@ -274,7 +274,7 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
                 axisLine={false}
                 tickLine={false}
               />
-              {/* Banda Segura de Hidratación (80% - 100%) */}
+              {/* Safe Hydration Control Band (80% - 100%) */}
               <ReferenceArea
                 yAxisId="left"
                 y1={80}
@@ -289,7 +289,7 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
                 strokeDasharray="4 4"
                 strokeOpacity={0.65}
                 label={{
-                  value: "Meta Agua 80%",
+                  value: "Hydration Target 80%",
                   position: "insideTopLeft",
                   fill: "#38bdf8",
                   fontSize: 10,
@@ -308,7 +308,7 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
               <Bar
                 yAxisId="left"
                 dataKey="hydration"
-                name="Agua en el Cuerpo (%)"
+                name="Hydration (%)"
                 fill="url(#gradHydrationBar)"
                 stroke="#38bdf8"
                 strokeWidth={1}
@@ -319,7 +319,7 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
                 yAxisId="right"
                 type="monotone"
                 dataKey="bpm"
-                name="Corazón (lat/min)"
+                name="Heart Rate (bpm)"
                 stroke="#22c55e"
                 fill="url(#gradBpmTelemetry)"
                 strokeWidth={2.6}
@@ -330,7 +330,7 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
                 yAxisId="right"
                 type="monotone"
                 dataKey="glucose"
-                name="Energía / Glucosa (mg/dL)"
+                name="Blood Glucose (mg/dL)"
                 stroke="#fbbf24"
                 strokeWidth={2.3}
                 dot={{ r: 3.5, fill: "#fbbf24", stroke: "#081020", strokeWidth: 1.5 }}
@@ -379,7 +379,7 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
                 strokeDasharray="4 4"
                 strokeOpacity={0.65}
                 label={{
-                  value: "Límite Cansancio (50%)",
+                  value: "Fatigue Limit (50%)",
                   position: "insideTopRight",
                   fill: "#fbbf24",
                   fontSize: 10,
@@ -399,7 +399,7 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
               <Area
                 type="monotone"
                 dataKey="melatonin"
-                name="Calidad de Sueño (%)"
+                name="Sleep Quality (%)"
                 stroke="#38bdf8"
                 fill="url(#gradSleepRest)"
                 strokeWidth={2.5}
@@ -408,7 +408,7 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
               <Area
                 type="monotone"
                 dataKey="physicalFatigue"
-                name="Cansancio del Cuerpo (%)"
+                name="Physical Fatigue (%)"
                 stroke="#f59e0b"
                 fill="url(#gradCortisolDark)"
                 strokeWidth={2.3}
@@ -417,7 +417,7 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
               <Line
                 type="monotone"
                 dataKey="cortisol"
-                name="Tensión Hormonal (%)"
+                name="Cortisol Strain (%)"
                 stroke="#ef4444"
                 strokeWidth={2.3}
                 dot={{ r: 3.5, fill: "#ef4444" }}
@@ -468,7 +468,7 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
                 strokeDasharray="4 4"
                 strokeOpacity={0.65}
                 label={{
-                  value: "Meta Rutina 80%",
+                  value: "Routine Target 80%",
                   position: "insideTopLeft",
                   fill: "#4ade80",
                   fontSize: 10,
@@ -487,7 +487,7 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
               <Legend wrapperStyle={{ fontSize: "11px", paddingTop: "4px" }} />
               <Bar
                 dataKey="routineStability"
-                name="Orden en tu Rutina (%)"
+                name="Routine Synchrony (%)"
                 fill="url(#gradRoutineBar)"
                 stroke="#22c55e"
                 strokeWidth={1}
@@ -497,7 +497,7 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
               <Line
                 type="monotone"
                 dataKey="mentalFatigue"
-                name="Cansancio de la Mente (%)"
+                name="Cognitive Fatigue (%)"
                 stroke="#38bdf8"
                 strokeWidth={2.5}
                 dot={{ r: 3.5, fill: "#38bdf8" }}
@@ -505,7 +505,7 @@ export default function TelemetryCharts({ history }: TelemetryChartsProps) {
               <Line
                 type="monotone"
                 dataKey="stress"
-                name="Nivel de Tensión / Estrés (%)"
+                name="Stress Level (%)"
                 stroke="#f59e0b"
                 strokeWidth={2.5}
                 dot={{ r: 3.5, fill: "#f59e0b" }}

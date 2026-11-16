@@ -38,12 +38,12 @@ export default function ScientificReferencesContent({
 
   return (
     <div className="space-y-4">
-      {/* Parámetros Radiológicos CSA Radi-N2 / EVARM */}
+      {/* CSA Radi-N2 / EVARM Radiological Reference Parameters */}
       <div className="rounded-xl border border-[#1e3458] bg-[#0a1324] p-4 shadow-inner">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-sky-400">
             <Radiation className="h-4 w-4" />
-            Parámetros de Referencia Radiológica ({CSA_RADIATION_LIMITS.instrumentName})
+            Radiological Reference Parameters ({CSA_RADIATION_LIMITS.instrumentName})
           </div>
 
           {hasLiveTelemetry && (
@@ -54,8 +54,8 @@ export default function ScientificReferencesContent({
                 className="h-2 w-2 rounded-full"
                 style={{ backgroundColor: STATUS_HEX[radStatus] }}
               />
-              Lectura actual{environmentShortName ? ` (${environmentShortName})` : ""}:{" "}
-              {dailyRadiationMsv.toFixed(2)} mSv/día · Acum:{" "}
+              Current reading{environmentShortName ? ` (${environmentShortName})` : ""}:{" "}
+              {dailyRadiationMsv.toFixed(2)} mSv/day · Cum:{" "}
               {cumulativeRadiationMsv.toFixed(1)} mSv
             </span>
           )}
@@ -63,78 +63,77 @@ export default function ScientificReferencesContent({
 
         <div className="mt-2.5 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
           <div className="rounded-lg border border-[#1b2d4b] bg-[#0e192f] p-2.5 text-xs">
-            <div className="text-slate-400">Tasa Diaria Nominal (Órbita)</div>
+            <div className="text-slate-400">Nominal Daily Rate (LEO)</div>
             <div className="mt-0.5 font-mono-hud text-sm font-bold text-emerald-400">
-              ≤ {CSA_RADIATION_LIMITS.dailyNominalMsv} mSv/día
+              ≤ {CSA_RADIATION_LIMITS.dailyNominalMsv} mSv/day
             </div>
           </div>
           <div className="rounded-lg border border-[#1b2d4b] bg-[#0e192f] p-2.5 text-xs">
-            <div className="text-slate-400">Umbral de Alerta Diaria</div>
+            <div className="text-slate-400">Daily Alert Threshold</div>
             <div className="mt-0.5 font-mono-hud text-sm font-bold text-red-400">
-              ≥ {CSA_RADIATION_LIMITS.dailyAlertMsv} mSv/día
+              ≥ {CSA_RADIATION_LIMITS.dailyAlertMsv} mSv/day
             </div>
           </div>
           <div className="rounded-lg border border-[#1b2d4b] bg-[#0e192f] p-2.5 text-xs">
-            <div className="text-slate-400">Límite Acumulado de Carrera</div>
+            <div className="text-slate-400">Career Cumulative Limit</div>
             <div className="mt-0.5 font-mono-hud text-sm font-bold text-amber-400">
-              {CSA_RADIATION_LIMITS.careerLimitMsv} mSv (Anual:{" "}
+              {CSA_RADIATION_LIMITS.careerLimitMsv} mSv (Annual:{" "}
               {CSA_RADIATION_LIMITS.annualLimitMsv} mSv)
             </div>
           </div>
         </div>
       </div>
 
-      {/* Arquitectura y Fundamento Físico del Bio-Monitor 3N (Offline) */}
+      {/* Bio-Monitor 3N Architecture & Sensor Physics (Offline) */}
       <div className="rounded-xl border border-[#182742] bg-[#091120] p-4">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-sky-300">
             <Cpu className="h-4 w-4 text-sky-400" />
-            Arquitectura y Fundamento Físico del Bio-Monitor 3N (Memoria Local)
+            Bio-Monitor 3N Architecture & Sensor Physics (Local Memory)
           </div>
           <span className="rounded-full border border-sky-500/35 bg-sky-500/10 px-2.5 py-0.5 font-mono-hud text-[11px] font-bold text-sky-300">
-            Manual Técnico Offline
+            Offline Technical Manual
           </span>
         </div>
 
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
           <div className="rounded-lg border border-[#182742] bg-[#0c1426] p-3 text-xs">
             <div className="font-bold text-slate-100">
-              Nodo Frontal (Banda Cefálica)
+              Frontal Node (Cephalic Headband)
             </div>
             <p className="mt-1 leading-relaxed text-slate-300">
-              En microgravedad (0g) la sangre se desplaza hacia la cabeza y las
-              manos se enfrían; medir SpO₂, pulso óptico (PTT) y temperatura
-              central (ZHF) en la frente evita lecturas falsas por
-              vasoconstricción periférica y permite estimar la presión arterial
-              sin inflar brazalete.
+              In microgravity (0g), fluids shift cephalad while peripheral hands
+              cool down; capturing SpO₂, optical pulse (PTT), and Zero-Heat-Flux
+              core temp (ZHF) at the forehead prevents vasoconstriction artifacts
+              and enables cuffless continuous blood pressure estimation.
             </p>
           </div>
           <div className="rounded-lg border border-[#182742] bg-[#0c1426] p-3 text-xs">
             <div className="font-bold text-slate-100">
-              Nodo Torácico (Chaleco Textil)
+              Thoracic Node (Textile Smart Vest)
             </div>
             <p className="mt-1 leading-relaxed text-slate-300">
-              Integra 3 derivaciones ECG (V1, V2, V3) en seco y bandas de
-              inductancia respiratoria (RIP) que calculan frecuencia cardíaca,
-              variabilidad (HRV rMSSD), ventilación por minuto (L/min),
-              temperatura cutánea y postura/sueño sin adhesivos.
+              Integrates 3 dry ECG leads (V1, V2, V3) and Respiratory Inductance
+              Plethysmography (RIP) bands computing heart rate, HRV (rMSSD),
+              minute ventilation (L/min), skin temp, and posture/sleep without
+              wet skin adhesives.
             </p>
           </div>
           <div className="rounded-lg border border-[#182742] bg-[#0c1426] p-3 text-xs">
             <div className="font-bold text-slate-100">
-              Nodo Radial y Calibración por Gravedad
+              Radial Node & Gravity Calibration
             </div>
             <p className="mt-1 leading-relaxed text-slate-300">
-              Combina dosimetría personal (mSv/día) en muñeca y acelerometría
-              laríngea en cuello (estima tensión vocal sin grabar la voz). Al
-              cambiar de gravedad (0g, 0.16g, 0.38g), una calibración de 30 s
-              frente al brazalete ajusta la curva de presión óptica (PTT).
+              Pairs personal wrist dosimetry (mSv/day) with laryngeal neck
+              accelerometry (quantifying vocal cord strain without audio
+              recording). When gravity changes (0g, 0.16g, 0.38g), a 30 s cuff
+              check recalibrates optical PTT vascular curves.
             </p>
           </div>
         </div>
       </div>
 
-      {/* Tarjetas de NASA HRP (5 Peligros) y Programa CSA */}
+      {/* NASA HRP (5 Hazards) & CSA Program Cards */}
       <div
         className={
           twoColumnsOnDesktop
@@ -173,7 +172,7 @@ export default function ScientificReferencesContent({
                     {item.detail}
                   </p>
                   <p className="mt-1.5 text-[11px] font-medium text-sky-300">
-                    Aplicación en Consola: {item.appMapping}
+                    Console Implementation: {item.appMapping}
                   </p>
                 </div>
               ))}

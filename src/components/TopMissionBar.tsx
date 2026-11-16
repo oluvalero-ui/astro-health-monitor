@@ -77,19 +77,28 @@ interface TopMissionBarProps {
 }
 
 const ZONE_FRIENDLY_NAMES: Record<SystemZoneId, string> = {
-  cerebro: "Mente y Descanso",
-  rostro: "Rostro y Postura",
-  corazon: "Corazón y Aire",
-  endocrino: "Defensas y Sueño",
-  abdomen: "Agua y Energía",
-  musculo: "Músculos y Huesos",
+  cerebro: "Cognition & Rest",
+  rostro: "Face & Posture",
+  corazon: "Heart & Airway",
+  endocrino: "Immunity & Sleep",
+  abdomen: "Fluids & Metabolic",
+  musculo: "Musculoskeletal",
 };
 
 const ENV_SHORT_LABELS: Record<MissionEnvironmentId, string> = {
-  iss: "Estación (0g)",
-  nave: "Viaje (0g)",
-  luna: "Luna (0.16g)",
-  marte: "Marte (0.38g)",
+  iss: "ISS (0g)",
+  nave: "Transit (0g)",
+  luna: "Moon (0.16g)",
+  marte: "Mars (0.38g)",
+};
+
+const SECTION_DISPLAY_NAMES: Record<string, string> = {
+  resumen: "MCC TELEMETRY",
+  escaner: "BIO-SCANNER",
+  wearable: "BIO-MONITOR 3N",
+  biomarcadores: "BIOMARKERS",
+  informes: "COUNTERMEASURES",
+  referencias: "NASA-STD-3001",
 };
 
 const ENV_ICONS: Record<MissionEnvironmentId, React.ReactNode> = {
@@ -125,7 +134,7 @@ export default function TopMissionBar({
   const [astroInput, setAstroInput] = useState("");
   const [lastUserQuery, setLastUserQuery] = useState<string>("");
   const [astroReply, setAstroReply] = useState<string>(
-    `¡Hola ${astronautName}! Soy ASTRO. ¿Qué necesitas el día de hoy?`
+    `Hello ${astronautName}! I'm ASTRO. How can I assist you today?`
   );
   const [astroTargetZone, setAstroTargetZone] = useState<SystemZoneId>("corazon");
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
@@ -167,7 +176,7 @@ export default function TopMissionBar({
     if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "es-ES";
+    utterance.lang = "en-US";
     utterance.rate = 1.03;
     utterance.onend = () => setSpeaking(false);
     utterance.onerror = () => setSpeaking(false);
@@ -191,66 +200,93 @@ export default function TopMissionBar({
       Math.min(100, Math.round(100 - (dailyRadiationMsv / 2.2) * 100))
     );
 
-    // 0. Conversación racional y saludo amable ("Hola Astro, ¿cómo estás?", "Buenos días", "Gracias")
+    // 0. Conversational greetings & acknowledgements
     const hasSignOrNavKeyword =
-      q.includes("signo") ||
-      q.includes("corazon") ||
-      q.includes("latido") ||
-      q.includes("pulso") ||
-      q.includes("oxigeno") ||
-      q.includes("presion") ||
-      q.includes("respiracion") ||
-      q.includes("temperatura") ||
-      q.includes("fiebre") ||
-      q.includes("agua") ||
-      q.includes("hidratacion") ||
-      q.includes("glucosa") ||
-      q.includes("radiacion") ||
-      q.includes("escudo") ||
-      q.includes("sueno") ||
-      q.includes("estres") ||
-      q.includes("mente") ||
-      q.includes("arnes") ||
-      q.includes("escaner") ||
-      q.includes("ciencia") ||
-      q.includes("habito") ||
+      q.includes("vital") ||
+      q.includes("sign") ||
+      q.includes("status") ||
+      q.includes("heart") ||
+      q.includes("beat") ||
+      q.includes("pulse") ||
+      q.includes("bpm") ||
+      q.includes("cardiac") ||
+      q.includes("hrv") ||
+      q.includes("oxygen") ||
+      q.includes("spo2") ||
+      q.includes("pressure") ||
+      q.includes("bp") ||
+      q.includes("breath") ||
+      q.includes("respirat") ||
+      q.includes("lung") ||
+      q.includes("temp") ||
+      q.includes("fever") ||
+      q.includes("water") ||
+      q.includes("hydrat") ||
+      q.includes("glucose") ||
+      q.includes("sugar") ||
+      q.includes("radiat") ||
+      q.includes("shield") ||
+      q.includes("sleep") ||
+      q.includes("stress") ||
+      q.includes("mind") ||
+      q.includes("mental") ||
+      q.includes("harness") ||
+      q.includes("suit") ||
+      q.includes("wearable") ||
+      q.includes("3n") ||
+      q.includes("scanner") ||
+      q.includes("manual") ||
+      q.includes("nasa") ||
+      q.includes("science") ||
+      q.includes("countermeasure") ||
+      q.includes("habit") ||
       q.includes("monitor") ||
-      q.includes("camara");
+      q.includes("telemetry") ||
+      q.includes("camera") ||
+      q.includes("biomarker");
 
     if (
       !hasSignOrNavKeyword &&
-      (q.includes("como estas") ||
-        q.includes("que tal") ||
-        q.includes("hola") ||
-        q.includes("buenos dias") ||
-        q.includes("buenas tardes") ||
-        q.includes("buenas noches") ||
-        q.includes("quien eres"))
+      (q.includes("how are you") ||
+        q.includes("how's it going") ||
+        q.includes("hello") ||
+        q === "hi" ||
+        q.startsWith("hi ") ||
+        q.includes("hey") ||
+        q.includes("good morning") ||
+        q.includes("good afternoon") ||
+        q.includes("good evening") ||
+        q.includes("who are you"))
     ) {
       speakAstroText(
-        `¡Hola ${astronautName}! Estoy muy bien, con mis sistemas de telemetría al 100 por ciento en ${env.shortName}. Tu bienestar general se encuentra al ${readinessScore} por ciento. ¿Qué necesitas el día de hoy?`
+        `Hello ${astronautName}! Telemetry systems are nominal at 100 percent aboard ${env.shortName}. Your overall Flight Readiness is at ${readinessScore} percent. How can I assist you today?`
       );
       return;
     }
 
     if (
       !hasSignOrNavKeyword &&
-      (q.includes("gracias") || q.includes("perfecto") || q.includes("listo"))
+      (q.includes("thank") ||
+        q.includes("perfect") ||
+        q.includes("awesome") ||
+        q.includes("got it") ||
+        q.includes("great"))
     ) {
       speakAstroText(
-        `Con todo gusto, ${astronautName}. Sigo monitoreando tu Arnés 3N en tiempo real. ¿Qué necesitas el día de hoy?`
+        `You're welcome, ${astronautName}. Continuing real-time Bio-Monitor 3N telemetry surveillance. What would you like to check next?`
       );
       return;
     }
 
-    // 1. Comando clave: "Astro dime el estado de mis signos" (y variantes de resumen de signos)
+    // 1. Key summary command: "How are my vitals?" / "Vitals status"
     if (
-      q.includes("estado de mis signos") ||
-      q.includes("como estan mis signos") ||
-      q.includes("dime mis signos") ||
-      q.includes("resumen de mis signos") ||
-      q.includes("mis signos vitales") ||
-      q.includes("estado general")
+      q.includes("how are my vitals") ||
+      q.includes("vitals status") ||
+      q.includes("check my vitals") ||
+      q.includes("my vitals") ||
+      q.includes("overall status") ||
+      q.includes("flight readiness") ||
+      q.includes("status report")
     ) {
       const criticalCount = criticalZones.length;
       const warningCount = warningZones.length;
@@ -264,172 +300,184 @@ export default function TopMissionBar({
       }
 
       const summaryText = b
-        ? `Claro ${astronautName}, te traslado a la sección de Signos. En el día ${missionDay} (${env.shortName}), tu estado general es del ${readinessScore} por ciento. Corazón: ${b.bpm} latidos por minuto. Oxígeno: ${b.spo2Percent} por ciento. Presión: ${b.systolicBP} sobre ${b.diastolicBP}. Respiración: ${b.respiratoryRateRpm} por minuto. Temperatura: ${b.bodyTempC.toFixed(
+        ? `Understood, ${astronautName}. Switching to Biomarkers. On Mission Day ${missionDay} aboard ${env.shortName}, Flight Readiness is ${readinessScore} percent. Heart rate: ${b.bpm} bpm. Oxygen saturation: ${b.spo2Percent} percent. Blood pressure: ${b.systolicBP} over ${b.diastolicBP}. Respiratory rate: ${b.respiratoryRateRpm} breaths per minute. Core temperature: ${b.bodyTempC.toFixed(
             1
-          )} grados. Hidratación: ${b.hydrationPercent} por ciento y Escudo de Radiación al ${shieldPct} por ciento. ${
+          )} degrees Celsius. Hydration: ${b.hydrationPercent} percent, and radiation shielding at ${shieldPct} percent. ${
             criticalCount > 0
-              ? `Atención: detecto ${criticalCount} zona en peligro crítico (${ZONE_FRIENDLY_NAMES[primaryCriticalZone]}); te abrí el protocolo de emergencia en el Escáner y te recomiendo contactar al médico de inmediato.`
+              ? `Critical advisory: ${criticalCount} zone requires immediate attention (${ZONE_FRIENDLY_NAMES[primaryCriticalZone]}). I have opened the emergency protocol in Bio-Scanner — contact the Flight Surgeon immediately.`
               : warningCount > 0
-              ? `Nota preventiva: tienes ${warningCount} zona en precaución (${ZONE_FRIENDLY_NAMES[primaryWarningZone]}). Te recomiendo hidratarte con 300 mililitros de agua, hacer 5 minutos de respiración lenta y revisar el manual clínico.`
-              : `Todos tus signos están en rango óptimo; te recomiendo mantener tu hidratación constante y tu sesión diaria de ejercicio.`
-          } ¿Qué necesitas el día de hoy?`
-        : `Tu estado general es del ${readinessScore} por ciento y te he trasladado a la sección de Signos. ¿Qué necesitas el día de hoy?`;
+              ? `Caution notice: ${warningCount} zone is in caution (${ZONE_FRIENDLY_NAMES[primaryWarningZone]}). I recommend drinking 300 milliliters of water, performing 5 minutes of slow paced breathing, and reviewing the clinical protocol.`
+              : `All primary systems are nominal. Maintain steady hydration and complete today's countermeasure exercise session.`
+          } What else would you like to check?`
+        : `Overall Flight Readiness is ${readinessScore} percent, and I've opened Biomarkers. What else would you like to check?`;
 
       speakAstroText(summaryText);
       return;
     }
 
-    // 2. Navegación explícita por secciones cuando el usuario pide ir/abrir/mostrar/cambiar
+    // 2. Explicit section navigation
     if (
-      q.includes("arnes") ||
-      q.includes("traje") ||
-      q.includes("chaleco") ||
-      q.includes("sensores") ||
-      q.includes("wearable")
+      q.includes("harness") ||
+      q.includes("suit") ||
+      q.includes("vest") ||
+      q.includes("sensor") ||
+      q.includes("wearable") ||
+      q.includes("bio-monitor") ||
+      q.includes("biomonitor") ||
+      q.includes("3n")
     ) {
       onNavigateSection("wearable");
       speakAstroText(
-        `Claro, te traslado a la sección de tu Traje de Sensores Arnés 3N. Aquí puedes revisar los 13 signos continuos en tus 3 nodos corporales. ¿Qué necesitas el día de hoy?`
+        `Switching to the Bio-Monitor 3N telemetry harness view. Here you can inspect all 13 continuous streams across your 3 body nodes. What else would you like to check?`
       );
       return;
     }
 
     if (
-      q.includes("ciencia") ||
-      q.includes("referencia") ||
-      q.includes("fuente") ||
-      q.includes("estudio")
+      q.includes("manual") ||
+      q.includes("nasa") ||
+      q.includes("3001") ||
+      q.includes("reference") ||
+      q.includes("science") ||
+      q.includes("source") ||
+      q.includes("study")
     ) {
       onNavigateSection("referencias");
       speakAstroText(
-        `Te traslado a la sección de Ciencia con los 5 peligros espaciales de la NASA y las 16 fuentes clínicas verificadas. ¿Qué necesitas el día de hoy?`
+        `Opening the offline NASA-STD-3001 Clinical & Technical Manual with all 5 spaceflight hazards and local clinical references. What else would you like to check?`
       );
       return;
     }
 
     if (
-      q.includes("habito") ||
-      q.includes("informe") ||
-      q.includes("grafica") ||
-      q.includes("evolucion") ||
-      q.includes("ejercicio")
+      q.includes("countermeasure") ||
+      q.includes("habit") ||
+      q.includes("report") ||
+      q.includes("chart") ||
+      q.includes("trend") ||
+      q.includes("exercise")
     ) {
       onNavigateSection("informes");
       speakAstroText(
-        `Abriendo la sección de Hábitos y evolución clínica para mantener tu cuerpo fuerte en el espacio. ¿Qué necesitas el día de hoy?`
+        `Opening NASA HRP Countermeasures and clinical progression charts. What else would you like to check?`
       );
       return;
     }
 
-    if (q.includes("camara") || q.includes("manual") || q.includes("ajustar")) {
+    if (q.includes("camera") || q.includes("manual entry") || q.includes("adjust")) {
       onOpenScanModal();
       speakAstroText(
-        `Abriendo la ventana de Cámara y Registro Manual para que actualices tu evaluación. ¿Qué necesitas el día de hoy?`
+        `Opening the Multimodal Camera and Manual Clinical Entry panel so you can update your assessment. What else would you like to check?`
       );
       return;
     }
 
     if (
-      q.includes("escaner") ||
-      q.includes("mapa") ||
-      q.includes("protocolo") ||
-      q.includes("instrucciones") ||
-      q.includes("anatom")
+      q.includes("scanner") ||
+      q.includes("map") ||
+      q.includes("protocol") ||
+      q.includes("anatom") ||
+      q.includes("instructions")
     ) {
-      if (q.includes("corazon")) {
+      if (q.includes("heart") || q.includes("cardio")) {
         setAstroTargetZone("corazon");
         onInspectProtocol("corazon");
-      } else if (q.includes("rostro") || q.includes("cara")) {
+      } else if (q.includes("face") || q.includes("posture")) {
         setAstroTargetZone("rostro");
         onInspectProtocol("rostro");
-      } else if (q.includes("abdomen") || q.includes("energia")) {
+      } else if (q.includes("abdomen") || q.includes("energy") || q.includes("fluid")) {
         setAstroTargetZone("abdomen");
         onInspectProtocol("abdomen");
-      } else if (q.includes("musculo") || q.includes("hueso")) {
+      } else if (q.includes("muscle") || q.includes("bone")) {
         setAstroTargetZone("musculo");
         onInspectProtocol("musculo");
-      } else if (q.includes("defensa") || q.includes("endocrino")) {
+      } else if (q.includes("immunit") || q.includes("endocrin") || q.includes("defens")) {
         setAstroTargetZone("endocrino");
         onInspectProtocol("endocrino");
+      } else if (q.includes("brain") || q.includes("cognit")) {
+        setAstroTargetZone("cerebro");
+        onInspectProtocol("cerebro");
       } else {
         onNavigateSection("escaner");
       }
       speakAstroText(
-        `Te he trasladado al Escáner Anatómico con el Manual de Instrucciones Clínico y recomendaciones paso a paso. ¿Qué necesitas el día de hoy?`
+        `Opening the Anatomical Bio-Scanner with the autonomous Clinical Protocol Manual and step-by-step actions. What else would you like to check?`
       );
       return;
     }
 
     if (
+      q.includes("mcc") ||
+      q.includes("telemetry") ||
       q.includes("monitor") ||
-      q.includes("inicio") ||
-      q.includes("principal") ||
-      q.includes("panel general")
+      q.includes("overview") ||
+      q.includes("home") ||
+      q.includes("main")
     ) {
       onNavigateSection("resumen");
       speakAstroText(
-        `Volviendo al Monitor Principal de misión. Tu bienestar general es del ${readinessScore} por ciento. ¿Qué necesitas el día de hoy?`
+        `Returning to MCC Telemetry Overview. Your overall Flight Readiness is ${readinessScore} percent. What else would you like to check?`
       );
       return;
     }
 
     if (
-      (q.includes("ir a") ||
-        q.includes("abre") ||
-        q.includes("abrir") ||
-        q.includes("ver") ||
-        q.includes("muestra") ||
-        q.includes("seccion") ||
-        q.includes("cambia")) &&
-      (q.includes("signos") ||
-        q.includes("biomarcador") ||
-        q.includes("animo") ||
-        q.includes("rutina") ||
-        q.includes("horario"))
+      (q.includes("go to") ||
+        q.includes("open") ||
+        q.includes("show") ||
+        q.includes("view") ||
+        q.includes("switch") ||
+        q.includes("section")) &&
+      (q.includes("biomarker") ||
+        q.includes("vital") ||
+        q.includes("mood") ||
+        q.includes("routine") ||
+        q.includes("schedule"))
     ) {
       onNavigateSection("biomarcadores");
       speakAstroText(
-        `Te traslado a la sección de Signos, Ánimo y Horarios del día. ¿Qué necesitas el día de hoy?`
+        `Navigating to Biomarkers, Behavioral Health, and Daily Schedule. What else would you like to check?`
       );
       return;
     }
 
-    // 3. Cambio de entorno gravitatorio por voz
-    if (q.includes("marte")) {
+    // 3. Voice gravity environment switching
+    if (q.includes("mars")) {
       onSelectEnvironment("marte");
       speakAstroText(
-        `Entorno cambiado a Marte con gravedad de 0.38 g. Te recomiendo calibrar el nodo de muñeca del Arnés 3N al nivel del corazón. ¿Qué necesitas el día de hoy?`
+        `Environment switched to Mars at 0.38 g gravity. I recommend calibrating the Bio-Monitor 3N radial wrist node at heart level. What else would you like to check?`
       );
       return;
     }
-    if (q.includes("luna")) {
+    if (q.includes("moon") || q.includes("lunar")) {
       onSelectEnvironment("luna");
       speakAstroText(
-        `Entorno cambiado a la Luna con gravedad de 0.16 g. ¿Qué necesitas el día de hoy?`
+        `Environment switched to Moon at 0.16 g gravity. What else would you like to check?`
       );
       return;
     }
-    if (q.includes("estacion") || q.includes("iss")) {
+    if (q.includes("station") || q.includes("iss")) {
       onSelectEnvironment("iss");
       speakAstroText(
-        `Entorno cambiado a la Estación Espacial en microgravedad cero g. ¿Qué necesitas el día de hoy?`
+        `Environment switched to the International Space Station in 0 g microgravity. What else would you like to check?`
       );
       return;
     }
-    if (q.includes("viaje") || q.includes("transito")) {
+    if (q.includes("transit") || q.includes("spacecraft") || q.includes("deep space")) {
       onSelectEnvironment("nave");
       speakAstroText(
-        `Entorno cambiado a Viaje espacial profundo en cero g. ¿Qué necesitas el día de hoy?`
+        `Environment switched to Deep Space Transit in 0 g microgravity. What else would you like to check?`
       );
       return;
     }
 
-    // 4. Consultas de signos vitales específicos: lectura + recomendación + traslado automático a la sección
+    // 4. Specific vital-sign queries: readout + clinical guidance + section jump
     if (b) {
       if (
-        q.includes("corazon") ||
-        q.includes("latido") ||
-        q.includes("pulso") ||
+        q.includes("heart") ||
+        q.includes("beat") ||
+        q.includes("pulse") ||
+        q.includes("bpm") ||
         q.includes("cardiac") ||
         q.includes("hrv")
       ) {
@@ -442,34 +490,34 @@ export default function TopMissionBar({
         }
         const rec =
           b.bpm <= 92 && b.bpm >= 52 && b.hrvRmssdMs >= 38
-            ? "Estado Bien: tu ritmo es tranquilo y parejo. Recomendación: mantén tu rutina aeróbica de 30 minutos y evita estimulantes antes de dormir."
-            : "Estado a Cuidar: notamos mayor carga cardíaca. Recomendación: haz 5 minutos de respiración lenta (inhalando 4 segundos y exhalando 6), bebe 250 mililitros de agua y revisa el protocolo de Corazón.";
+            ? "Status Nominal: rhythm is steady and well-recovered. Recommendation: maintain your 30-minute aerobic countermeasure and avoid stimulants before sleep."
+            : "Status Caution: elevated cardiac strain detected. Recommendation: perform 5 minutes of slow paced breathing (4 seconds inhale, 6 seconds exhale), drink 250 milliliters of water, and review the Heart protocol.";
         speakAstroText(
-          `Tu corazón late a ${b.bpm} latidos por minuto y su descanso cardíaco está al ${restPct} por ciento (${b.hrvRmssdMs} milisegundos). ${rec} Te he trasladado a la sección donde se encuentra este signo. ¿Qué necesitas el día de hoy?`
+          `Your heart rate is ${b.bpm} beats per minute with cardiac recovery at ${restPct} percent (${b.hrvRmssdMs} milliseconds HRV). ${rec} I've opened this metric view for you. What else would you like to check?`
         );
         return;
       }
 
       if (
-        q.includes("oxigeno") ||
-        q.includes("saturacion") ||
+        q.includes("oxygen") ||
+        q.includes("saturation") ||
         q.includes("spo2")
       ) {
         setAstroTargetZone("corazon");
         onNavigateSection("biomarcadores");
         const rec =
           b.spo2Percent >= 95
-            ? "Estado Bien: llega suficiente aire a tu cuerpo. Recomendación: mantén la banda frontal limpia y continúa tus actividades con normalidad."
-            : "Estado a Cuidar: oxigenación por debajo de lo ideal. Recomendación: realiza 10 respiraciones profundas, verifica la ventilación del módulo y consulta el protocolo cardiorrespiratorio.";
+            ? "Status Nominal: oxygen delivery is adequate. Recommendation: keep the frontal sensor band clean and continue cabin duties normally."
+            : "Status Caution: oxygenation is below target. Recommendation: take 10 deep breaths, inspect module O2 and CO2 scrubbing, and review the cardiorespiratory protocol.";
         speakAstroText(
-          `Tu oxígeno en sangre medido en la frente es del ${b.spo2Percent} por ciento, con fuerza de pulso de ${b.perfusionIndex.toFixed(
+          `Your forehead-measured blood oxygen saturation is ${b.spo2Percent} percent, with a perfusion index of ${b.perfusionIndex.toFixed(
             1
-          )} por ciento. ${rec} Te he llevado a la sección de Signos para que lo veas en detalle. ¿Qué necesitas el día de hoy?`
+          )} percent. ${rec} I've opened Biomarkers so you can inspect the trend. What else would you like to check?`
         );
         return;
       }
 
-      if (q.includes("presion") || q.includes("sangre") || q.includes("circulacion")) {
+      if (q.includes("pressure") || q.includes("bp") || q.includes("circulation")) {
         setAstroTargetZone("corazon");
         if (b.systolicBP >= 135 || b.systolicBP < 95) {
           onInspectProtocol("corazon");
@@ -478,56 +526,57 @@ export default function TopMissionBar({
         }
         const rec =
           b.systolicBP < 135 && b.systolicBP >= 95
-            ? "Estado Bien: la sangre circula con fuerza normal hacia tu cabeza y cuerpo. Recomendación: mantén buena hidratación y bajo consumo de sodio liofilizado."
-            : "Estado a Cuidar: presión fuera del rango ideal. Recomendación: reposa 10 minutos en postura neutra, hidrátate y verifica la calibración del nodo de muñeca al nivel del corazón.";
+            ? "Status Nominal: systemic blood pressure is balanced. Recommendation: maintain steady hydration and low dietary sodium."
+            : "Status Caution: blood pressure outside target window. Recommendation: rest 10 minutes in neutral posture, hydrate, and re-zero the radial node at heart level.";
         speakAstroText(
-          `Tu presión arterial sin manguito es de ${b.systolicBP} sobre ${b.diastolicBP} milímetros de mercurio (velocidad de pulso ${b.pttMs} milisegundos). ${rec} Ya te trasladé a la sección correspondiente. ¿Qué necesitas el día de hoy?`
+          `Your cuffless arterial pressure is ${b.systolicBP} over ${b.diastolicBP} millimeters of mercury (pulse transit time ${b.pttMs} milliseconds). ${rec} I've opened the corresponding view. What else would you like to check?`
         );
         return;
       }
 
-      if (q.includes("respiracion") || q.includes("respiro") || q.includes("pulmon")) {
+      if (q.includes("breath") || q.includes("respirat") || q.includes("lung") || q.includes("ventil")) {
         setAstroTargetZone("corazon");
         onNavigateSection("biomarcadores");
         const rec =
           b.respiratoryRateRpm >= 10 && b.respiratoryRateRpm <= 19
-            ? "Estado Bien: respiración tranquila y constante. Recomendación: conserva tu ritmo respiratorio nasal durante las tareas de cabina."
-            : "Estado a Cuidar: respiración acelerada. Recomendación: practica respiración cuadrada de 4 segundos por fase durante 3 minutos y verifica el nivel de CO2 ambiental.";
+            ? "Status Nominal: breathing is calm and steady. Recommendation: maintain nasal breathing cadence during cabin operations."
+            : "Status Caution: elevated respiratory rate. Recommendation: practice 4-second box breathing for 3 minutes and check cabin CO2 levels.";
         speakAstroText(
-          `Estás respirando ${b.respiratoryRateRpm} veces por minuto y entran ${b.minuteVentilationLpm.toFixed(
+          `Your respiratory rate is ${b.respiratoryRateRpm} breaths per minute with minute ventilation at ${b.minuteVentilationLpm.toFixed(
             1
-          )} litros de aire por minuto a tu pecho. ${rec} Te trasladé a la sección de Signos donde puedes monitorearlo. ¿Qué necesitas el día de hoy?`
+          )} liters per minute. ${rec} I've opened Biomarkers where you can monitor ventilation. What else would you like to check?`
         );
         return;
       }
 
       if (
-        q.includes("temperatura") ||
-        q.includes("calor") ||
-        q.includes("fiebre")
+        q.includes("temp") ||
+        q.includes("heat") ||
+        q.includes("fever")
       ) {
         setAstroTargetZone("endocrino");
         onNavigateSection("biomarcadores");
         const rec =
           b.bodyTempC >= 36.0 && b.bodyTempC <= 37.4
-            ? "Estado Bien: temperatura corporal en equilibrio óptimo. Recomendación: mantén la ventilación térmica de tu traje e hidrátate cada 2 horas."
-            : "Estado a Cuidar: variación térmica detectada. Recomendación: bebe 400 mililitros de agua fresca, disminuye la carga física por 20 minutos y vuelve a medir.";
+            ? "Status Nominal: core thermoregulation is well balanced. Recommendation: keep suit ventilation steady and hydrate every 2 hours."
+            : "Status Caution: thermal deviation detected. Recommendation: drink 400 milliliters of cool water, reduce physical workload for 20 minutes, and re-measure.";
         speakAstroText(
-          `Tu temperatura interna es de ${b.bodyTempC.toFixed(
+          `Your core body temperature is ${b.bodyTempC.toFixed(
             1
-          )} grados centígrados y en la piel es de ${b.skinTempC.toFixed(
+          )} degrees Celsius and skin temperature is ${b.skinTempC.toFixed(
             1
-          )} grados. ${rec} Te he trasladado a la sección de Signos. ¿Qué necesitas el día de hoy?`
+          )} degrees. ${rec} I've opened Biomarkers for review. What else would you like to check?`
         );
         return;
       }
 
       if (
-        q.includes("agua") ||
-        q.includes("hidratacion") ||
-        q.includes("glucosa") ||
-        q.includes("azucar") ||
-        q.includes("energia") ||
+        q.includes("water") ||
+        q.includes("hydrat") ||
+        q.includes("glucose") ||
+        q.includes("sugar") ||
+        q.includes("energy") ||
+        q.includes("fluid") ||
         q.includes("abdomen")
       ) {
         setAstroTargetZone("abdomen");
@@ -540,85 +589,85 @@ export default function TopMissionBar({
           b.hydrationPercent >= 75 &&
           b.bloodGlucoseMgDl >= 75 &&
           b.bloodGlucoseMgDl <= 115
-            ? "Estado Bien: excelente reserva de agua y energía estable. Recomendación: continúa tomando pequeños sorbos de agua con electrolitos cada hora."
-            : "Estado a Cuidar: requiere ajuste metabólico. Recomendación: bebe 350 mililitros de solución hidratante ahora mismo para proteger tus riñones en microgravedad y prioriza carbohidratos complejos.";
+            ? "Status Nominal: hydration reserve and glycemia are optimal. Recommendation: continue sipping electrolyte water every hour."
+            : "Status Caution: metabolic adjustment needed. Recommendation: drink 350 milliliters of oral rehydration solution now to protect renal function in microgravity and favor complex carbohydrates.";
         speakAstroText(
-          `Tu nivel de agua en el cuerpo está al ${b.hydrationPercent} por ciento y tu energía en sangre (glucosa) es de ${b.bloodGlucoseMgDl} miligramos por decilitro. ${rec} Te trasladé a la vista donde se encuentra este indicador. ¿Qué necesitas el día de hoy?`
+          `Body hydration is at ${b.hydrationPercent} percent and blood glucose is ${b.bloodGlucoseMgDl} milligrams per deciliter. ${rec} I've opened the relevant telemetry view. What else would you like to check?`
         );
         return;
       }
 
-      if (q.includes("radiacion") || q.includes("escudo")) {
+      if (q.includes("radiat") || q.includes("shield") || q.includes("dosimet")) {
         setAstroTargetZone("endocrino");
         onNavigateSection("wearable");
         const rec =
           dailyRadiationMsv <= 0.8
-            ? "Estado Bien: el blindaje de la nave te protege adecuadamente. Recomendación: mantén tu dosímetro activo en el nodo torácico."
-            : "Estado a Cuidar: flujo radiológico elevado. Recomendación: permanece en el sector con blindaje de agua/polietileno, evita actividades extravehiculares y consume antioxidantes de tu ración.";
+            ? "Status Nominal: habitat shielding is holding exposure within ALARA bounds. Recommendation: keep your thoracic dosimeter active."
+            : "Status Caution: elevated radiation flux. Recommendation: relocate to water-wall or polyethylene shielding, suspend EVA tasks, and take ration antioxidants.";
         speakAstroText(
-          `El escudo de radiación te brinda un ${shieldPct} por ciento de protección hoy, con lectura de ${dailyRadiationMsv.toFixed(
+          `Radiation shielding is holding at ${shieldPct} percent today, with dosimetry reading ${dailyRadiationMsv.toFixed(
             2
-          )} milisieverts por día. ${rec} Te he trasladado a la sección del Arnés 3N donde se monitorea el dosímetro. ¿Qué necesitas el día de hoy?`
+          )} millisieverts per day. ${rec} I've opened Bio-Monitor 3N where the thoracic dosimeter is tracked. What else would you like to check?`
         );
         return;
       }
 
       if (
-        q.includes("sueno") ||
-        q.includes("dormir") ||
-        q.includes("descanso") ||
-        q.includes("postura") ||
-        q.includes("musculo") ||
-        q.includes("hueso")
+        q.includes("sleep") ||
+        q.includes("rest") ||
+        q.includes("posture") ||
+        q.includes("muscle") ||
+        q.includes("bone")
       ) {
         setAstroTargetZone("musculo");
         onNavigateSection("informes");
         const rec =
           b.sleepHours >= 6.8 && b.postureScore >= 75
-            ? "Estado Bien: buen descanso reparador y soporte muscular firme. Recomendación: mantén tus 8 horas de bloque nocturno y tu rutina de resistencia ARED."
-            : "Estado a Cuidar: déficit de sueño o fatiga postural. Recomendación: atenúa las luces azules de cabina 60 minutos antes de dormir, usa antifaz y realiza estiramientos de descarga.";
+            ? "Status Nominal: restorative sleep and musculoskeletal posture are solid. Recommendation: protect your 8-hour sleep block and ARED resistive training."
+            : "Status Caution: sleep deficit or postural fatigue. Recommendation: dim cabin blue light 60 minutes prior to sleep, wear eye shades, and perform unloading stretches.";
         speakAstroText(
-          `Dormiste ${b.sleepHours.toFixed(
+          `You slept ${b.sleepHours.toFixed(
             1
-          )} horas, tu postura corporal está al ${b.postureScore} por ciento y el orden de tu reloj de sueño al ${b.melatoninIndex} por ciento. ${rec} Te trasladé a la sección de Hábitos y Evolución. ¿Qué necesitas el día de hoy?`
+          )} hours, posture score is ${b.postureScore} percent, and circadian rhythm stability is ${b.melatoninIndex} percent. ${rec} I've opened Countermeasures and clinical progression charts. What else would you like to check?`
         );
         return;
       }
 
       if (
-        q.includes("estres") ||
-        q.includes("mente") ||
+        q.includes("stress") ||
+        q.includes("mind") ||
         q.includes("mental") ||
-        q.includes("calma") ||
-        q.includes("animo") ||
-        q.includes("voz") ||
-        q.includes("cerebro")
+        q.includes("calm") ||
+        q.includes("mood") ||
+        q.includes("voice") ||
+        q.includes("brain") ||
+        q.includes("cognit")
       ) {
         setAstroTargetZone("cerebro");
         onNavigateSection("biomarcadores");
         const rec =
           b.stressLevel <= 45 && b.mentalFatigue <= 50
-            ? "Estado Bien: mente despejada, enfocada y voz tranquila. Recomendación: conserva tus pausas de 5 minutos cada 2 horas de trabajo técnico."
-            : "Estado a Cuidar: tensión o fatiga mental acumulada. Recomendación: toma una pausa activa de 15 minutos, practica respiración diafragmática y conversa con Tierra o con tu tripulación.";
+            ? "Status Nominal: cognitive load is balanced and vocal stress is low. Recommendation: keep taking 5-minute resets every 2 hours of console work."
+            : "Status Caution: accumulated mental strain detected. Recommendation: take a 15-minute active break, practice diaphragmatic breathing, and check in with Flight Control or crewmates.";
         speakAstroText(
-          `Tu nivel de tensión es del ${b.stressLevel} por ciento, cansancio mental del ${b.mentalFatigue} por ciento y tus reflejos están en ${b.reactionTimeMs} milisegundos. ${rec} Te he trasladado a la sección de Signos y Salud Mental. ¿Qué necesitas el día de hoy?`
+          `Stress level is ${b.stressLevel} percent, mental fatigue is ${b.mentalFatigue} percent, and reaction latency is ${b.reactionTimeMs} milliseconds. ${rec} I've opened Biomarkers and Behavioral Health. What else would you like to check?`
         );
         return;
       }
     }
 
-    // 5. Respuesta general racional por defecto: informa el estado de signos y traslada a Signos
+    // 5. Rational default fallback: summarize telemetry and open Biomarkers
     onNavigateSection("biomarcadores");
     const criticalCount = criticalZones.length;
     const summaryText = b
-      ? `Hola ${astronautName}, soy ASTRO. Te muestro la sección de Signos: en el día ${missionDay} en ${env.shortName}, tu bienestar general está al ${readinessScore} por ciento. Corazón: ${b.bpm} latidos por minuto. Oxígeno: ${b.spo2Percent} por ciento. Presión: ${b.systolicBP} sobre ${b.diastolicBP}. Temperatura: ${b.bodyTempC.toFixed(
+      ? `Hello ${astronautName}, ASTRO reporting. Opening Biomarkers: on Mission Day ${missionDay} aboard ${env.shortName}, overall Flight Readiness is ${readinessScore} percent. Heart rate: ${b.bpm} bpm. Oxygen: ${b.spo2Percent} percent. Blood pressure: ${b.systolicBP} over ${b.diastolicBP}. Core temp: ${b.bodyTempC.toFixed(
           1
-        )} grados. Escudo de radiación: ${shieldPct} por ciento seguro. ${
+        )} degrees Celsius. Radiation shield: ${shieldPct} percent nominal. ${
           criticalCount > 0
-            ? `Atención: hay ${criticalCount} zona en nivel crítico; te recomiendo abrir el Escáner y contactar al médico.`
-            : "Todos tus sistemas principales están en buen estado; te recomiendo mantener tu hidratación y rutina del día."
-        } ¿Qué necesitas el día de hoy?`
-      : `Hola ${astronautName}, soy ASTRO. Día ${missionDay}, salud general al ${readinessScore} por ciento. ¿Qué necesitas el día de hoy?`;
+            ? `Attention: ${criticalCount} zone is at critical level. Open Bio-Scanner and contact the Flight Surgeon.`
+            : "All core subsystems remain in healthy bounds — keep up your hydration and daily countermeasures."
+        } What would you like to check next?`
+      : `Hello ${astronautName}, ASTRO reporting. Mission Day ${missionDay}, Flight Readiness at ${readinessScore} percent. What would you like to check next?`;
 
     speakAstroText(summaryText);
   };
@@ -639,7 +688,7 @@ export default function TopMissionBar({
 
     if (!SpeechRec) {
       speakAstroText(
-        "Tu navegador no tiene micrófono directo, pero puedes escribirme aquí al lado. ¿Qué necesitas el día de hoy?"
+        "Direct microphone input isn't supported in this browser, but you can type your query in the box beside me. What would you like to check?"
       );
       return;
     }
@@ -650,7 +699,7 @@ export default function TopMissionBar({
         setSpeaking(false);
       }
       const recognition = new SpeechRec();
-      recognition.lang = "es-ES";
+      recognition.lang = "en-US";
       recognition.interimResults = false;
       recognition.maxAlternatives = 1;
       recognition.continuous = false;
@@ -707,14 +756,14 @@ export default function TopMissionBar({
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-mono-hud text-sm font-bold tracking-wider text-slate-100">
-                  ASTRO-MED <span className="text-sky-400">HRP · CONSOLA BIOMÉDICA</span>
+                  ASTRO-MED <span className="text-sky-400">HRP · BIOMEDICAL CONSOLE</span>
                 </span>
                 <span className="rounded border border-sky-500/30 bg-sky-500/10 px-1.5 py-0.5 font-mono-hud text-[10px] font-semibold text-sky-300">
-                  MET · DÍA {missionDay}
+                  MET · DAY {missionDay}
                 </span>
               </div>
               <div className="text-[11px] text-slate-400">
-                {astronautName} · Telemetría Bio-Monitor 3N (NASA-STD-3001)
+                {astronautName} · Bio-Monitor 3N Telemetry (NASA-STD-3001)
               </div>
             </div>
           </div>
@@ -753,15 +802,15 @@ export default function TopMissionBar({
               type="button"
               onClick={onToggleTelemedicine}
               className="cursor-pointer hover:text-white"
-              title="Cambiar conexión con médicos en Tierra"
+              title="Toggle Ground Flight Surgeon link"
             >
-              Tierra:{" "}
+              Ground:{" "}
               <strong
                 className={
                   telemedicineEnabled ? "text-emerald-300" : "text-amber-300"
                 }
               >
-                {telemedicineEnabled ? env.commLatencyLabel.split(" ")[0] : "SIN SEÑAL (LOCAL)"}
+                {telemedicineEnabled ? env.commLatencyLabel.split(" ")[0] : "NO LINK (LOCAL)"}
               </strong>
             </button>
           </div>
@@ -783,22 +832,22 @@ export default function TopMissionBar({
                 ? "border-cyan-400/70 bg-cyan-500/20 text-cyan-200"
                 : "border-cyan-500/35 bg-cyan-500/10 text-cyan-200 hover:bg-cyan-500/20"
             }`}
-            title="Asistente de voz ASTRO: pregúntale tus signos vitales o pídele cambiar de sección"
+            title="ASTRO Voice Assistant: ask about vitals or navigate sections"
           >
             {listening ? (
               <>
                 <Mic className="h-3.5 w-3.5" />
-                <span>ASTRO Escuchando...</span>
+                <span>ASTRO Listening...</span>
               </>
             ) : speaking ? (
               <>
                 <Volume2 className="h-3.5 w-3.5 text-cyan-300" />
-                <span>ASTRO Hablando...</span>
+                <span>ASTRO Speaking...</span>
               </>
             ) : (
               <>
                 <Sparkles className="h-3.5 w-3.5 text-cyan-300" />
-                <span>Asistente ASTRO</span>
+                <span>ASTRO Assistant</span>
               </>
             )}
           </button>
@@ -809,17 +858,17 @@ export default function TopMissionBar({
             className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-[#1a73e8] px-3 py-1.5 text-xs font-bold text-white transition hover:bg-blue-600"
           >
             <ScanLine className="h-3.5 w-3.5" />
-            <span>Revisar / Ajustar</span>
+            <span>Review / Adjust</span>
           </button>
 
-          {/* Indicador Clínico Automático de Nivel de Peligro */}
+          {/* Automated Clinical Risk Indicator */}
           {overallRiskStatus === "optimal" && (
             <div
               className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/35 bg-emerald-500/10 px-2.5 py-1.5 text-xs font-semibold text-emerald-300"
-              title="Detección automática: todos los subsistemas en rango nominal"
+              title="Auto-detection: all subsystems within nominal range"
             >
               <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
-              <span>Estado: NOMINAL</span>
+              <span>Status: NOMINAL</span>
             </div>
           )}
 
@@ -828,10 +877,10 @@ export default function TopMissionBar({
               type="button"
               onClick={() => onInspectProtocol(primaryWarningZone)}
               className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-amber-400/60 bg-amber-500/20 px-3 py-1.5 text-xs font-bold text-amber-300 transition hover:bg-amber-500/30"
-              title="Parámetros en precaución detectados automáticamente"
+              title="Caution thresholds detected automatically"
             >
               <AlertTriangle className="h-3.5 w-3.5 text-amber-400" />
-              <span>PRECAUCIÓN ({warningZones.length})</span>
+              <span>CAUTION ({warningZones.length})</span>
             </button>
           )}
 
@@ -840,17 +889,17 @@ export default function TopMissionBar({
               type="button"
               onClick={() => onInspectProtocol(primaryCriticalZone)}
               className="inline-flex animate-pulse cursor-pointer items-center gap-1.5 rounded-lg border border-red-400 bg-red-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm transition hover:bg-red-700"
-              title="Nivel crítico detectado automáticamente"
+              title="Critical threshold detected automatically"
             >
               <ShieldAlert className="h-3.5 w-3.5" />
-              <span>CRÍTICO ({Math.max(1, criticalZones.length)})</span>
+              <span>CRITICAL ({Math.max(1, criticalZones.length)})</span>
             </button>
           )}
 
           <button
             type="button"
             onClick={onResetMission}
-            title="Reiniciar misión a valores nominales"
+            title="Reset mission telemetry to nominal baseline"
             className="inline-flex cursor-pointer items-center justify-center rounded-lg border border-white/15 bg-white/5 p-1.5 text-blue-200 transition hover:bg-white/15 hover:text-white"
           >
             <RotateCcw className="h-3.5 w-3.5" />
@@ -858,7 +907,7 @@ export default function TopMissionBar({
         </div>
       </div>
 
-      {/* Consola Interactiva del Asistente de Voz ASTRO */}
+      {/* Interactive ASTRO Voice Assistant Drawer */}
       {astroOpen && (
         <div className="border-t border-cyan-500/35 bg-[#081225] px-4 py-3 text-xs text-slate-100 shadow-xl sm:px-6">
           <div className="mx-auto max-w-[1600px] space-y-3">
@@ -869,10 +918,10 @@ export default function TopMissionBar({
                 </span>
                 <div className="flex items-center gap-2">
                   <span className="font-mono-hud text-xs font-bold tracking-wider text-cyan-300">
-                    ASTRO · ASISTENTE DE VOZ
+                    ASTRO · VOICE ASSISTANT
                   </span>
                   <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 font-mono-hud text-[10px] text-emerald-300">
-                    Sección actual: {activeSection.toUpperCase()}
+                    Section: {SECTION_DISPLAY_NAMES[activeSection] ?? activeSection.toUpperCase()}
                   </span>
                 </div>
               </div>
@@ -890,12 +939,12 @@ export default function TopMissionBar({
                   {listening ? (
                     <>
                       <MicOff className="h-3.5 w-3.5" />
-                      <span>Detener Micrófono</span>
+                      <span>Stop Mic</span>
                     </>
                   ) : (
                     <>
                       <Mic className="h-3.5 w-3.5" />
-                      <span>Hablar con ASTRO</span>
+                      <span>Talk to ASTRO</span>
                     </>
                   )}
                 </button>
@@ -912,7 +961,7 @@ export default function TopMissionBar({
                     className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-white/20 bg-white/10 px-2.5 py-1.5 text-xs font-semibold text-slate-200 hover:bg-white/20"
                   >
                     <VolumeX className="h-3.5 w-3.5" />
-                    <span>Callar Voz</span>
+                    <span>Mute Voice</span>
                   </button>
                 )}
 
@@ -920,19 +969,19 @@ export default function TopMissionBar({
                   type="button"
                   onClick={() => setAstroOpen(false)}
                   className="inline-flex cursor-pointer items-center justify-center rounded-lg border border-white/15 bg-white/5 p-1.5 text-slate-300 hover:bg-white/15 hover:text-white"
-                  aria-label="Cerrar asistente ASTRO"
+                  aria-label="Close ASTRO assistant"
                 >
                   <X className="h-4 w-4" />
                 </button>
               </div>
             </div>
 
-            {/* Respuesta en vivo de ASTRO + Entrada de voz/texto */}
+            {/* Live ASTRO Response + Voice/Text Input */}
             <div className="grid grid-cols-1 gap-3 lg:grid-cols-12">
               <div className="rounded-xl border border-[#1b3154] bg-[#0c1830] p-3 lg:col-span-7">
                 <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono-hud text-slate-400">
                   <span>
-                    {lastUserQuery ? `TÚ: "${lastUserQuery}"` : "RESPUESTA DE ASTRO"}
+                    {lastUserQuery ? `YOU: "${lastUserQuery}"` : "ASTRO RESPONSE"}
                   </span>
                   <div className="flex flex-wrap items-center gap-2">
                     <button
@@ -941,7 +990,7 @@ export default function TopMissionBar({
                       className="inline-flex cursor-pointer items-center gap-1 rounded border border-sky-400/40 bg-sky-500/15 px-2 py-0.5 text-[10px] font-semibold text-sky-200 hover:bg-sky-500/25"
                     >
                       <ScanLine className="h-3 w-3" />
-                      Protocolo ({ZONE_FRIENDLY_NAMES[astroTargetZone]})
+                      Protocol ({ZONE_FRIENDLY_NAMES[astroTargetZone]})
                     </button>
                     <button
                       type="button"
@@ -949,7 +998,7 @@ export default function TopMissionBar({
                       className="inline-flex cursor-pointer items-center gap-1 text-cyan-300 hover:underline"
                     >
                       <Volume2 className="h-3.5 w-3.5" />
-                      Repetir en voz alta
+                      Speak Aloud
                     </button>
                   </div>
                 </div>
@@ -971,7 +1020,7 @@ export default function TopMissionBar({
                   type="text"
                   value={astroInput}
                   onChange={(e) => setAstroInput(e.target.value)}
-                  placeholder="Habla o escribe a ASTRO..."
+                  placeholder="Speak or type to ASTRO..."
                   className="flex-1 rounded-lg border border-[#233b63] bg-[#070e1d] px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:border-cyan-400 focus:outline-none"
                 />
                 <button
@@ -979,7 +1028,7 @@ export default function TopMissionBar({
                   className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-[#1a73e8] px-3 py-1.5 text-xs font-bold text-white hover:bg-blue-600"
                 >
                   <Send className="h-3.5 w-3.5" />
-                  <span>Enviar</span>
+                  <span>Send</span>
                 </button>
               </form>
             </div>
@@ -987,7 +1036,7 @@ export default function TopMissionBar({
         </div>
       )}
 
-      {/* Banner Automático en Estado Precaución (Warning) */}
+      {/* Automated Caution Advisory Banner */}
       {overallRiskStatus === "warning" && (
         <div
           role="status"
@@ -998,17 +1047,18 @@ export default function TopMissionBar({
               <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
               <div>
                 <strong className="text-amber-300">
-                  Aviso Preventivo Automático (
+                  Automated Preventive Advisory (
                   {warningZones.map((z) => ZONE_FRIENDLY_NAMES[z]).join(", ")}
                   ):
                 </strong>{" "}
-                Se recomienda <strong>consultar a Tierra</strong> (
+                Recommended action:{" "}
+                <strong>consult Ground Flight Surgeon</strong> (
                 {telemedicineEnabled
-                  ? `enlace activo · ${env.commLatencyLabel}`
-                  : `modo sin red · ${env.commLatencyLabel}`}
-                ) o revisar el{" "}
-                <strong>Manual de Instrucciones Clínico autónomo</strong> en el
-                Escáner [5].
+                  ? `active link · ${env.commLatencyLabel}`
+                  : `offline mode · ${env.commLatencyLabel}`}
+                ) or open the{" "}
+                <strong>autonomous Clinical Protocol Manual</strong> in
+                Bio-Scanner [5].
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -1019,7 +1069,7 @@ export default function TopMissionBar({
                   className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-amber-400/50 bg-amber-500/15 px-2.5 py-1 text-[11px] font-bold text-amber-200 transition hover:bg-amber-500/25"
                 >
                   <Radio className="h-3.5 w-3.5" />
-                  Consultar a Tierra ({env.commLatencyLabel.split(" ")[0]})
+                  Consult Ground ({env.commLatencyLabel.split(" ")[0]})
                 </button>
               )}
               <button
@@ -1028,14 +1078,14 @@ export default function TopMissionBar({
                 className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-amber-400/60 bg-amber-500/25 px-2.5 py-1 text-[11px] font-bold text-amber-100 transition hover:bg-amber-500/35"
               >
                 <ScanLine className="h-3.5 w-3.5" />
-                Ver Manual de Instrucciones Clínico (Escáner)
+                Open Clinical Protocol Manual (Bio-Scanner)
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Banner Automático Prioritario en Estado Muy Peligroso / Crítico */}
+      {/* Automated Critical Alert Banner */}
       {overallRiskStatus === "critical" && (
         <div
           role="alert"
@@ -1047,20 +1097,22 @@ export default function TopMissionBar({
               <div className="space-y-0.5">
                 <div>
                   <strong className="text-red-300">
-                    PELIGRO CRÍTICO AUTOMÁTICO (
+                    AUTOMATED CRITICAL ALERT (
                     {criticalZones.length > 0
                       ? criticalZones.map((z) => ZONE_FRIENDLY_NAMES[z]).join(", ")
-                      : "Riesgo General"}
+                      : "System-Wide Risk"}
                     ):
                   </strong>{" "}
-                  Se recomienda <strong>contactar a un médico de inmediato</strong>{" "}
-                  si hay enlace activo (ISS/Luna) o seguir los{" "}
-                  <strong>protocolos autónomos del Escáner Anatómico</strong> [5].
+                  Recommended action:{" "}
+                  <strong>contact a Flight Surgeon immediately</strong> if
+                  telemetry link is active (ISS/Moon), or execute the{" "}
+                  <strong>autonomous Anatomical Bio-Scanner protocols</strong>{" "}
+                  [5].
                 </div>
                 <div className="text-[11px] text-red-200/90">
                   {isLowLatency && telemedicineEnabled
-                    ? `Enlace activo con Tierra (${env.commLatencyLabel}): comunica tus signos al Cirujano de Vuelo ahora mismo.`
-                    : `Sin comunicación directa con Tierra (${env.commLatencyLabel} o modo sin red): abre el Manual de Instrucciones Clínico en "Escáner → 1. Protocolo de Examen y Acción".`}
+                    ? `Ground link active (${env.commLatencyLabel}): transmit your telemetry to the Flight Surgeon immediately.`
+                    : `No real-time Ground communication (${env.commLatencyLabel} or offline mode): open the Clinical Manual under "Bio-Scanner → 1. Exam & Action Protocol".`}
                 </div>
               </div>
             </div>
@@ -1073,7 +1125,7 @@ export default function TopMissionBar({
                   className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-emerald-400/50 bg-emerald-600 px-2.5 py-1 text-[11px] font-bold text-white transition hover:bg-emerald-500"
                 >
                   <Radio className="h-3.5 w-3.5" />
-                  Activar Enlace Médico ({env.commLatencyLabel.split(" ")[0]})
+                  Activate Flight Surgeon Link ({env.commLatencyLabel.split(" ")[0]})
                 </button>
               )}
               <button
@@ -1082,7 +1134,7 @@ export default function TopMissionBar({
                 className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-red-300/60 bg-red-600 px-3 py-1 text-[11px] font-bold text-white transition hover:bg-red-500"
               >
                 <ScanLine className="h-3.5 w-3.5" />
-                Ver Manual Clínico y Protocolos Autónomos (Escáner)
+                Open Clinical Manual & Autonomous Protocols (Bio-Scanner)
               </button>
             </div>
           </div>

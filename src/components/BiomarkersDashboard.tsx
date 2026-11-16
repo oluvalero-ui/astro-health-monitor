@@ -94,7 +94,7 @@ function MetricCard({
       return (
         <span className="inline-flex items-center gap-0.5 text-[11px] text-slate-400">
           <ArrowRight className="h-3 w-3" />
-          Estable
+          Stable
         </span>
       );
     }
@@ -111,7 +111,7 @@ function MetricCard({
         ) : (
           <ArrowDownRight className="h-3 w-3" />
         )}
-        {isUp ? "Subiendo" : "Bajando"}
+        {isUp ? "Rising" : "Falling"}
       </span>
     );
   };
@@ -227,7 +227,7 @@ export default function BiomarkersDashboard({
 
   return (
     <section id="biomarkers-section" className="space-y-4">
-      {/* Barra de Sub-Secciones Limpia */}
+      {/* Clean Sub-Section Tabs Bar */}
       <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-[#1b2d4b] bg-[#0c1426] p-3 shadow-[0_14px_34px_rgba(2,6,23,0.45)]">
         <div className="flex flex-wrap items-center gap-2">
           <button
@@ -240,7 +240,7 @@ export default function BiomarkersDashboard({
             }`}
           >
             <HeartPulse className="h-4 w-4" />
-            Fisiológicos · Bio-Monitor 3N (13)
+            Physiological · Bio-Monitor 3N (13)
           </button>
 
           <button
@@ -253,7 +253,7 @@ export default function BiomarkersDashboard({
             }`}
           >
             <Brain className="h-4 w-4" />
-            Salud Conductual BHP (4)
+            Behavioral Health BHP (4)
           </button>
 
           <button
@@ -266,7 +266,7 @@ export default function BiomarkersDashboard({
             }`}
           >
             <CalendarClock className="h-4 w-4" />
-            Sincronía Circadiana ({routineAnalysis.stabilityScore}%)
+            Circadian Synchrony ({routineAnalysis.stabilityScore}%)
           </button>
         </div>
 
@@ -279,7 +279,7 @@ export default function BiomarkersDashboard({
               : "border-[#182742] bg-[#091120] text-slate-300 hover:border-sky-500/40 hover:text-slate-100"
           }`}
         >
-          {subView === "todos" ? "Separar por áreas" : "Ver todos"}
+          {subView === "todos" ? "Split by Category" : "View All"}
         </button>
       </div>
 
@@ -309,7 +309,7 @@ export default function BiomarkersDashboard({
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className="text-base font-bold text-slate-100">
-                  Tus Horarios de Sueño, Ejercicio, Comida y Agua
+                  Sleep, Exercise, Nutrition & Hydration Schedule
                 </h2>
                 <span
                   className="rounded-full px-2.5 py-0.5 font-mono-hud text-[11px] font-bold uppercase"
@@ -319,14 +319,14 @@ export default function BiomarkersDashboard({
                   }}
                 >
                   {routineAnalysis.overallStatus === "optimal"
-                    ? "Al día"
+                    ? "On Track"
                     : routineAnalysis.overallStatus === "warning"
-                    ? "Cuidar horarios"
-                    : "Retraso importante"}
+                    ? "Schedule Drift"
+                    : "Major Disruption"}
                 </span>
               </div>
               <p className="mt-0.5 text-xs text-slate-400">
-                Te avisa de forma sencilla si hoy dormiste menos, tomaste poca agua o te saltaste alguna comida.
+                Flags circadian phase shift, under-hydration, missed exercise, or skipped rations against baseline.
               </p>
             </div>
           </div>
@@ -334,7 +334,7 @@ export default function BiomarkersDashboard({
           <div className="flex items-center gap-3">
             <div className="text-right">
               <div className="text-[11px] text-slate-400">
-                Cumplimiento de hoy
+                Today&apos;s Adherence
               </div>
               <div className="font-mono-hud text-xl font-bold text-sky-400">
                 {routineAnalysis.stabilityScore}%
@@ -345,7 +345,7 @@ export default function BiomarkersDashboard({
               onClick={onOpenManualEdit}
               className="cursor-pointer rounded-xl border border-[#1b2d4b] bg-[#091120] px-3 py-1.5 text-xs font-semibold text-slate-200 transition hover:border-sky-400 hover:text-sky-300"
             >
-              Cambiar Datos
+              Edit Data
             </button>
           </div>
         </div>
@@ -386,17 +386,17 @@ export default function BiomarkersDashboard({
       </div>
       )}
 
-      {/* Biomarker Group A: Los 13 Signos Fisiológicos Continuos del Arnés 3N */}
+      {/* Biomarker Group A: 13 Continuous Physiological Signs from Bio-Monitor 3N */}
       {(subView === "fisicos" || subView === "todos") && (
       <div className="rounded-2xl border border-[#1b2d4b] bg-[#0c1426] p-4 shadow-[0_14px_34px_rgba(2,6,23,0.45)] sm:p-5">
         <div className="mb-3.5 flex flex-wrap items-center justify-between gap-2 border-b border-[#182742] pb-2.5">
           <div>
             <h3 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-sky-300 sm:text-base">
               <HeartPulse className="h-4 w-4" />
-              Biomarcadores Fisiológicos en Tiempo Real (Bio-Monitor 3N)
+              Real-Time Physiological Biomarkers (Bio-Monitor 3N)
             </h3>
             <p className="text-xs text-slate-400">
-              Todo se mide solo con tu chaleco, tu banda en la frente y tu pulsera, sin cables molestos.
+              Captured continuously via smart thoracic vest, frontal headband, and radial/laryngeal wrist array.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2.5">
@@ -407,7 +407,7 @@ export default function BiomarkersDashboard({
                 className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-sky-500/35 bg-sky-500/10 px-2.5 py-1 text-[11px] font-semibold text-sky-300 transition hover:bg-sky-500/20"
               >
                 <Watch className="h-3.5 w-3.5" />
-                Ver Bio-Monitor 3N (13 mediciones)
+                Open Bio-Monitor 3N (13 channels)
               </button>
             )}
           </div>
@@ -415,10 +415,10 @@ export default function BiomarkersDashboard({
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <MetricCard
-            title="Latidos del Corazón (Pecho)"
+            title="Heart Rate (Thoracic)"
             value={`${b.bpm}`}
-            unit="lat/min"
-            subtitle="Ritmo de tus latidos medido por el chaleco (normal 52 a 92)"
+            unit="bpm"
+            subtitle="Resting cardiac cadence captured by chest leads (nominal 52–92)"
             status={evaluateBpmStatus(b.bpm)}
             trend={getTrend(b.bpm, prev.bpm, 1.5)}
             progressPercent={(b.bpm / 150) * 100}
@@ -426,10 +426,10 @@ export default function BiomarkersDashboard({
             onClick={() => onSelectSystemZone("corazon")}
           />
           <MetricCard
-            title="Descanso del Corazón (Pecho)"
+            title="Cardiac Recovery (Thoracic)"
             value={`${Math.min(100, Math.round((b.hrvRmssdMs / 60) * 100))}%`}
             unit={`(${b.hrvRmssdMs} ms)`}
-            subtitle="Qué tan relajado y recuperado está tu cuerpo hoy"
+            subtitle="Autonomic vagal recovery & parasympathetic tone"
             status={evaluateHrvStatus(b.hrvRmssdMs)}
             trend={getTrend(b.hrvRmssdMs, prev.hrvRmssdMs, 1.5)}
             trendPositiveIsGood
@@ -438,10 +438,10 @@ export default function BiomarkersDashboard({
             onClick={() => onSelectSystemZone("corazon")}
           />
           <MetricCard
-            title="Presión de la Sangre (Frente)"
+            title="Blood Pressure (Frontal PTT)"
             value={`${b.systolicBP}/${b.diastolicBP}`}
             unit="mmHg"
-            subtitle="Fuerza con la que circula tu sangre sin apretar el brazo"
+            subtitle="Cuffless arterial pressure estimated via optical pulse wave"
             status={evaluateBpStatus(b.systolicBP, b.diastolicBP)}
             trend={getTrend(b.systolicBP, prev.systolicBP, 2)}
             progressPercent={(b.systolicBP / 170) * 100}
@@ -449,10 +449,10 @@ export default function BiomarkersDashboard({
             onClick={() => onSelectSystemZone("corazon")}
           />
           <MetricCard
-            title="Oxígeno en la Sangre (Frente)"
+            title="Cranial SpO₂ (Frontal)"
             value={`${b.spo2Percent}%`}
-            unit={`· Pulso ${b.perfusionIndex.toFixed(1)}%`}
-            subtitle="Llega suficiente aire a tu cabeza y a tus músculos (meta 95–100%)"
+            unit={`· Pulse ${b.perfusionIndex.toFixed(1)}%`}
+            subtitle="Arterial oxygen saturation & perfusion (target 95–100%)"
             status={spo2PiStatus}
             trend={getTrend(b.spo2Percent, prev.spo2Percent, 0.5)}
             trendPositiveIsGood
@@ -461,10 +461,10 @@ export default function BiomarkersDashboard({
             onClick={() => onSelectSystemZone("corazon")}
           />
           <MetricCard
-            title="Respiración y Aire (Pecho)"
+            title="Respiration & Flow (Thoracic)"
             value={`${b.respiratoryRateRpm} /min`}
             unit={`· ${b.minuteVentilationLpm.toFixed(1)} L/m`}
-            subtitle="Veces que respiras por minuto y aire que entra al pecho"
+            subtitle="Respiratory frequency and pulmonary minute ventilation"
             status={respRipStatus}
             trend={getTrend(b.respiratoryRateRpm, prev.respiratoryRateRpm, 1)}
             progressPercent={(b.respiratoryRateRpm / 28) * 100}
@@ -472,10 +472,10 @@ export default function BiomarkersDashboard({
             onClick={() => onSelectSystemZone("corazon")}
           />
           <MetricCard
-            title="Calor del Cuerpo (Frente y Piel)"
+            title="Core & Skin Temp (ZHF)"
             value={`${b.bodyTempC.toFixed(1)} °C`}
-            unit={`· Piel ${b.skinTempC.toFixed(1)} °C`}
-            subtitle="Temperatura interna para saber que no tienes fiebre ni frío"
+            unit={`· Skin ${b.skinTempC.toFixed(1)} °C`}
+            subtitle="Zero-heat-flux internal core temperature to detect fever"
             status={thermalZhfStatus}
             trend={getTrend(b.bodyTempC, prev.bodyTempC, 0.15)}
             progressPercent={((b.bodyTempC - 34) / 6) * 100}
@@ -483,10 +483,10 @@ export default function BiomarkersDashboard({
             onClick={() => onSelectSystemZone("abdomen")}
           />
           <MetricCard
-            title="Postura y Sueño (Pecho)"
+            title="Posture & Sleep (Thoracic)"
             value={`${b.postureScore}%`}
             unit={`· ${b.sleepHours.toFixed(1)} h`}
-            subtitle="Qué tan cómoda está tu espalda y cuántas horas dormiste"
+            subtitle="Upper-body ergonomics & uninterrupted sleep duration"
             status={postureSleepStatus}
             trend={getTrend(b.postureScore, prev.postureScore, 2)}
             trendPositiveIsGood
@@ -495,10 +495,10 @@ export default function BiomarkersDashboard({
             onClick={() => onSelectSystemZone("musculo")}
           />
           <MetricCard
-            title="Escudo Radiación y Voz (Pulsera)"
+            title="Rad Shield & Voice (Radial)"
             value={`${Math.max(0, Math.min(100, Math.round((1 - b.dailyRadiationMsv / CSA_RADIATION_LIMITS.dailyAlertMsv) * 100)))}%`}
-            unit="protección"
-            subtitle={`Límite total usado: ${careerRadPct}% · Calma al hablar: ${100 - b.facialTension}%`}
+            unit="shielding"
+            subtitle={`Career quota used: ${careerRadPct}% · Vocal calm: ${100 - b.facialTension}%`}
             status={radStatus}
             trend={getTrend(b.dailyRadiationMsv, prev.dailyRadiationMsv, 0.05)}
             progressPercent={(b.dailyRadiationMsv / 2.0) * 100}
@@ -516,23 +516,23 @@ export default function BiomarkersDashboard({
           <div>
             <h3 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-cyan-300 sm:text-base">
               <Brain className="h-4 w-4" />
-              Salud Conductual y Neuro-Cognitiva (BHP)
+              Behavioral & Neurocognitive Health (BHP)
             </h3>
             <p className="text-xs text-slate-400">
-              Cómo te sientes de ánimo, energía mental y tranquilidad durante el viaje.
+              Mood stability, cognitive stamina, sleep architecture, and relaxation across deep spaceflight.
             </p>
           </div>
           <span className="font-mono-hud text-[11px] text-slate-400">
-            Rostro: {lastCameraFinding}
+            Face: {lastCameraFinding}
           </span>
         </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <MetricCard
-            title="Cansancio de la Mente"
+            title="Cognitive Fatigue"
             value={`${b.mentalFatigue}%`}
             unit=""
-            subtitle="Qué tan cansada está tu cabeza para concentrarte hoy"
+            subtitle="Subjective cognitive strain and focus endurance"
             status={evaluateMentalFatigueStatus(b.mentalFatigue)}
             trend={getTrend(b.mentalFatigue, prev.mentalFatigue, 2)}
             progressPercent={b.mentalFatigue}
@@ -540,10 +540,10 @@ export default function BiomarkersDashboard({
             onClick={() => onSelectSystemZone("cerebro")}
           />
           <MetricCard
-            title="Nivel de Tensión (Estrés)"
+            title="Stress Level"
             value={`${b.stressLevel}%`}
             unit=""
-            subtitle="Qué tan presionado o intranquilo se siente tu cuerpo"
+            subtitle="Physiological arousal and operational strain index"
             status={evaluateStressStatus(b.stressLevel)}
             trend={getTrend(b.stressLevel, prev.stressLevel, 2)}
             progressPercent={b.stressLevel}
@@ -551,10 +551,10 @@ export default function BiomarkersDashboard({
             onClick={() => onSelectSystemZone("cerebro")}
           />
           <MetricCard
-            title="Horas de Sueño"
+            title="Sleep Duration"
             value={b.sleepHours.toFixed(1)}
             unit={`h (${Math.min(100, Math.round((b.sleepHours / 8) * 100))}%)`}
-            subtitle="Lo ideal es dormir entre 7 y 8 horas seguidas"
+            subtitle="Target uninterrupted sleep window: 7–8.5 hours"
             status={evaluateSleepStatus(b.sleepHours)}
             trend={getTrend(b.sleepHours, prev.sleepHours, 0.2)}
             trendPositiveIsGood
@@ -563,10 +563,10 @@ export default function BiomarkersDashboard({
             onClick={() => onSelectSystemZone("cerebro")}
           />
           <MetricCard
-            title="Comodidad del Cuerpo y Rostro"
+            title="Posture & Facial Relaxation"
             value={`${b.postureScore}%`}
             unit=""
-            subtitle={`Relajación en tus ojos y cara: ${100 - b.facialTension}%`}
+            subtitle={`Ocular & facial calm index: ${100 - b.facialTension}%`}
             status={evaluatePostureStatus(b.postureScore)}
             trend={getTrend(b.postureScore, prev.postureScore, 2)}
             trendPositiveIsGood

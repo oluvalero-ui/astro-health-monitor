@@ -54,39 +54,39 @@ function getZoneLiveValues(zone: SystemZoneId, b: BiomarkerData): string[] {
   switch (zone) {
     case "cerebro":
       return [
-        `Fatiga mental: ${b.mentalFatigue}/100`,
-        `Estrés: ${b.stressLevel}/100`,
-        `Soledad: ${b.lonelinessLevel}/100`,
-        `Aburrimiento: ${b.boredomLevel}/100`,
-        `Sueño: ${b.sleepHours.toFixed(1)} h`,
-        `Ánimo: ${b.moodScore}/100`,
+        `Mental fatigue: ${b.mentalFatigue}/100`,
+        `Stress: ${b.stressLevel}/100`,
+        `Loneliness: ${b.lonelinessLevel}/100`,
+        `Boredom: ${b.boredomLevel}/100`,
+        `Sleep: ${b.sleepHours.toFixed(1)} h`,
+        `Mood: ${b.moodScore}/100`,
       ];
     case "rostro":
       return [
-        `Postura corporal: ${b.postureScore}/100`,
-        `Tensión facial/ocular: ${b.facialTension}/100`,
+        `Body posture: ${b.postureScore}/100`,
+        `Facial/ocular tension: ${b.facialTension}/100`,
       ];
     case "corazon":
       return [
-        `Pulso: ${b.bpm} BPM`,
-        `Presión Arterial: ${b.systolicBP}/${b.diastolicBP} mmHg`,
+        `Heart rate: ${b.bpm} BPM`,
+        `Blood Pressure: ${b.systolicBP}/${b.diastolicBP} mmHg`,
       ];
     case "endocrino":
       return [
-        `Cortisol (estrés): ${b.cortisolIndex}/100`,
-        `Melatonina (sueño): ${b.melatoninIndex}/100`,
-        `Radiación CSA: ${b.dailyRadiationMsv.toFixed(2)} mSv/d`,
+        `Cortisol (stress): ${b.cortisolIndex}/100`,
+        `Melatonin (sleep): ${b.melatoninIndex}/100`,
+        `CSA Radiation: ${b.dailyRadiationMsv.toFixed(2)} mSv/d`,
       ];
     case "abdomen":
       return [
-        `Azúcar en sangre: ${b.bloodGlucoseMgDl} mg/dL`,
-        `Hidratación: ${b.hydrationPercent}%`,
-        `Temperatura: ${b.bodyTempC.toFixed(1)} °C`,
+        `Blood glucose: ${b.bloodGlucoseMgDl} mg/dL`,
+        `Hydration: ${b.hydrationPercent}%`,
+        `Core Temp: ${b.bodyTempC.toFixed(1)} °C`,
       ];
     case "musculo":
       return [
-        `Cansancio físico: ${b.physicalFatigue}/100`,
-        `Densidad ósea: ${b.boneDensityIndex}%`,
+        `Physical fatigue: ${b.physicalFatigue}/100`,
+        `Bone density: ${b.boneDensityIndex}%`,
       ];
   }
 }
@@ -133,11 +133,11 @@ export default function AnatomicalScanner({
           <div className="flex items-center gap-2">
             <Activity className="h-5 w-5 text-sky-400" />
             <h2 className="text-base font-bold text-slate-100 sm:text-lg">
-              Bio-Escáner Anatómico y Neuro-Conductual (NASA HRP)
+              Anatomical & Neuro-Behavioral Bio-Scanner (NASA HRP)
             </h2>
           </div>
           <p className="mt-0.5 text-xs text-slate-400">
-            Selecciona un subsistema para inspeccionar telemetría, umbrales y protocolo clínico.
+            Select a physiological subsystem to inspect telemetry, clinical thresholds, and action protocols.
           </p>
         </div>
 
@@ -149,11 +149,11 @@ export default function AnatomicalScanner({
           </span>
           <span className="flex items-center gap-1.5 text-amber-300">
             <span className="h-2 w-2 rounded-full bg-[#f59e0b]" />
-            PRECAUCIÓN
+            CAUTION
           </span>
           <span className="flex items-center gap-1.5 text-red-300">
             <span className="h-2 w-2 rounded-full bg-[#ef4444]" />
-            CRÍTICO
+            CRITICAL
           </span>
         </div>
       </div>
@@ -196,14 +196,14 @@ export default function AnatomicalScanner({
 
             {/* HUD Corner Data */}
             <div className="pointer-events-none absolute left-3 top-3 font-mono-hud text-[10px] font-medium text-slate-400">
-              ENTORNO: <span className="text-sky-300">{environmentId.toUpperCase()}</span>
+              ENVIRONMENT: <span className="text-sky-300">{environmentId.toUpperCase()}</span>
             </div>
 
             <svg
               viewBox="0 0 360 490"
               className="h-[410px] w-full max-w-[350px] select-none sm:h-[455px]"
               role="img"
-              aria-label="Silueta anatómica y psicológica interactiva del astronauta"
+              aria-label="Interactive anatomical and psychological astronaut silhouette"
             >
               <defs>
                 <radialGradient id="hudGlowLight" cx="50%" cy="45%" r="55%">
@@ -418,7 +418,7 @@ export default function AnatomicalScanner({
                   strokeWidth={selectedZone === "cerebro" ? 1.8 : 1.1}
                 />
                 <text x="43" y="39" textAnchor="middle" fill="#e2e8f0" fontSize="10" fontWeight="600">
-                  Cerebro
+                  Brain
                 </text>
               </g>
 
@@ -435,7 +435,7 @@ export default function AnatomicalScanner({
                   strokeWidth={selectedZone === "rostro" ? 1.8 : 1.1}
                 />
                 <text x="316" y="75" textAnchor="middle" fill="#e2e8f0" fontSize="10" fontWeight="600">
-                  Rostro
+                  Face
                 </text>
               </g>
 
@@ -452,7 +452,7 @@ export default function AnatomicalScanner({
                   strokeWidth={selectedZone === "endocrino" ? 1.8 : 1.1}
                 />
                 <text x="42" y="133" textAnchor="middle" fill="#e2e8f0" fontSize="10" fontWeight="600">
-                  Endocrino
+                  Endocrine
                 </text>
               </g>
 
@@ -469,7 +469,7 @@ export default function AnatomicalScanner({
                   strokeWidth={selectedZone === "corazon" ? 1.8 : 1.1}
                 />
                 <text x="316" y="161" textAnchor="middle" fill="#e2e8f0" fontSize="10" fontWeight="600">
-                  Corazón
+                  Heart
                 </text>
               </g>
 
@@ -503,7 +503,7 @@ export default function AnatomicalScanner({
                   strokeWidth={selectedZone === "musculo" ? 1.8 : 1.1}
                 />
                 <text x="315" y="363" textAnchor="middle" fill="#e2e8f0" fontSize="10" fontWeight="600">
-                  Músculos
+                  Muscles
                 </text>
               </g>
             </svg>
@@ -545,7 +545,7 @@ export default function AnatomicalScanner({
                 className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-[#1a73e8] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-blue-600"
               >
                 <ScanLine className="h-3.5 w-3.5" />
-                Evaluar ahora
+                Scan Now
               </button>
             </div>
 
@@ -562,7 +562,7 @@ export default function AnatomicalScanner({
             </div>
           </div>
 
-          {/* Selector de Pestañas Clínicas */}
+          {/* Clinical Tab Selector */}
           <div className="flex flex-wrap gap-2 border-b border-[#162642] pb-3">
             <button
               type="button"
@@ -574,7 +574,7 @@ export default function AnatomicalScanner({
               }`}
             >
               <ScanLine className="h-4 w-4" />
-              Protocolo Clínico
+              Clinical Protocol
             </button>
             <button
               type="button"
@@ -586,17 +586,17 @@ export default function AnatomicalScanner({
               }`}
             >
               <AlertCircle className="h-4 w-4" />
-              Umbrales y Triage
+              Thresholds & Triage
             </button>
           </div>
 
-          {/* PESTAÑA 1: Protocolo paso a paso + Contramedida inmediata */}
+          {/* TAB 1: Step-by-step protocol + Immediate Countermeasure */}
           {diagnosticTab === "protocolo" && (
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               <div className="rounded-xl border border-[#1b2d4b] bg-[#091120] p-4">
                 <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-sky-400">
                   <ScanLine className="h-4 w-4" />
-                  Procedimiento de Evaluación Clínica
+                  Clinical Assessment Procedure
                 </h4>
                 <ol className="mt-3 space-y-2.5 text-xs leading-relaxed text-slate-200 sm:text-sm">
                   {guide.howToPerform.map((step, idx) => (
@@ -617,7 +617,7 @@ export default function AnatomicalScanner({
                 <div>
                   <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-400">
                     <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                    Contramedida Preventiva (Acción Inmediata)
+                    Preventive Countermeasure (Immediate Action)
                   </h4>
                   <ul className="mt-3 space-y-2.5 text-xs leading-relaxed text-slate-200 sm:text-sm">
                     {guide.preventiveCountermeasures.map((item, idx) => (
@@ -635,18 +635,18 @@ export default function AnatomicalScanner({
             </div>
           )}
 
-          {/* PESTAÑA 2: Umbrales de Atención y Escalamiento con Cirujanos de Vuelo */}
+          {/* TAB 2: Clinical Thresholds & Flight Surgeon Escalation */}
           {diagnosticTab === "umbrales" && (
             <div className="space-y-4 rounded-xl border border-[#1b2d4b] bg-[#091120] p-4">
               <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-300">
                 <AlertCircle className="h-4 w-4" />
-                Criterios Clínicos de Triage y Alerta a Cirujanos de Vuelo
+                Clinical Triage Criteria & Flight Surgeon Alert
               </h4>
 
               <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
                 <div className="rounded-xl border border-emerald-500/30 bg-[#091d1a] p-3.5 text-xs sm:text-sm">
                   <div className="font-mono-hud text-xs font-bold uppercase text-emerald-300">
-                    ● Nivel Nominal
+                    ● Nominal Level
                   </div>
                   <p className="mt-1.5 leading-relaxed text-emerald-100">
                     {guide.attentionThreshold.optimal}
@@ -655,7 +655,7 @@ export default function AnatomicalScanner({
 
                 <div className="rounded-xl border border-amber-500/35 bg-[#21190c] p-3.5 text-xs sm:text-sm">
                   <div className="font-mono-hud text-xs font-bold uppercase text-amber-300">
-                    ▲ Nivel Precaución
+                    ▲ Caution Level
                   </div>
                   <p className="mt-1.5 leading-relaxed text-amber-100">
                     {guide.attentionThreshold.warning}
@@ -664,7 +664,7 @@ export default function AnatomicalScanner({
 
                 <div className="rounded-xl border border-red-500/40 bg-[#231015] p-3.5 text-xs sm:text-sm">
                   <div className="font-mono-hud text-xs font-bold uppercase text-red-300">
-                    ■ Nivel Crítico
+                    ■ Critical Level
                   </div>
                   <p className="mt-1.5 leading-relaxed text-red-100">
                     {guide.attentionThreshold.critical}
@@ -674,7 +674,7 @@ export default function AnatomicalScanner({
 
               <div className="rounded-xl border border-[#1b2d4b] bg-[#0c1426] p-3.5 text-xs leading-relaxed text-slate-300 sm:text-sm">
                 <strong className="text-sky-300">
-                  Protocolo de Contacto con Tierra (Houston / CSA):
+                  Ground Support Protocol (Houston / CSA):
                 </strong>{" "}
                 {guide.attentionThreshold.flightSurgeonNote}
               </div>

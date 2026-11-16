@@ -23,7 +23,7 @@ export default function HabitsExplanationPanel({
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-[#182742] pb-3">
         <h3 className="flex items-center gap-2 text-sm font-bold text-slate-100 sm:text-base">
           <BookOpenCheck className="h-5 w-5 text-sky-400" />
-          Fundamento Clínico de las Contramedidas (NASA HRP)
+          Clinical Rationale for Countermeasures (NASA HRP)
         </h3>
       </div>
 
@@ -57,7 +57,7 @@ export default function HabitsExplanationPanel({
 
                 <div className="mt-2">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    En qué consiste
+                    Protocol Execution
                   </span>
                   <p className="mt-0.5 text-xs leading-relaxed text-slate-300">
                     {habit.description}
@@ -66,7 +66,7 @@ export default function HabitsExplanationPanel({
 
                 <div className="mt-2.5 rounded-lg border border-emerald-500/25 bg-[#091826] p-2.5">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">
-                    Motivo médico en el espacio
+                    Spaceflight Medical Rationale
                   </span>
                   <p className="mt-0.5 text-[11px] leading-relaxed text-slate-200">
                     {habit.impactDescription}

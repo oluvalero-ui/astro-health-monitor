@@ -20,7 +20,7 @@ export default function ScientificReferencesModal({
       className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 p-3 backdrop-blur-sm sm:p-5"
       role="dialog"
       aria-modal="true"
-      aria-label="Estándares NASA-STD-3001 · Human Research Program & Dosimetría CSA"
+      aria-label="NASA-STD-3001 Standards · Human Research Program & CSA Dosimetry"
     >
       <div className="flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-[#1b2d4b] bg-[#0c1426] text-slate-100 shadow-2xl">
         <div className="flex items-center justify-between border-b border-[#182742] bg-[#091120] px-5 py-4">
@@ -28,11 +28,11 @@ export default function ScientificReferencesModal({
             <BookOpen className="h-5 w-5 text-sky-400" />
             <div>
               <h2 className="text-base font-bold text-slate-100 sm:text-lg">
-                Estándares NASA-STD-3001 · Human Research Program & Dosimetría CSA
+                NASA-STD-3001 Standards · Human Research Program & CSA Dosimetry
               </h2>
               <p className="text-xs text-slate-400">
-                Base biomédica del desafío: 5 Peligros del Espacio Humano y
-                Dosimetría de Radiación Canadiense.
+                Biomedical challenge foundation: The 5 Spaceflight Hazards &
+                Canadian Space Agency Dosimetry.
               </p>
             </div>
           </div>
@@ -40,7 +40,7 @@ export default function ScientificReferencesModal({
             type="button"
             onClick={onClose}
             className="cursor-pointer rounded-xl border border-[#1b2d4b] bg-[#0c1426] p-1.5 text-slate-400 transition hover:border-sky-400 hover:text-slate-100"
-            aria-label="Cerrar referencias"
+            aria-label="Close references"
           >
             <X className="h-5 w-5" />
           </button>

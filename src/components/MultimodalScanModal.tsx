@@ -89,7 +89,7 @@ export default function MultimodalScanModal({
       !navigator.mediaDevices.getUserMedia
     ) {
       setCameraError(
-        "Cámara no disponible en este navegador. Modo simulación biométrica activado automáticamente."
+        "Camera unavailable in this browser. Biometric simulation mode activated automatically."
       );
       setCameraMode("simulacion");
       return;
@@ -108,7 +108,7 @@ export default function MultimodalScanModal({
       }
     } catch {
       setCameraError(
-        "No se detectó cámara física o se denegó el permiso. Usando modo de simulación biométrica automática."
+        "No physical camera detected or permission denied. Running in automatic biometric simulation mode."
       );
       setCameraMode("simulacion");
     }
@@ -237,10 +237,10 @@ export default function MultimodalScanModal({
       // Tracking HUD text
       ctx.fillStyle = "#94a3b8";
       ctx.font = "11px monospace";
-      ctx.fillText("SIMULACIÓN BIOMÉTRICA FACIAL/POSTURAL", 14, 22);
+      ctx.fillText("FACIAL / POSTURAL BIOMETRIC SIMULATION", 14, 22);
       ctx.fillStyle = color;
       ctx.fillText(
-        `INCLINACIÓN CERVICAL: ${
+        `CERVICAL TILT: ${
           simScenario === "optimo" ? "3°" : simScenario === "fatigado" ? "14°" : "29°"
         }`,
         14,
@@ -299,7 +299,7 @@ export default function MultimodalScanModal({
               facialTension: 19,
               moodScore: 86,
               summary:
-                "Postura erguida (88/100), mirada atenta y microexpresiones relajadas sin signos de aislamiento o fatiga.",
+                "Upright posture (88/100), attentive gaze, and relaxed micro-expressions with no signs of isolation or fatigue.",
             });
           } else if (scenario === "fatigado") {
             setCamResult({
@@ -311,7 +311,7 @@ export default function MultimodalScanModal({
               facialTension: 56,
               moodScore: 59,
               summary:
-                "Leve encorvamiento dorsal (61/100), parpadeo lento y signos moderados de aburrimiento y cansancio mental.",
+                "Mild thoracic slouching (61/100), slow blink rate, and moderate signs of boredom and mental fatigue.",
             });
           } else {
             setCamResult({
@@ -323,7 +323,7 @@ export default function MultimodalScanModal({
               facialTension: 80,
               moodScore: 37,
               summary:
-                "ALERTA: Postura encorvada de agotamiento (41/100), tensión ocular alta y expresión facial de aislamiento severo.",
+                "ALERT: Slumped exhaustion posture (41/100), elevated ocular strain, and facial expression indicating severe isolation.",
             });
           }
           return 100;
@@ -340,24 +340,24 @@ export default function MultimodalScanModal({
       className="crew-dragon-theme fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 p-3 backdrop-blur-sm sm:p-5"
       role="dialog"
       aria-modal="true"
-      aria-label="Flujos de Software Bajo Demanda · Escaneo Multimodal"
+      aria-label="On-Demand Software Workflows · Multimodal Scan"
     >
       <div className="flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-[#1b2d4b] bg-[#0c1426] text-slate-100 shadow-2xl">
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-[#182742] bg-[#091120] px-5 py-3.5">
           <div>
             <h2 className="text-base font-bold text-slate-100 sm:text-lg">
-              Evaluación Multimodal · Visión Computacional y Registro Clínico
+              Multimodal Assessment · Computer Vision & Clinical Entry
             </h2>
             <p className="text-xs text-slate-400">
-              Utiliza la cámara de cabina o el registro manual cuando alguno de los signos continuos del Bio-Monitor 3N requiere verificación.
+              Use the cabin camera or manual entry whenever continuous telemetry from Bio-Monitor 3N requires verification.
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="cursor-pointer rounded-xl border border-[#1b2d4b] bg-[#0c1426] p-1.5 text-slate-400 transition hover:border-sky-400 hover:text-slate-100"
-            aria-label="Cerrar modal"
+            aria-label="Close modal"
           >
             <X className="h-5 w-5" />
           </button>
@@ -375,7 +375,7 @@ export default function MultimodalScanModal({
             }`}
           >
             <Camera className="h-4 w-4 shrink-0" />
-            <span className="truncate">Visión Computacional (Rostro y Postura)</span>
+            <span className="truncate">Computer Vision (Face & Posture)</span>
           </button>
           <button
             type="button"
@@ -387,7 +387,7 @@ export default function MultimodalScanModal({
             }`}
           >
             <Sliders className="h-4 w-4 shrink-0" />
-            <span className="truncate">Registro Clínico Manual</span>
+            <span className="truncate">Manual Clinical Entry</span>
           </button>
         </div>
 
@@ -411,7 +411,7 @@ export default function MultimodalScanModal({
                         <div className="h-44 w-36 rounded-full border-2 border-dashed border-cyan-400/60" />
                       </div>
                       <div className="pointer-events-none absolute left-3 top-3 rounded bg-slate-950/80 px-2 py-1 font-mono-hud text-[11px] text-emerald-300">
-                        WEBCAM ACTIVA · TRACKING FACIAL
+                        LIVE WEBCAM · FACIAL TRACKING
                       </div>
                     </div>
                   ) : (
@@ -426,7 +426,7 @@ export default function MultimodalScanModal({
                   {isAnalyzingCam && (
                     <div className="absolute inset-x-0 bottom-0 bg-slate-950/90 p-3">
                       <div className="mb-1 flex justify-between font-mono-hud text-xs text-cyan-300">
-                        <span>Analizando microexpresiones y postura...</span>
+                        <span>Analyzing micro-expressions & posture...</span>
                         <span>{Math.round(camProgress)}%</span>
                       </div>
                       <div className="h-2 w-full overflow-hidden rounded-full bg-[#162642]">
@@ -452,7 +452,7 @@ export default function MultimodalScanModal({
                     className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-[#1b2d4b] bg-[#091120] px-3 py-2 text-xs font-medium text-slate-200 transition hover:border-sky-500/40 hover:bg-[#0d192e]"
                   >
                     <Camera className="h-3.5 w-3.5 text-sky-400" />
-                    Activar Cámara Web Real
+                    Enable Live Webcam
                   </button>
                   <button
                     type="button"
@@ -463,7 +463,7 @@ export default function MultimodalScanModal({
                     className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-[#1b2d4b] bg-[#091120] px-3 py-2 text-xs font-medium text-slate-200 transition hover:border-sky-500/40 hover:bg-[#0d192e]"
                   >
                     <VideoOff className="h-3.5 w-3.5 text-amber-400" />
-                    Usar Simulación Biométrica
+                    Use Biometric Simulation
                   </button>
                 </div>
               </div>
@@ -474,23 +474,23 @@ export default function MultimodalScanModal({
                   <div className="rounded-xl border border-[#182742] bg-[#091120] p-4">
                     <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-sky-300">
                       <Cpu className="h-4 w-4" />
-                      Análisis de Expresiones y Postura
+                      Facial Expression & Posture Analysis
                     </h3>
                     <p className="mt-1.5 text-xs leading-relaxed text-slate-300">
-                      Detecta inclinación encorvada de hombros, tensión ocular y microexpresiones para calcular cansancio mental, estrés, soledad y aburrimiento.
+                      Detects shoulder slouch, ocular strain, and micro-expressions to assess mental fatigue, stress, isolation, and boredom.
                     </p>
 
                     {cameraMode === "simulacion" && (
                       <div className="mt-3">
                         <label className="block text-[11px] font-semibold text-slate-300">
-                          Escenario de Simulación (Sin cámara):
+                          Simulation Scenario (Camera-free):
                         </label>
                         <div className="mt-1.5 grid grid-cols-3 gap-1.5">
                           {(
                             [
-                              ["optimo", "Óptimo"],
-                              ["fatigado", "Fatigado"],
-                              ["critico", "Agotamiento"],
+                              ["optimo", "Optimal"],
+                              ["fatigado", "Fatigued"],
+                              ["critico", "Exhausted"],
                             ] as const
                           ).map(([id, label]) => (
                             <button
@@ -518,29 +518,29 @@ export default function MultimodalScanModal({
                     >
                       <Sparkles className="h-4 w-4" />
                       {isAnalyzingCam
-                        ? "Escaneando Rostro y Postura..."
-                        : "Iniciar Escaneo Biométrico"}
+                        ? "Scanning Face & Posture..."
+                        : "Start Biometric Scan"}
                     </button>
                   </div>
 
                   {camResult && (
                     <div className="rounded-xl border border-emerald-500/35 bg-emerald-950/30 p-3.5 text-xs">
                       <div className="font-bold text-emerald-300">
-                        Resultado Calculado:
+                        Computed Result:
                       </div>
                       <p className="mt-1 text-slate-200">{camResult.summary}</p>
                       <div className="mt-2.5 grid grid-cols-2 gap-2 font-mono-hud text-[11px]">
                         <div className="rounded-lg border border-[#182742] bg-[#091120] px-2 py-1 text-slate-200">
-                          Fatiga Mental: {camResult.mentalFatigue}/100
+                          Mental Fatigue: {camResult.mentalFatigue}/100
                         </div>
                         <div className="rounded-lg border border-[#182742] bg-[#091120] px-2 py-1 text-slate-200">
-                          Estrés: {camResult.stressLevel}/100
+                          Stress: {camResult.stressLevel}/100
                         </div>
                         <div className="rounded-lg border border-[#182742] bg-[#091120] px-2 py-1 text-slate-200">
-                          Soledad: {camResult.lonelinessLevel}/100
+                          Isolation: {camResult.lonelinessLevel}/100
                         </div>
                         <div className="rounded-lg border border-[#182742] bg-[#091120] px-2 py-1 text-slate-200">
-                          Aburrimiento: {camResult.boredomLevel}/100
+                          Boredom: {camResult.boredomLevel}/100
                         </div>
                       </div>
                       <button
@@ -564,7 +564,7 @@ export default function MultimodalScanModal({
                         className="mt-3 flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-emerald-500"
                       >
                         <CheckCircle2 className="h-4 w-4" />
-                        Aplicar al Dashboard
+                        Apply to Dashboard
                       </button>
                     </div>
                   )}
@@ -579,7 +579,7 @@ export default function MultimodalScanModal({
               {/* Quick Presets */}
               <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#182742] bg-[#091120] p-3">
                 <span className="text-xs font-semibold text-slate-200">
-                  Cargar perfil rápido de prueba:
+                  Load quick clinical test preset:
                 </span>
                 <div className="flex flex-wrap gap-2">
                   <button
@@ -604,7 +604,7 @@ export default function MultimodalScanModal({
                     }}
                     className="cursor-pointer rounded-lg border border-emerald-500/35 bg-emerald-950/40 px-2.5 py-1 text-xs font-semibold text-emerald-300 transition hover:bg-emerald-900/50"
                   >
-                    Óptimo Nominal
+                    Nominal Optimal
                   </button>
                   <button
                     type="button"
@@ -628,7 +628,7 @@ export default function MultimodalScanModal({
                     }}
                     className="cursor-pointer rounded-lg border border-amber-500/35 bg-amber-950/40 px-2.5 py-1 text-xs font-semibold text-amber-300 transition hover:bg-amber-900/50"
                   >
-                    Precaución Temprana
+                    Early Caution
                   </button>
                   <button
                     type="button"
@@ -654,7 +654,7 @@ export default function MultimodalScanModal({
                     }}
                     className="cursor-pointer rounded-lg border border-red-500/35 bg-red-950/40 px-2.5 py-1 text-xs font-semibold text-red-300 transition hover:bg-red-900/50"
                   >
-                    Riesgo Crítico
+                    Critical Risk
                   </button>
                 </div>
               </div>
@@ -663,11 +663,11 @@ export default function MultimodalScanModal({
                 {/* Column 1: Physiological */}
                 <div className="space-y-3 rounded-xl border border-[#182742] bg-[#091120] p-4">
                   <h4 className="text-xs font-bold uppercase tracking-wider text-sky-300">
-                    Signos Vitales y Fisiológicos
+                    Vitals & Physiological Signs
                   </h4>
 
                   <SliderField
-                    label="Pulsaciones por minuto (BPM)"
+                    label="Heart Rate (BPM)"
                     value={draftBio.bpm}
                     min={42}
                     max={150}
@@ -675,7 +675,7 @@ export default function MultimodalScanModal({
                     onChange={(v) => setDraftBio((b) => ({ ...b, bpm: v }))}
                   />
                   <SliderField
-                    label="Azúcar en la sangre (mg/dL)"
+                    label="Blood Glucose (mg/dL)"
                     value={draftBio.bloodGlucoseMgDl}
                     min={50}
                     max={200}
@@ -685,7 +685,7 @@ export default function MultimodalScanModal({
                     }
                   />
                   <SliderField
-                    label="Hidratación (%)"
+                    label="Hydration (%)"
                     value={draftBio.hydrationPercent}
                     min={50}
                     max={100}
@@ -695,7 +695,7 @@ export default function MultimodalScanModal({
                     }
                   />
                   <SliderField
-                    label="Temperatura Corporal (°C)"
+                    label="Core Body Temp (°C)"
                     value={draftBio.bodyTempC}
                     min={35.2}
                     max={39.0}
@@ -706,7 +706,7 @@ export default function MultimodalScanModal({
                     }
                   />
                   <SliderField
-                    label="Cansancio Físico (0–100)"
+                    label="Physical Fatigue (0–100)"
                     value={draftBio.physicalFatigue}
                     min={0}
                     max={100}
@@ -716,7 +716,7 @@ export default function MultimodalScanModal({
                     }
                   />
                   <SliderField
-                    label="Cortisol / Estrés Hormonal (0–100)"
+                    label="Cortisol / Hormonal Stress (0–100)"
                     value={draftBio.cortisolIndex}
                     min={10}
                     max={100}
@@ -730,11 +730,11 @@ export default function MultimodalScanModal({
                 {/* Column 2: Sleep, Stress & Routine */}
                 <div className="space-y-3 rounded-xl border border-[#182742] bg-[#091120] p-4">
                   <h4 className="text-xs font-bold uppercase tracking-wider text-cyan-300">
-                    Descanso, Estrés y Rutina Diaria
+                    Sleep, Stress & Daily Routine
                   </h4>
 
                   <SliderField
-                    label="Horas de Sueño"
+                    label="Sleep Duration"
                     value={draftBio.sleepHours}
                     min={3.0}
                     max={10.0}
@@ -745,7 +745,7 @@ export default function MultimodalScanModal({
                     }
                   />
                   <SliderField
-                    label="Nivel de Estrés (0–100)"
+                    label="Stress Level (0–100)"
                     value={draftBio.stressLevel}
                     min={0}
                     max={100}
@@ -757,7 +757,7 @@ export default function MultimodalScanModal({
 
                   <div className="space-y-3 border-t border-[#182742] pt-2">
                     <SliderField
-                      label="Desviación de Horario de Sueño (min)"
+                      label="Sleep Schedule Drift (min)"
                       value={draftRoutine.sleepDeviationMin}
                       min={0}
                       max={180}
@@ -767,7 +767,7 @@ export default function MultimodalScanModal({
                       }
                     />
                     <SliderField
-                      label="Minutos de Ejercicio Hoy"
+                      label="Exercise Minutes Today"
                       value={draftRoutine.exerciseMinutes}
                       min={0}
                       max={150}
@@ -777,7 +777,7 @@ export default function MultimodalScanModal({
                       }
                     />
                     <SliderField
-                      label="Agua Consumida Hoy (L)"
+                      label="Water Intake Today (L)"
                       value={draftRoutine.hydrationLiters}
                       min={0.5}
                       max={3.5}
@@ -797,7 +797,7 @@ export default function MultimodalScanModal({
                   onClick={onClose}
                   className="cursor-pointer rounded-xl border border-[#1b2d4b] bg-[#091120] px-4 py-2 text-xs font-medium text-slate-300 transition hover:border-slate-500 hover:text-slate-100"
                 >
-                  Cancelar
+                  Cancel
                 </button>
                 <button
                   type="button"
@@ -808,7 +808,7 @@ export default function MultimodalScanModal({
                   className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-sky-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-sky-500"
                 >
                   <CheckCircle2 className="h-4 w-4" />
-                  Guardar Evaluación en Dashboard
+                  Save Assessment to Dashboard
                 </button>
               </div>
             </div>

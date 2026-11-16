@@ -26,8 +26,8 @@ export const STATUS_HEX: Record<HealthStatus, string> = {
 
 export const STATUS_LABELS: Record<HealthStatus, string> = {
   optimal: "NOMINAL",
-  warning: "PRECAUCIÓN",
-  critical: "CRÍTICO",
+  warning: "CAUTION",
+  critical: "CRITICAL",
 };
 
 export function worstStatus(statuses: HealthStatus[]): HealthStatus {
@@ -351,50 +351,50 @@ export function computeRoutineDeviations(routine: RoutineTracking): {
   const items: RoutineDeviationItem[] = [
     {
       id: "routine-sleep",
-      label: "Horario de Sueño",
+      label: "Sleep Schedule",
       currentText: `${routine.sleepStartTime} UTC`,
       baselineText: `${routine.baselineSleepStartTime} UTC`,
       deviationText:
         routine.sleepDeviationMin === 0
-          ? "En línea base"
-          : `Desfase de ${routine.sleepDeviationMin} min`,
+          ? "On baseline"
+          : `Drift of ${routine.sleepDeviationMin} min`,
       status: sleepStatus,
     },
     {
       id: "routine-exercise",
-      label: "Ejercicio Diario",
+      label: "Daily Exercise",
       currentText: `${routine.exerciseMinutes} min`,
       baselineText: `${routine.baselineExerciseMinutes} min`,
       deviationText:
         routine.exerciseMinutes >= routine.baselineExerciseMinutes
-          ? "Meta cumplida"
-          : `-${routine.baselineExerciseMinutes - routine.exerciseMinutes} min respecto a meta`,
+          ? "Target met"
+          : `-${routine.baselineExerciseMinutes - routine.exerciseMinutes} min vs. target`,
       status: exerciseStatus,
     },
     {
       id: "routine-meals",
-      label: "Alimentación",
-      currentText: `${routine.mealsCompleted}/${routine.baselineMeals} raciones`,
-      baselineText: `${routine.baselineMeals} raciones`,
+      label: "Nutrition & Rations",
+      currentText: `${routine.mealsCompleted}/${routine.baselineMeals} rations`,
+      baselineText: `${routine.baselineMeals} rations`,
       deviationText:
         mealMissing <= 0 && routine.mealDeviationMin <= 20
-          ? "Horario estable"
-          : `${mealMissing > 0 ? `-${mealMissing} comida(s)` : ""} ${
+          ? "Schedule stable"
+          : `${mealMissing > 0 ? `-${mealMissing} ration(s)` : ""} ${
               routine.mealDeviationMin > 20
-                ? `(desfase ${routine.mealDeviationMin}m)`
+                ? `(drift ${routine.mealDeviationMin}m)`
                 : ""
             }`.trim(),
       status: mealStatus,
     },
     {
       id: "routine-hydration",
-      label: "Ingesta de Agua",
+      label: "Fluid Intake",
       currentText: `${routine.hydrationLiters.toFixed(1)} L`,
       baselineText: `${routine.baselineHydrationLiters.toFixed(1)} L`,
       deviationText:
         routine.hydrationLiters >= routine.baselineHydrationLiters
-          ? "Meta hídrica lograda"
-          : `Déficit de ${(
+          ? "Hydration target met"
+          : `Deficit of ${(
               routine.baselineHydrationLiters - routine.hydrationLiters
             ).toFixed(1)} L`,
       status: hydrationStatus,
@@ -559,7 +559,7 @@ export function calibrateOscillometricCuff(
         id: `log-cal-${Date.now()}`,
         timestamp: `${utc} UTC`,
         modality: "wearable",
-        summary: `Calibración oscilométrica CSA BP Reg completada (30 s): PTT sincronizado a ${calibratedPtt} ms en ${env.shortName}.`,
+        summary: `CSA BP Reg oscillometric calibration complete (30 s): PTT synced to ${calibratedPtt} ms in ${env.shortName}.`,
       },
       ...state.scanLogs.slice(0, 7),
     ],
@@ -620,7 +620,7 @@ export function buildEmergencyState(
   };
 
   const newPoint: TelemetryPoint = {
-    label: "EMERGENCIA",
+    label: "EMERGENCY",
     bpm: emergencyBiomarkers.bpm,
     glucose: emergencyBiomarkers.bloodGlucoseMgDl,
     hydration: emergencyBiomarkers.hydrationPercent,
@@ -634,7 +634,7 @@ export function buildEmergencyState(
     routineStability: 26,
   };
 
-  const filteredHistory = state.history.filter((p) => p.label !== "EMERGENCIA");
+  const filteredHistory = state.history.filter((p) => p.label !== "EMERGENCY");
 
   return {
     ...state,
@@ -648,14 +648,14 @@ export function buildEmergencyState(
       completed: false,
     })),
     lastCameraFinding:
-      "ALERTA: Encorvamiento severo (postura 38/100), tensión ocular extrema (84/100) y señales faciales de agotamiento.",
+      "ALERT: Severe shoulder slump (posture 38/100), extreme ocular tension (84/100), and facial exhaustion markers.",
     scanLogs: [
       {
         id: `log-em-${Date.now()}`,
-        timestamp: "AHORA (DEMO)",
+        timestamp: "NOW (DEMO)",
         modality: "emergencia",
         summary:
-          "Simulación de emergencia activada: SpO₂ 90%, taquipnea 27 rpm, hipoglucemia (58 mg/dL), deshidratación (61%) e hipoperfusión (PI 0.4%).",
+          "Emergency simulation triggered: SpO₂ 90%, tachypnea 27 rpm, hypoglycemia (58 mg/dL), dehydration (61%), and hypoperfusion (PI 0.4%).",
       },
       ...state.scanLogs.slice(0, 6),
     ],
@@ -685,13 +685,13 @@ export function restoreNominalFromEmergency(
     previousBiomarkers: state.biomarkers,
     biomarkers: nominalBiomarkers,
     routine: { ...DEFAULT_ROUTINE },
-    history: state.history.filter((p) => p.label !== "EMERGENCIA"),
+    history: state.history.filter((p) => p.label !== "EMERGENCY"),
     emergencyChecklist: DEFAULT_EMERGENCY_CHECKLIST.map((s) => ({
       ...s,
       completed: false,
     })),
     lastCameraFinding:
-      "Postura erguida (85/100) y microexpresión serena sin signos de agotamiento.",
+      "Upright posture (85/100) and calm micro-expression with zero exhaustion markers.",
   };
 }
 

@@ -33,38 +33,38 @@ const NAV_ITEMS: {
 }[] = [
   {
     id: "resumen",
-    label: "Telemetría MCC",
-    title: "Telemetría Mission Control Center (NASA HRP)",
+    label: "MCC Telemetry",
+    title: "Mission Control Center Telemetry (NASA HRP)",
     icon: <Monitor className="h-4 w-4" />,
   },
   {
     id: "escaner",
-    label: "Bio-Escáner",
-    title: "Bio-Escáner HRP (6 Subsistemas)",
+    label: "Bio-Scanner",
+    title: "HRP Bio-Scanner (6 Subsystems)",
     icon: <ScanLine className="h-4 w-4" />,
   },
   {
     id: "wearable",
     label: "Bio-Monitor 3N",
-    title: "Bio-Monitor 3N CSA (13 Canales)",
+    title: "CSA Bio-Monitor 3N (13 Channels)",
     icon: <Watch className="h-4 w-4" />,
   },
   {
     id: "biomarcadores",
-    label: "Biomarcadores",
-    title: "Biomarcadores Fisiológicos, BHP y Sincronía",
+    label: "Biomarkers",
+    title: "Physiological Biomarkers, BHP & Synchrony",
     icon: <Activity className="h-4 w-4" />,
   },
   {
     id: "informes",
-    label: "Contramedidas",
-    title: "Telemetría Longitudinal y Contramedidas HRP",
+    label: "Countermeasures",
+    title: "Longitudinal Telemetry & HRP Countermeasures",
     icon: <BarChart3 className="h-4 w-4" />,
   },
   {
     id: "referencias",
     label: "NASA-STD-3001",
-    title: "Estándares NASA-STD-3001 y Dosimetría CSA",
+    title: "NASA-STD-3001 Standards & CSA Dosimetry",
     icon: <BookOpen className="h-4 w-4" />,
   },
 ];
@@ -78,8 +78,8 @@ export default function LeftNavSidebar({
     <>
       {/* Desktop Left Navy Rail — Single Authoritative Navigation */}
       <aside
-        aria-label="Navegación principal del monitor"
-        className="hidden shrink-0 flex-col items-center justify-between border-r border-[#182742] bg-[#050a14] px-2 py-3 text-white shadow-xl md:sticky md:top-0 md:flex md:h-screen md:w-[84px]"
+        aria-label="Primary health monitor navigation"
+        className="hidden shrink-0 flex-col items-center justify-between border-r border-[#182742] bg-[#050a14] px-1.5 py-3 text-white shadow-xl md:sticky md:top-0 md:flex md:h-screen md:w-[92px]"
       >
         <div className="flex w-full flex-col items-center gap-1.5">
           {NAV_ITEMS.map((item) => {
@@ -90,7 +90,7 @@ export default function LeftNavSidebar({
                 type="button"
                 title={item.title}
                 onClick={() => onNavigate(item.id)}
-                className={`flex w-full cursor-pointer flex-col items-center justify-center gap-1 rounded-xl py-2.5 text-[10px] font-semibold transition-all ${
+                className={`flex w-full cursor-pointer flex-col items-center justify-center gap-1 rounded-xl px-1 py-2.5 text-center text-[9.5px] font-semibold leading-tight transition-all ${
                   isActive
                     ? "border border-sky-400/40 bg-sky-500/20 text-sky-300 shadow-md shadow-sky-950/50"
                     : "text-slate-400 hover:bg-[#0e182c] hover:text-slate-100"
@@ -106,20 +106,20 @@ export default function LeftNavSidebar({
 
           <button
             type="button"
-            title="Cámara IA y Registro Manual"
+            title="AI Camera & Manual Entry"
             onClick={onOpenScanModal}
             className="flex w-full cursor-pointer flex-col items-center justify-center gap-1 rounded-xl py-2 text-[10px] font-semibold text-teal-300/85 transition hover:bg-[#0e182c] hover:text-teal-200"
           >
             <Camera className="h-4 w-4" />
-            <span>Cámara</span>
+            <span>Camera</span>
           </button>
         </div>
       </aside>
 
       {/* Mobile Compact Bar */}
       <nav
-        aria-label="Navegación móvil"
-        className="flex items-center justify-around border-b border-slate-800 bg-[#0b2559] px-1.5 py-1.5 text-white md:hidden"
+        aria-label="Mobile navigation"
+        className="flex flex-wrap items-center justify-around gap-1 border-b border-slate-800 bg-[#0b2559] px-1.5 py-1.5 text-white md:hidden"
       >
         {NAV_ITEMS.map((item) => {
           const isActive = activeSection === item.id;
@@ -143,7 +143,7 @@ export default function LeftNavSidebar({
           className="flex flex-col items-center gap-0.5 rounded-lg px-2 py-1 text-[10px] font-semibold text-cyan-200"
         >
           <Camera className="h-4 w-4" />
-          <span>Cámara</span>
+          <span>Camera</span>
         </button>
       </nav>
     </>

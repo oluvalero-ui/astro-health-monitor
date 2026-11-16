@@ -31,12 +31,11 @@ export default function ScientificFrameworkSection({
           </span>
           <div>
             <h2 className="text-base font-bold text-slate-100 sm:text-lg">
-              Manual Clínico y Técnico a Bordo · NASA-STD-3001 (Memoria Local)
+              Onboard Clinical & Technical Manual · NASA-STD-3001 (Local Memory)
             </h2>
             <p className="text-xs text-slate-400">
-              Protocolos médicos, fundamento de sensores y límites radiológicos{" "}
-              {env.shortName} almacenados localmente sin requerir conexión a
-              Tierra.
+              Medical protocols, sensor physics, and radiological limits for{" "}
+              {env.shortName} stored locally with zero Earth uplink required.
             </p>
           </div>
         </div>

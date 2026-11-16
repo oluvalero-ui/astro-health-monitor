@@ -49,8 +49,16 @@ import {
   restoreNominalFromEmergency,
 } from "@/utils/healthEngine";
 
-const STORAGE_KEY = "astro-med-hrp-state-v1";
+const STORAGE_KEY = "astro-med-hrp-state-v2";
 const STORAGE_EVENT = "astro-med-storage-change";
+
+const MODALITY_LABELS: Record<string, string> = {
+  camara: "CAMERA",
+  ultrasonido: "ULTRASOUND",
+  manual: "MANUAL",
+  emergencia: "EMERGENCY",
+  wearable: "WEARABLE",
+};
 
 let cachedRaw: string | null = null;
 let cachedParsed: AstronautDashboardState = INITIAL_DASHBOARD_STATE;
@@ -138,7 +146,7 @@ function appendTelemetrySnapshot(
     boredom: b.boredomLevel,
     routineStability: stabilityScore,
   };
-  const trimmed = history.filter((p) => p.label !== "EMERGENCIA").slice(-9);
+  const trimmed = history.filter((p) => p.label !== "EMERGENCY").slice(-9);
   return [...trimmed, newPoint];
 }
 
@@ -271,7 +279,7 @@ export default function HomePage() {
         lastCameraFinding: summary,
         history: appendTelemetrySnapshot(
           prev.history,
-          "Cámara",
+          "Camera",
           nextBio,
           prev.routine
         ),
@@ -310,7 +318,7 @@ export default function HomePage() {
           id: `log-man-${Date.now()}`,
           timestamp: getUtcStamp(),
           modality: "manual",
-          summary: `Registro manual: ${nextBiomarkers.bpm} BPM, Glucosa ${nextBiomarkers.bloodGlucoseMgDl} mg/dL, Hidratación ${nextBiomarkers.hydrationPercent}%, Sueño ${nextBiomarkers.sleepHours.toFixed(1)}h.`,
+          summary: `Manual entry: ${nextBiomarkers.bpm} BPM, Glucose ${nextBiomarkers.bloodGlucoseMgDl} mg/dL, Hydration ${nextBiomarkers.hydrationPercent}%, Sleep ${nextBiomarkers.sleepHours.toFixed(1)}h.`,
         },
         ...prev.scanLogs.slice(0, 7),
       ],
@@ -413,9 +421,9 @@ export default function HomePage() {
       title,
       category,
       durationLabel: "15 min",
-      description: "Hábito preventivo personalizado añadido por el tripulante.",
+      description: "Custom preventive countermeasure added by crew member.",
       impactDescription:
-        "Ayuda a sostener el bienestar físico o mental y la estabilidad de la rutina durante la jornada.",
+        "Supports physical or behavioral wellbeing and daily schedule stability throughout the mission.",
       completed: false,
     };
     setState((prev) => ({
@@ -507,11 +515,11 @@ export default function HomePage() {
                 <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
                   <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-200">
                     <ClipboardList className="h-4 w-4 text-sky-400" />
-                    Bitácora Clínica Reciente (Almacenamiento Local)
+                    Recent Clinical Log (Local Onboard Storage)
                   </h3>
                   <span className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-400">
                     <ShieldCheck className="h-3.5 w-3.5" />
-                    Sincronizado en memoria local
+                    Synced in local memory
                   </span>
                 </div>
                 <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
@@ -522,7 +530,7 @@ export default function HomePage() {
                     >
                       <div className="flex items-center justify-between font-mono-hud text-[10px]">
                         <span className="font-semibold uppercase text-sky-400">
-                          {log.modality}
+                          {MODALITY_LABELS[log.modality] ?? log.modality}
                         </span>
                         <span className="text-slate-400">{log.timestamp}</span>
                       </div>

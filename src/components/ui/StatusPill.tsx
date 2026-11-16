@@ -9,8 +9,8 @@ const PILL_CLASSES: Record<HealthStatus, string> = {
 
 const PILL_LABELS: Record<HealthStatus, string> = {
   optimal: "NOMINAL",
-  warning: "PRECAUCIÓN",
-  critical: "CRÍTICO",
+  warning: "CAUTION",
+  critical: "CRITICAL",
 };
 
 const DOT_CLASSES: Record<HealthStatus, string> = {

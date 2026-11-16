@@ -124,10 +124,10 @@ export default function WearableHarnessPanel({
   return (
     <section
       id="wearable-harness"
-      aria-label="Prototipo Físico Único: Arnés 3N Bio-Monitor CSA"
+      aria-label="Physical Prototype: CSA Bio-Monitor 3N Harness"
       className="rounded-2xl border border-[#1b2d4b] bg-[#0c1426] p-4 shadow-[0_14px_34px_rgba(2,6,23,0.45)] sm:p-5"
     >
-      {/* Section Header — Hardware Único Arnés 3N */}
+      {/* Section Header — Unique 3N Harness Hardware */}
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-[#182742] pb-3">
         <div className="flex items-start gap-3">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-sky-400/35 bg-sky-500/15 text-sky-300 shadow-sm">
@@ -135,17 +135,17 @@ export default function WearableHarnessPanel({
           </div>
           <div>
             <h2 className="text-base font-bold text-slate-100 sm:text-lg">
-              Bio-Monitor 3N · Telemetría Vestible Continua (CSA / NASA)
+              Bio-Monitor 3N · Continuous Wearable Telemetry (CSA / NASA)
             </h2>
             <p className="mt-0.5 text-xs text-slate-400">
-              Monitoreo autónomo continuo sin internet en 3 nodos corporales: tórax, frente y conjunto muñeca/cuello.
+              Offline autonomous continuous monitoring across 3 body nodes: thoracic vest, frontal headband, and wrist/neck array.
             </p>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 text-xs">
           <div className="rounded-xl border border-[#1b2d4b] bg-[#091120] px-3 py-1.5 font-mono-hud">
-            <span className="text-slate-400">Misión: </span>
+            <span className="text-slate-400">Mission: </span>
             <span className="font-bold text-sky-300">{env.shortName}</span>
             <span className="text-slate-400"> · {env.gravityLabel}</span>
           </div>
@@ -162,10 +162,10 @@ export default function WearableHarnessPanel({
             <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-400" />
             <div>
               <div className="font-bold text-amber-200">
-                Conviene ajustar el medidor de presión por el cambio de gravedad
+                Optical BP recalibration advised following gravity transition
               </div>
               <p className="mt-0.5 leading-relaxed text-amber-100/85">
-                Llegaste a <strong>{env.name} ({env.gravityG}g)</strong> y la sangre baja diferente por tu cuerpo. Presiona el botón para comparar tu traje con el brazalete de presión de la nave en 30 segundos.
+                Entered <strong>{env.name} ({env.gravityG}g)</strong>; hydrostatic fluid gradients have shifted. Press to calibrate wearable PTT against the spacecraft BP cuff in 30 seconds.
               </p>
             </div>
           </div>
@@ -175,7 +175,7 @@ export default function WearableHarnessPanel({
             className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-xl bg-amber-600 px-3.5 py-2 font-mono-hud text-xs font-bold text-white shadow-xs transition hover:bg-amber-500"
           >
             <Stethoscope className="h-4 w-4" />
-            Ajustar Presión (30 s)
+            Calibrate BP (30 s)
           </button>
         </div>
       )}
@@ -185,12 +185,12 @@ export default function WearableHarnessPanel({
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
             <span>
-              <strong>Medidor de presión listo ({calFeedbackAt}):</strong>{" "}
-              Tu banda de la frente quedó bien ajustada para medir tu presión sin apretar el brazo.
+              <strong>Optical BP calibrated ({calFeedbackAt}):</strong>{" "}
+              Frontal headband synchronized for continuous cuffless blood pressure tracking.
             </span>
           </div>
           <span className="rounded-full bg-emerald-600 px-2.5 py-0.5 font-mono-hud text-[11px] font-bold text-white">
-            Guardado
+            Saved
           </span>
         </div>
       )}
@@ -207,23 +207,23 @@ export default function WearableHarnessPanel({
                 </span>
                 <div>
                   <h3 className="text-xs font-bold uppercase tracking-wider text-slate-100">
-                    Nodo Torácico (Pecho)
+                    Thoracic Node (Smart Vest)
                   </h3>
                   <p className="text-[11px] text-slate-400">
-                    Ritmo cardíaco, respiración, calor de la piel y descanso
+                    Heart rate, respiratory flow, skin heat & sleep posture
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* ECG Continuo · 3 Derivaciones */}
+            {/* Continuous 3-Lead ECG */}
             <div className="mt-3 rounded-xl border border-[#182742] bg-[#091120] p-2.5">
               <div className="mb-1.5 flex items-center justify-between text-[10px] font-mono-hud">
                 <span className="font-bold text-slate-200">
-                  ECG Continuo · 3 Derivaciones (V1, V2, V3)
+                  Continuous ECG · 3 Dry Leads (V1, V2, V3)
                 </span>
                 <span className="text-sky-400">
-                  {b.bpm} lat/min · Descanso {Math.min(100, Math.round((b.hrvRmssdMs / 60) * 100))}%
+                  {b.bpm} bpm · Recovery {Math.min(100, Math.round((b.hrvRmssdMs / 60) * 100))}%
                 </span>
               </div>
               <div className="space-y-1.5">
@@ -255,47 +255,47 @@ export default function WearableHarnessPanel({
               </div>
             </div>
 
-            {/* Los Signos del Nodo 1 (Chaleco Torácico) */}
+            {/* Thoracic Node Signals */}
             <div className="mt-3 grid grid-cols-2 gap-2">
               <TelemetryBadge
-                label="Latidos del Corazón"
-                value={`${b.bpm} lat/min`}
-                meta="Lo normal en calma es 52 a 92"
+                label="Heart Rate"
+                value={`${b.bpm} bpm`}
+                meta="Nominal resting band: 52–92 bpm"
                 status={evaluateBpmStatus(b.bpm)}
                 onClick={() => onSelectSystemZone?.("corazon")}
               />
               <TelemetryBadge
-                label="Descanso del Corazón"
+                label="Cardiac Recovery (HRV)"
                 value={`${Math.min(100, Math.round((b.hrvRmssdMs / 60) * 100))}% (${b.hrvRmssdMs} ms)`}
-                meta="Qué tan relajado late tu corazón"
+                meta="Autonomic vagal recovery index"
                 status={evaluateHrvStatus(b.hrvRmssdMs)}
                 onClick={() => onSelectSystemZone?.("corazon")}
               />
               <TelemetryBadge
-                label="Veces que Respiras"
+                label="Respiratory Rate"
                 value={`${b.respiratoryRateRpm} / min`}
-                meta="Respiraciones tranquilas (12 a 20)"
+                meta="Calm breathing band (12–20 rpm)"
                 status={evaluateRespiratoryRateStatus(b.respiratoryRateRpm)}
                 onClick={() => onSelectSystemZone?.("corazon")}
               />
               <TelemetryBadge
-                label="Aire que Entra al Pecho"
+                label="Minute Ventilation"
                 value={`${b.minuteVentilationLpm.toFixed(1)} L/min`}
-                meta="Cantidad de aire por minuto (5 a 8 L)"
+                meta="Air exchanged per min (5–8 L/m)"
                 status={evaluateMinuteVentilationStatus(b.minuteVentilationLpm)}
                 onClick={() => onSelectSystemZone?.("corazon")}
               />
               <TelemetryBadge
-                label="Calor en la Piel"
+                label="Skin Temperature"
                 value={`${b.skinTempC.toFixed(1)} °C`}
-                meta="Temperatura por fuera del pecho"
+                meta="Surface chest thermistor"
                 status={evaluateSkinTempStatus(b.skinTempC)}
                 onClick={() => onSelectSystemZone?.("abdomen")}
               />
               <TelemetryBadge
-                label="Postura y Sueño"
+                label="Posture & Sleep"
                 value={`${b.postureScore}% · ${b.sleepHours.toFixed(1)}h`}
-                meta="Posición del cuerpo y horas dormidas"
+                meta="Body posture & restorative rest"
                 status={
                   evaluateSleepStatus(b.sleepHours) === "critical" ||
                   evaluatePostureStatus(b.postureScore) === "critical"
@@ -311,7 +311,7 @@ export default function WearableHarnessPanel({
           </div>
         </div>
 
-        {/* NODO 2: Banda en la Frente (4 Signos) */}
+        {/* NODE 2: Frontal Headband (4 Signs) */}
         <div className="flex flex-col justify-between rounded-2xl border border-[#1b2d4b] bg-[#0a1222] p-4 xl:col-span-4">
           <div>
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#182742] pb-2.5">
@@ -321,26 +321,26 @@ export default function WearableHarnessPanel({
                 </span>
                 <div>
                   <h3 className="text-xs font-bold uppercase tracking-wider text-slate-100">
-                    Nodo Frontal (Cabeza)
+                    Frontal Node (Headband)
                   </h3>
                   <p className="text-[11px] text-slate-400">
-                    Presión arterial sin brazalete, SpO₂ craneal y fiebre
+                    Cuffless arterial BP, cranial SpO₂ & core temp
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Onda de Pulso en la Frente en Vivo */}
+            {/* Live Forehead Pulse Wave */}
             <div className="mt-3 rounded-xl border border-[#182742] bg-[#091120] p-2.5">
               <div className="mb-1 flex items-center justify-between font-mono-hud text-[10px]">
                 <span className="font-bold text-sky-300">
-                  PULSO EN LA FRENTE · PASO DE SANGRE ({b.pttMs} ms)
+                  FRONTAL PULSE · TRANSIT TIME ({b.pttMs} ms)
                 </span>
                 <span
                   className="font-semibold"
                   style={{ color: STATUS_HEX[evaluatePttStatus(b.pttMs)] }}
                 >
-                  Pecho → Frente
+                  Chest → Forehead
                 </span>
               </div>
               <div className="rounded border border-[#182742] bg-[#081020] px-2 py-1">
@@ -357,34 +357,34 @@ export default function WearableHarnessPanel({
               </div>
             </div>
 
-            {/* Los 4 Signos Continuos de la Banda en la Frente */}
+            {/* Frontal Headband 4 Continuous Signs */}
             <div className="mt-3 grid grid-cols-2 gap-2">
               <TelemetryBadge
-                label="Presión de la Sangre"
+                label="Arterial Blood Pressure"
                 value={`${b.systolicBP}/${b.diastolicBP} mmHg`}
-                meta="Medida suave sin apretar el brazo (normal 120/80)"
+                meta="Cuffless continuous estimation (nominal 120/80)"
                 status={evaluateBpStatus(b.systolicBP, b.diastolicBP)}
                 onClick={() => onSelectSystemZone?.("corazon")}
                 className="col-span-2"
               />
               <TelemetryBadge
-                label="Oxígeno en la Cabeza"
+                label="Cranial SpO₂"
                 value={`${b.spo2Percent}%`}
-                meta="Aire en tu sangre (bien: 95 a 100%)"
+                meta="Arterial oxygen (nominal 95–100%)"
                 status={evaluateSpo2Status(b.spo2Percent)}
                 onClick={() => onSelectSystemZone?.("corazon")}
               />
               <TelemetryBadge
-                label="Fuerza del Pulso"
+                label="Perfusion Index"
                 value={`${b.perfusionIndex.toFixed(1)}%`}
-                meta="Qué tan bien llega la sangre a la piel"
+                meta="Microvascular pulse strength"
                 status={evaluatePerfusionIndexStatus(b.perfusionIndex)}
                 onClick={() => onSelectSystemZone?.("corazon")}
               />
               <TelemetryBadge
-                label="Calor Interno (Fiebre)"
+                label="Core Temperature (ZHF)"
                 value={`${b.bodyTempC.toFixed(1)} °C`}
-                meta="Temperatura dentro del cuerpo (normal 36.5 a 37.5 °C)"
+                meta="Internal core temp (nominal 36.5–37.5 °C)"
                 status={evaluateTempStatus(b.bodyTempC)}
                 onClick={() => onSelectSystemZone?.("abdomen")}
                 className="col-span-2"
@@ -396,7 +396,7 @@ export default function WearableHarnessPanel({
           <div className="mt-3 flex items-center justify-between rounded-xl border border-[#182742] bg-[#091120] px-3 py-2 text-xs">
             <span className="flex items-center gap-1.5 text-slate-300">
               <Thermometer className="h-3.5 w-3.5 text-sky-400" />
-              Diferencia de calor (adentro vs piel):
+              Thermal gradient (core vs. skin):
             </span>
             <span
               className="font-mono-hud font-bold"
@@ -407,7 +407,7 @@ export default function WearableHarnessPanel({
           </div>
         </div>
 
-        {/* NODO 3: Pulsera y Cuello (2 Signos + Ajuste de Presión) */}
+        {/* NODE 3: Wrist & Neck Array (2 Signs + BP Calibration) */}
         <div className="flex flex-col justify-between gap-3 rounded-2xl border border-[#1b2d4b] bg-[#0a1222] p-4 xl:col-span-3">
           <div>
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#182742] pb-2.5">
@@ -417,23 +417,23 @@ export default function WearableHarnessPanel({
                 </span>
                 <div>
                   <h3 className="text-xs font-bold uppercase tracking-wider text-slate-100">
-                    Nodo Radial (Muñeca y Cuello)
+                    Radial Node (Wrist & Neck)
                   </h3>
                   <p className="text-[11px] text-slate-400">
-                    Dosimetría de radiación espacial y estrés vocal
+                    Space radiation dosimetry & vocal strain
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Centelleo Dosimétrico en Vivo */}
+            {/* Live Dosimetric Scintillation */}
             <div className="mt-3 rounded-xl border border-[#182742] bg-[#091120] p-2.5">
               <div className="mb-1 flex items-center justify-between font-mono-hud text-[10px]">
                 <span className="font-bold text-amber-300">
-                  ESCUDO DE RADIACIÓN · {Math.max(0, Math.min(100, Math.round((1 - b.dailyRadiationMsv / CSA_RADIATION_LIMITS.dailyAlertMsv) * 100)))}% SEGURO
+                  RAD SHIELD · {Math.max(0, Math.min(100, Math.round((1 - b.dailyRadiationMsv / CSA_RADIATION_LIMITS.dailyAlertMsv) * 100)))}% SAFE
                 </span>
                 <span className="text-slate-400">
-                  {b.dailyRadiationMsv.toFixed(2)} mSv/día
+                  {b.dailyRadiationMsv.toFixed(2)} mSv/day
                 </span>
               </div>
               <div className="rounded border border-[#182742] bg-[#081020] px-2 py-1">
@@ -449,50 +449,50 @@ export default function WearableHarnessPanel({
               </div>
             </div>
 
-            {/* Los 2 Signos del Nodo 3 */}
+            {/* Node 3 Two Signs */}
             <div className="mt-3 space-y-2">
               <TelemetryBadge
-                label="Protección de Radiación"
-                value={`${Math.max(0, Math.min(100, Math.round((1 - b.dailyRadiationMsv / CSA_RADIATION_LIMITS.dailyAlertMsv) * 100)))}% seguro`}
-                meta={`Hoy: ${b.dailyRadiationMsv.toFixed(2)} mSv · Nivel de protección en la nave`}
+                label="Radiation Protection"
+                value={`${Math.max(0, Math.min(100, Math.round((1 - b.dailyRadiationMsv / CSA_RADIATION_LIMITS.dailyAlertMsv) * 100)))}% safe`}
+                meta={`Today: ${b.dailyRadiationMsv.toFixed(2)} mSv · Internal spacecraft shielding`}
                 status={evaluateRadiationStatus(b.dailyRadiationMsv)}
                 onClick={() => onSelectSystemZone?.("endocrino")}
               />
               <TelemetryBadge
-                label="Calma en tu Voz"
-                value={`${100 - b.facialTension}% tranquilo`}
-                meta={`Tensión hoy: ${b.stressLevel}% · Mide vibración del cuello sin grabarte`}
+                label="Vocal Equanimity"
+                value={`${100 - b.facialTension}% calm`}
+                meta={`Strain today: ${b.stressLevel}% · Neck accelerometry without voice capture`}
                 status={evaluateStressStatus(b.stressLevel)}
                 onClick={() => onSelectSystemZone?.("cerebro")}
               />
             </div>
 
-            {/* Indicador de Edad de Calibración */}
+            {/* Calibration Age Pill */}
             <div className="mt-2.5 flex items-center justify-between rounded-xl border border-[#182742] bg-[#091120] px-3 py-2 text-xs">
               <span className="flex items-center gap-1.5 text-slate-300">
                 <Mic className="h-3.5 w-3.5 text-sky-400" />
-                Último ajuste de presión:
+                Last BP calibration:
               </span>
               <span
                 className="font-mono-hud font-bold"
                 style={{ color: STATUS_HEX[calHoursStatus] }}
               >
-                hace {b.lastOscillometricCalHours} h
+                {b.lastOscillometricCalHours} h ago
               </span>
             </div>
           </div>
 
-          {/* Ajuste rápido de presión */}
+          {/* Quick BP Calibration Control */}
           <div className="rounded-xl border border-[#182742] bg-[#091120] p-3">
             <div className="flex items-center justify-between text-[11px]">
               <span className="font-bold text-slate-100">
-                Ajuste del Medidor de Presión
+                Optical BP Calibration
               </span>
               <span
                 className="font-mono-hud font-semibold"
                 style={{ color: STATUS_HEX[calHoursStatus] }}
               >
-                {b.pttCalibrationRequired ? "Conviene ajustar" : "Listo"}
+                {b.pttCalibrationRequired ? "Needs Sync" : "Ready"}
               </span>
             </div>
             <button
@@ -501,7 +501,7 @@ export default function WearableHarnessPanel({
               className="mt-2.5 flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-sky-600 px-3 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-sky-500 active:scale-[0.98]"
             >
               <Stethoscope className="h-3.5 w-3.5" />
-              Ajustar Medidor de Presión (30 s)
+              Calibrate BP Monitor (30 s)
             </button>
           </div>
         </div>
@@ -512,7 +512,7 @@ export default function WearableHarnessPanel({
         <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
           <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-100">
             <Gauge className="h-4 w-4 text-sky-400" />
-            Resumen Automático de Circulación y Calor (Calculado por tu Traje)
+            Automated Circulation & Thermal Summary (Derived by Suit)
           </h3>
           <span
             className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${
@@ -527,8 +527,8 @@ export default function WearableHarnessPanel({
               <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
             )}
             {hemo.orthostaticAlert
-              ? "Cuidado al ponerte de pie (riesgo de mareo)"
-              : "Sin riesgo de mareo al moverte"}
+              ? "Orthostatic caution on standing (syncope risk)"
+              : "Low orthostatic risk during movement"}
           </span>
         </div>
 
@@ -536,35 +536,35 @@ export default function WearableHarnessPanel({
           {[
             {
               key: "map",
-              title: "Fuerza Media de la Sangre",
+              title: "Mean Arterial Pressure",
               value: `${hemo.mapMmHg}`,
               unit: "mmHg",
               status: hemo.mapStatus,
-              note: "Empuje promedio que lleva sangre a tus órganos (bien: 70 a 100)",
+              note: "Mean perfusion pressure to vital organs (nominal: 70–100)",
             },
             {
               key: "pp",
-              title: "Impulso de cada Latido",
+              title: "Pulse Pressure",
               value: `${hemo.pulsePressureMmHg}`,
               unit: "mmHg",
               status: hemo.pulsePressureStatus,
-              note: "Fuerza entre el latido alto y el descanso (bien: 30 a 50)",
+              note: "Systolic-to-diastolic stroke force (nominal: 30–50)",
             },
             {
               key: "shock",
-              title: "Equilibrio Corazón / Presión",
+              title: "Vascular / Volume Balance",
               value: `${Math.max(0, Math.min(100, Math.round((1 - Math.max(0, hemo.shockIndex - 0.5)) * 100)))}%`,
               unit: `(${hemo.shockIndex.toFixed(2)})`,
               status: hemo.shockStatus,
-              note: "Indica si tu cuerpo tiene suficiente agua y sangre circulando",
+              note: "Reflects intravascular hydration & cardiac reserve",
             },
             {
               key: "thermal",
-              title: "Equilibrio de Temperatura",
+              title: "Thermal Equilibrium",
               value: hemo.thermalGradientC.toFixed(1),
-              unit: "°C dif.",
+              unit: "°C diff.",
               status: hemo.thermalGradientStatus,
-              note: "Comparación entre el calor interno y el de tu piel",
+              note: "Core-to-skin heat transfer differential",
             },
           ].map((item) => (
             <div

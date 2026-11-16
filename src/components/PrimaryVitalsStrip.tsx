@@ -81,52 +81,52 @@ export default function PrimaryVitalsStrip({
 
   const hrSimpleText =
     hrStatus === "optimal"
-      ? "Ritmo tranquilo y parejo"
+      ? "Steady resting rhythm"
       : hrStatus === "warning"
-      ? "Latidos algo rápidos, respira lento"
-      : "Corazón muy acelerado, siéntate";
+      ? "Elevated rate, pace breathing"
+      : "Severe tachycardia, rest now";
 
   const spo2SimpleText =
     spo2Status === "optimal"
-      ? "Llega suficiente aire a tu cuerpo"
+      ? "Nominal arterial oxygen"
       : spo2Status === "warning"
-      ? "Un poco bajo, respira profundo"
-      : "Falta aire, revisa tu oxígeno";
+      ? "Slightly low, deep breaths"
+      : "Hypoxia alert, check O₂";
 
   const bpSimpleText =
     bpStatus === "optimal"
-      ? "La sangre circula con fuerza normal"
+      ? "Normal vascular pressure"
       : bpStatus === "warning"
-      ? "Presión algo alta, haz una pausa"
-      : "Presión fuera de rango, descansa";
+      ? "Slightly elevated, pause task"
+      : "Out-of-range BP, rest immediately";
 
   const respSimpleText =
     respStatus === "optimal"
-      ? "Respiración calmada y sin esfuerzo"
+      ? "Calm, unlabored breathing"
       : respStatus === "warning"
-      ? "Respiras rápido, relaja los hombros"
-      : "Cuesta respirar, pide apoyo";
+      ? "Rapid breathing, relax shoulders"
+      : "Dyspnea risk, request support";
 
   const tempSimpleText =
     tempStatus === "optimal"
-      ? "Calor del cuerpo normal, sin fiebre"
+      ? "Nominal core temp, afebrile"
       : tempStatus === "warning"
-      ? "Cuerpo algo caliente, toma agua y descansa"
-      : "Fiebre o calor alto, revisa el protocolo";
+      ? "Mild hyperthermia, hydrate & rest"
+      : "High fever, run thermal protocol";
 
   const radSimpleText =
     radStatus === "optimal"
-      ? "Nivel seguro dentro de la nave"
+      ? "Safe internal cabin dose"
       : radStatus === "warning"
-      ? "Radiación media, evita salir hoy"
-      : "Radiación alta, ve a zona protegida";
+      ? "Moderate dose, avoid EVA today"
+      : "High radiation, enter shelter";
 
   return (
     <section
-      aria-label="Tus 6 signos principales en tiempo real"
+      aria-label="Your 6 primary real-time vitals"
       className="grid grid-cols-2 gap-2.5 lg:grid-cols-6"
     >
-      {/* 1. Frecuencia Cardíaca (ECG) */}
+      {/* 1. Heart Rate (ECG) */}
       <button
         type="button"
         onClick={() => onSelectZone("corazon")}
@@ -135,7 +135,7 @@ export default function PrimaryVitalsStrip({
         <div className="flex items-center justify-between gap-1">
           <span className="flex items-center gap-1.5 text-xs font-bold text-slate-200">
             <HeartPulse className="h-3.5 w-3.5 shrink-0" style={{ color: hrColor }} />
-            Frec. Cardíaca (ECG)
+            Heart Rate (ECG)
           </span>
           <StatusPill status={hrStatus} />
         </div>
@@ -148,7 +148,7 @@ export default function PrimaryVitalsStrip({
             {b.bpm}
           </span>
           <span className="text-[11px] font-medium text-slate-400">
-            lat/min · HRV {b.hrvRmssdMs}ms
+            bpm · HRV {b.hrvRmssdMs}ms
           </span>
         </div>
 
@@ -165,7 +165,7 @@ export default function PrimaryVitalsStrip({
         </p>
       </button>
 
-      {/* 2. Saturación Arterial (SpO₂) */}
+      {/* 2. Arterial Saturation (SpO₂) */}
       <button
         type="button"
         onClick={onOpenWearable}
@@ -174,7 +174,7 @@ export default function PrimaryVitalsStrip({
         <div className="flex items-center justify-between gap-1">
           <span className="flex items-center gap-1.5 text-xs font-bold text-slate-200">
             <Activity className="h-3.5 w-3.5 shrink-0" style={{ color: spo2Color }} />
-            Saturación (SpO₂)
+            Saturation (SpO₂)
           </span>
           <StatusPill status={spo2Status} />
         </div>
@@ -204,7 +204,7 @@ export default function PrimaryVitalsStrip({
         </p>
       </button>
 
-      {/* 3. Presión Arterial Óptica (PTT) */}
+      {/* 3. Optical Blood Pressure (PTT) */}
       <button
         type="button"
         onClick={() => onSelectZone("corazon")}
@@ -213,7 +213,7 @@ export default function PrimaryVitalsStrip({
         <div className="flex items-center justify-between gap-1">
           <span className="flex items-center gap-1.5 text-xs font-bold text-slate-200">
             <Gauge className="h-3.5 w-3.5 shrink-0 text-sky-400" />
-            Presión Óptica (PTT)
+            Optical BP (PTT)
           </span>
           <StatusPill status={bpStatus} />
         </div>
@@ -243,7 +243,7 @@ export default function PrimaryVitalsStrip({
         </p>
       </button>
 
-      {/* 4. Frecuencia Respiratoria (RIP) */}
+      {/* 4. Respiratory Rate (RIP) */}
       <button
         type="button"
         onClick={onOpenWearable}
@@ -252,7 +252,7 @@ export default function PrimaryVitalsStrip({
         <div className="flex items-center justify-between gap-1">
           <span className="flex items-center gap-1.5 text-xs font-bold text-slate-200">
             <Wind className="h-3.5 w-3.5 shrink-0" style={{ color: respColor }} />
-            Ventilación (RIP)
+            Ventilation (RIP)
           </span>
           <StatusPill status={respStatus} />
         </div>
@@ -281,7 +281,7 @@ export default function PrimaryVitalsStrip({
         </p>
       </button>
 
-      {/* 5. Temperatura Central (Core) */}
+      {/* 5. Core Temperature */}
       <button
         type="button"
         onClick={() => onSelectZone("abdomen")}
@@ -290,7 +290,7 @@ export default function PrimaryVitalsStrip({
         <div className="flex items-center justify-between gap-1">
           <span className="flex items-center gap-1.5 text-xs font-bold text-slate-200">
             <Thermometer className="h-3.5 w-3.5 shrink-0" style={{ color: tempColor }} />
-            Temp. Central (Core)
+            Core Temp (Body)
           </span>
           <StatusPill status={tempStatus} />
         </div>
@@ -303,7 +303,7 @@ export default function PrimaryVitalsStrip({
             {b.bodyTempC.toFixed(1)}°C
           </span>
           <span className="text-[11px] font-medium text-slate-400">
-            Piel {b.skinTempC.toFixed(1)}°C
+            Skin {b.skinTempC.toFixed(1)}°C
           </span>
         </div>
 
@@ -318,7 +318,7 @@ export default function PrimaryVitalsStrip({
         </p>
       </button>
 
-      {/* 6. Dosimetría Activa (RAD) */}
+      {/* 6. Active Dosimetry (RAD) */}
       <button
         type="button"
         onClick={() => onSelectZone("endocrino")}
@@ -327,7 +327,7 @@ export default function PrimaryVitalsStrip({
         <div className="flex items-center justify-between gap-1">
           <span className="flex items-center gap-1.5 text-xs font-bold text-slate-200">
             <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-amber-400" />
-            Dosimetría (RAD)
+            Dosimetry (RAD)
           </span>
           <StatusPill status={radStatus} />
         </div>

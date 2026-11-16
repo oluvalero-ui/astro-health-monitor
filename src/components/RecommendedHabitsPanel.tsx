@@ -40,7 +40,7 @@ export default function RecommendedHabitsPanel({
         <div className="mb-3.5 border-b border-[#182742] pb-3">
           <h2 className="flex items-center gap-2 text-base font-bold text-slate-100">
             <ClipboardCheck className="h-5 w-5 text-sky-400" />
-            Protocolo de Contramedidas Diarias (NASA HRP)
+            Daily Countermeasures Protocol (NASA HRP)
           </h2>
         </div>
 
@@ -89,8 +89,8 @@ export default function RecommendedHabitsPanel({
                 <button
                   type="button"
                   onClick={() => onInspectHabit(habit.id)}
-                  title="Ver explicación clínica en el apartado inferior"
-                  aria-label={`Ver explicación de ${habit.title}`}
+                  title="Inspect clinical rationale in NASA-STD-3001 manual"
+                  aria-label={`Inspect rationale for ${habit.title}`}
                   className="shrink-0 cursor-pointer rounded-lg p-1.5 text-slate-400 transition hover:bg-sky-500/15 hover:text-sky-300"
                 >
                   <Info className="h-3.5 w-3.5" />
@@ -101,7 +101,7 @@ export default function RecommendedHabitsPanel({
         </div>
       </div>
 
-      {/* Formulario minimalista para agregar tarea personal */}
+      {/* Minimalist form for adding a custom crew habit */}
       <form
         onSubmit={handleSubmit}
         className="mt-4 flex gap-2 border-t border-[#182742] pt-3"
@@ -110,7 +110,7 @@ export default function RecommendedHabitsPanel({
           type="text"
           value={newHabitTitle}
           onChange={(e) => setNewHabitTitle(e.target.value)}
-          placeholder="Añadir hábito personal (ej. estiramiento lumbar)..."
+          placeholder="Add custom countermeasure (e.g., lumbar stretch)..."
           className="min-w-0 flex-1 rounded-xl border border-[#1b2d4b] bg-[#091120] px-3 py-1.5 text-xs text-slate-100 placeholder:text-slate-500 focus:border-sky-400 focus:bg-[#0c162b] focus:outline-none"
         />
         <select
@@ -119,19 +119,19 @@ export default function RecommendedHabitsPanel({
             setNewCategory(e.target.value as MissionQuest["category"])
           }
           className="rounded-xl border border-[#1b2d4b] bg-[#091120] px-2 py-1.5 text-xs text-slate-200 focus:border-sky-400 focus:outline-none"
-          aria-label="Categoría de hábito recomendado"
+          aria-label="Countermeasure category"
         >
-          <option value="mental">Mental</option>
-          <option value="fisico">Físico</option>
-          <option value="hidratacion">Agua</option>
-          <option value="circadiano">Luz</option>
+          <option value="mental">Behavioral</option>
+          <option value="fisico">Physical</option>
+          <option value="hidratacion">Hydration</option>
+          <option value="circadiano">Circadian</option>
         </select>
         <button
           type="submit"
           className="inline-flex cursor-pointer items-center gap-1 rounded-xl bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-sky-500"
         >
           <Plus className="h-3.5 w-3.5" />
-          Añadir
+          Add
         </button>
       </form>
     </section>
