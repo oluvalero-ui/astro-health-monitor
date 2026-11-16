@@ -418,10 +418,10 @@ export default function WearableHarnessPanel({
                 </span>
                 <div>
                   <h3 className="text-xs font-bold uppercase tracking-wider text-slate-100">
-                    Node 3: Wrist, Laryngeal Collar &amp; Earpiece
+                    Node 3: Dosimetric Wristband, Laryngeal Collar &amp; BLE Bone-Conduction Earpiece
                   </h3>
                   <p className="text-[11px] text-slate-400">
-                    Dosimetric Wristband, Laryngeal Collar &amp; Bone-Conduction / In-Ear BLE Earpiece
+                    Radiation dosimetry, piezo vocal-cord vibration &amp; private 0g hands-free ASTRO loop
                   </p>
                 </div>
               </div>
@@ -479,16 +479,17 @@ export default function WearableHarnessPanel({
                   BLE · 0g PRIVATE
                 </span>
               </div>
-              <ul className="mt-1.5 space-y-1 text-[10.5px] text-slate-300">
+              <ol className="mt-1.5 space-y-1 text-[10.5px] text-slate-300">
                 <li>
-                  <strong className="text-slate-100">Piezoelectric Laryngeal Collar:</strong>{" "}
-                  Captures crew speech via mechanical micro-vibrations (100% immune to constant ~60 dBA cabin ECLSS fan noise).
+                  <strong className="text-slate-100">1. Piezoelectric Laryngeal Collar:</strong>{" "}
+                  Measures vocal fatigue via mechanical micro-vibration of the vocal cords and captures crew speech with{" "}
+                  <strong className="text-emerald-300">100% immunity to ~60 dBA ambient cabin fan noise (ECLSS)</strong>.
                 </li>
                 <li>
-                  <strong className="text-slate-100">Bone-Conduction / In-Ear BLE Earpiece:</strong>{" "}
-                  Delivers <strong className="text-cyan-300">&ldquo;ASTRO&rdquo;</strong> clinical alerts and spoken guidance directly to the ear—creating a private, hands-free two-way channel that avoids disturbing crew sleep shifts.
+                  <strong className="text-slate-100">2. Low-Power In-Ear / Bone-Conduction BLE Earpiece:</strong>{" "}
+                  Delivers <strong className="text-cyan-300">&ldquo;ASTRO&rdquo;</strong> voice assistant alerts and clinical protocols privately directly to the ear, enabling hands-free triage in microgravity without waking the rest of the crew.
                 </li>
-              </ul>
+              </ol>
             </div>
 
             {/* Calibration Age Pill */}

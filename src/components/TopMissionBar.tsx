@@ -250,7 +250,9 @@ export default function TopMissionBar({
       q.includes("habit") ||
       q.includes("monitor") ||
       q.includes("telemetry") ||
-      q.includes("camera") ||
+      q.includes("simulator") ||
+      q.includes("poc") ||
+      q.includes("log") ||
       q.includes("biomarker");
 
     if (
@@ -376,10 +378,16 @@ export default function TopMissionBar({
       return;
     }
 
-    if (q.includes("camera") || q.includes("manual entry") || q.includes("adjust")) {
+    if (
+      q.includes("simulator") ||
+      q.includes("poc") ||
+      q.includes("manual") ||
+      q.includes("adjust") ||
+      q.includes("log")
+    ) {
       onOpenScanModal();
       speakAstroText(
-        `Opening the Multimodal Camera and Manual Clinical Entry panel so you can update your assessment. What else would you like to check?`
+        `Opening the Point-of-Care Manual Entry and Clinical Profile Simulator so you can inject test states or update biomarkers. What else would you like to check?`
       );
       return;
     }
@@ -844,7 +852,7 @@ export default function TopMissionBar({
                 ? "border-cyan-400/70 bg-cyan-500/20 text-cyan-200"
                 : "border-cyan-500/35 bg-cyan-500/10 text-cyan-200 hover:bg-cyan-500/20"
             }`}
-            title="ASTRO Voice Assistant (0g Voice) · Hands-free two-way link via Node 3 Laryngeal Collar & Bone-Conduction / In-Ear BLE Earpiece (3N Harness)"
+            title="ASTRO Voice Assistant (0g Voice) · Transmits via Node 3 Larynx-Earpiece Loop (Piezoelectric Laryngeal Collar + BLE Bone-Conduction Earpiece)"
           >
             {listening ? (
               <>
@@ -870,7 +878,7 @@ export default function TopMissionBar({
             className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-[#1a73e8] px-3 py-1.5 text-xs font-bold text-white transition hover:bg-blue-600"
           >
             <ScanLine className="h-3.5 w-3.5" />
-            <span>Review / Adjust</span>
+            <span>PoC Log / Simulator</span>
           </button>
 
           {/* Automated Clinical Risk Indicator */}
@@ -933,7 +941,7 @@ export default function TopMissionBar({
                     ASTRO · VOICE ASSISTANT (0g)
                   </span>
                   <span className="rounded-full border border-cyan-500/30 bg-cyan-500/10 px-2 py-0.5 font-mono-hud text-[10px] text-cyan-200">
-                    Node 3 Link: Laryngeal Collar (~60 dBA immune) + BLE Bone-Conduction Earpiece
+                    Node 3 Larynx-Earpiece Loop · ~60 dBA ECLSS Immune + Private BLE Audio
                   </span>
                   <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 font-mono-hud text-[10px] text-emerald-300">
                     Section: {SECTION_DISPLAY_NAMES[activeSection] ?? activeSection.toUpperCase()}

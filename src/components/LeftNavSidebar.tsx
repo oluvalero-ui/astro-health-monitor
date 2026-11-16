@@ -5,9 +5,9 @@ import {
   Activity,
   BarChart3,
   BookOpen,
-  Camera,
   Monitor,
   ScanLine,
+  Sliders,
   Watch,
 } from "lucide-react";
 
@@ -106,12 +106,12 @@ export default function LeftNavSidebar({
 
           <button
             type="button"
-            title="AI Camera & Manual Entry"
+            title="Point-of-Care Log & Clinical Simulator"
             onClick={onOpenScanModal}
             className="flex w-full cursor-pointer flex-col items-center justify-center gap-1 rounded-xl py-2 text-[10px] font-semibold text-teal-300/85 transition hover:bg-[#0e182c] hover:text-teal-200"
           >
-            <Camera className="h-4 w-4" />
-            <span>Camera</span>
+            <Sliders className="h-4 w-4" />
+            <span>PoC Sim</span>
           </button>
         </div>
       </aside>
@@ -142,8 +142,8 @@ export default function LeftNavSidebar({
           onClick={onOpenScanModal}
           className="flex flex-col items-center gap-0.5 rounded-lg px-2 py-1 text-[10px] font-semibold text-cyan-200"
         >
-          <Camera className="h-4 w-4" />
-          <span>Camera</span>
+          <Sliders className="h-4 w-4" />
+          <span>PoC Sim</span>
         </button>
       </nav>
     </>
