@@ -24,6 +24,7 @@ import {
 } from "@/types/astronaut";
 import {
   computeHemodynamicIndices,
+  estimatePhysioEtco2MmHg,
   evaluateBpStatus,
   evaluateBpmStatus,
   evaluateHrvStatus,
@@ -46,6 +47,8 @@ import { StatusPill } from "./ui/StatusPill";
 interface WearableHarnessPanelProps {
   environmentId: MissionEnvironmentId;
   biomarkers: BiomarkerData;
+  cabinCo2MmHg?: number;
+  cabinPressureKpa?: number;
   onCalibrateOscillometric: () => void;
   onSelectSystemZone?: (zone: SystemZoneId) => void;
 }
@@ -103,12 +106,17 @@ function TelemetryBadge({
 export default function WearableHarnessPanel({
   environmentId,
   biomarkers: b,
+  cabinCo2MmHg,
+  cabinPressureKpa,
   onCalibrateOscillometric,
   onSelectSystemZone,
 }: WearableHarnessPanelProps) {
   const [calFeedbackAt, setCalFeedbackAt] = useState<string | null>(null);
 
   const env = MISSION_ENVIRONMENTS[environmentId];
+  const currentCo2 = cabinCo2MmHg ?? env.co2MmHg;
+  const currentPressure = cabinPressureKpa ?? env.cabinPressureKpa;
+  const etCo2MmHg = estimatePhysioEtco2MmHg(b.respiratoryRateRpm, currentCo2);
   const hemo = computeHemodynamicIndices(b, environmentId);
 
   const calHoursStatus: HealthStatus =
@@ -145,6 +153,9 @@ export default function WearableHarnessPanel({
         </div>
 
         <div className="flex flex-wrap items-center gap-2 text-xs">
+          <span className="rounded-xl border border-sky-500/35 bg-sky-500/10 px-3 py-1.5 font-mono-hud text-[11px] font-bold text-sky-200">
+            Dynamic Environmental Telemetry: NASA ECLSS &amp; SRAG ({currentPressure.toFixed(2)} kPa · {currentCo2.toFixed(1)} mmHg ppCO₂)
+          </span>
           <span className="rounded-xl border border-cyan-500/35 bg-cyan-500/10 px-3 py-1.5 font-mono-hud text-[11px] font-bold text-cyan-200">
             Pre-Flight Individual Baseline: NASA MedOps / OSDR
           </span>
@@ -283,9 +294,9 @@ export default function WearableHarnessPanel({
                 onClick={() => onSelectSystemZone?.("corazon")}
               />
               <TelemetryBadge
-                label="Minute Ventilation"
-                value={`${b.minuteVentilationLpm.toFixed(1)} L/min`}
-                meta="Air exchanged per min (5–8 L/m)"
+                label="RESP · VENT (RIP)"
+                value={`${b.minuteVentilationLpm.toFixed(1)} L/min · EtCO₂ ${etCo2MmHg}`}
+                meta={`Physio EtCO₂ 35–45 mmHg · Cabin ECLSS: ${currentCo2.toFixed(1)} mmHg ppCO₂`}
                 status={evaluateMinuteVentilationStatus(b.minuteVentilationLpm)}
                 onClick={() => onSelectSystemZone?.("corazon")}
               />
@@ -464,9 +475,9 @@ export default function WearableHarnessPanel({
             {/* Node 3 Two Signs */}
             <div className="mt-3 space-y-2">
               <TelemetryBadge
-                label="Radiation Protection (Exogenous)"
+                label="RAD CSA (Exogenous)"
                 value={`${Math.max(0, Math.min(100, Math.round((1 - b.dailyRadiationMsv / CSA_RADIATION_LIMITS.dailyAlertMsv) * 100)))}% safe`}
-                meta={`NASA SRAG / RAD: ${b.dailyRadiationMsv.toFixed(2)} mSv/d${
+                meta={`Dose vs. NASA SRAG / ECLSS: ${b.dailyRadiationMsv.toFixed(2)} mSv/d${
                   environmentId === "marte" ? " (SPE > 5.0)" : ""
                 }`}
                 status={evaluateRadiationStatus(b.dailyRadiationMsv)}

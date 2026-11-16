@@ -16,6 +16,7 @@ import {
   SystemZoneId,
 } from "@/types/astronaut";
 import {
+  estimatePhysioEtco2MmHg,
   evaluateBpStatus,
   evaluateBpmStatus,
   evaluateMinuteVentilationStatus,
@@ -54,9 +55,11 @@ function getVitalDisplayColor(status: HealthStatus, nominalColor: string): strin
 export default function PrimaryVitalsStrip({
   biomarkers: b,
   environmentId = "iss",
+  cabinCo2MmHg,
   onSelectZone,
   onOpenWearable,
 }: PrimaryVitalsStripProps) {
+  const etCo2MmHg = estimatePhysioEtco2MmHg(b.respiratoryRateRpm, cabinCo2MmHg);
   const hrStatus = evaluateBpmStatus(b.bpm);
   const spo2Status = worstStatus([
     evaluateSpo2Status(b.spo2Percent, environmentId),
@@ -123,10 +126,10 @@ export default function PrimaryVitalsStrip({
 
   const radSimpleText =
     radStatus === "optimal"
-      ? "Exogenous NASA SRAG / CSA RAD (SPE > 5.0)"
+      ? "Crossed vs. NASA SRAG / ECLSS var. telemetry"
       : radStatus === "warning"
-      ? "Exogenous RAD elevated · NASA SRAG"
-      : "Exogenous SPE surge · enter shelter";
+      ? "Elevated vs. NASA SRAG / ECLSS telemetry"
+      : "SPE alert vs. NASA SRAG / ECLSS · Shelter";
 
   return (
     <section
@@ -265,7 +268,7 @@ export default function PrimaryVitalsStrip({
         </p>
       </button>
 
-      {/* 4. Respiratory Rate (RIP) */}
+      {/* 4. RESP · VENT (Node 1 RIP Bands + Physio EtCO₂ vs. Cabin ECLSS ppCO₂) */}
       <button
         type="button"
         onClick={onOpenWearable}
@@ -274,7 +277,7 @@ export default function PrimaryVitalsStrip({
         <div className="flex items-center justify-between gap-1">
           <span className="flex items-center gap-1.5 text-xs font-bold text-slate-200">
             <Wind className="h-3.5 w-3.5 shrink-0" style={{ color: respColor }} />
-            Ventilation (RIP)
+            RESP · VENT
           </span>
           <StatusPill status={respStatus} />
         </div>
@@ -298,9 +301,14 @@ export default function PrimaryVitalsStrip({
           heightClass="h-6"
         />
 
-        <p className="mt-1 truncate text-[11px] text-slate-300">
-          {respSimpleText}
-        </p>
+        <div className="mt-1 space-y-0.5 text-[10px]">
+          <div className="truncate font-mono-hud text-emerald-300">
+            EtCO₂: {etCo2MmHg} mmHg (norm 35–45) · {respSimpleText}
+          </div>
+          <div className="truncate font-mono-hud text-sky-300/90">
+            Cabin ECLSS: {cabinCo2MmHg.toFixed(1)} mmHg ppCO₂ (NASA Telemetry)
+          </div>
+        </div>
       </button>
 
       {/* 5. Core Temperature */}
@@ -340,7 +348,7 @@ export default function PrimaryVitalsStrip({
         </p>
       </button>
 
-      {/* 6. Active Dosimetry (RAD) */}
+      {/* 6. Active Dosimetry (RAD CSA) */}
       <button
         type="button"
         onClick={() => onSelectZone("endocrino")}
@@ -349,7 +357,7 @@ export default function PrimaryVitalsStrip({
         <div className="flex items-center justify-between gap-1">
           <span className="flex items-center gap-1.5 text-xs font-bold text-slate-200">
             <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-amber-400" />
-            Dosimetry (RAD)
+            RAD CSA
           </span>
           <StatusPill status={radStatus} />
         </div>

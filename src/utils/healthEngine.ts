@@ -435,6 +435,14 @@ export function clamp(val: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, val));
 }
 
+export function estimatePhysioEtco2MmHg(
+  respiratoryRateRpm: number,
+  cabinCo2MmHg: number
+): number {
+  const val = 40 + (cabinCo2MmHg - 2.3) * 1.1 - (respiratoryRateRpm - 15) * 0.35;
+  return clamp(Math.round(val), 35, 45);
+}
+
 export function hydrateBiomarkers(
   raw?: Partial<BiomarkerData> | null
 ): BiomarkerData {
@@ -487,10 +495,12 @@ interface EnvPhysioOffset {
   tempDelta: number;
   skinTempDelta: number;
   spo2Delta: number;
+  respDelta: number;
+  mvDelta: number;
 }
 
 const ENV_PHYSIO_OFFSETS: Record<MissionEnvironmentId, EnvPhysioOffset> = {
-  // 0.00g Orbital: cephalad fluid vasodilation (~112/72 mmHg) & mild Space Fever (37.1 °C)
+  // 0.00g Orbital (101.3 kPa): cephalad fluid vasodilation (~112/72 mmHg) & mild Space Fever (37.1 °C)
   iss: {
     hrDelta: 0,
     sysDelta: 0,
@@ -499,8 +509,10 @@ const ENV_PHYSIO_OFFSETS: Record<MissionEnvironmentId, EnvPhysioOffset> = {
     tempDelta: 0,
     skinTempDelta: 0,
     spo2Delta: 0,
+    respDelta: 0,
+    mvDelta: 0,
   },
-  // 0.00g Transit (70.3 kPa): persistent 0g vasodilation & Space Fever; slight hypobaric drop
+  // 0.00g Transit (70.3 kPa, 3.1 mmHg CO2): persistent 0g vasodilation & Space Fever; slight hypobaric/CO2 response
   nave: {
     hrDelta: 2,
     sysDelta: 1,
@@ -509,28 +521,72 @@ const ENV_PHYSIO_OFFSETS: Record<MissionEnvironmentId, EnvPhysioOffset> = {
     tempDelta: 0,
     skinTempDelta: 0.1,
     spo2Delta: -1,
+    respDelta: 1,
+    mvDelta: 0.5,
   },
-  // 0.16g Lunar Habitat (56.5 kPa): hypobaric nominal SpO₂ 94% + orthostatic +6 bpm & BP rise
+  // 0.16g Lunar Habitat (56.5 kPa): hypobaric nominal SpO₂ 95% + orthostatic/hypobaric +5 bpm & +2 rpm
   luna: {
-    hrDelta: 6,
+    hrDelta: 5,
     sysDelta: 8,
     diaDelta: 6,
     pttDelta: -12,
     tempDelta: -0.4,
     skinTempDelta: -0.2,
-    spo2Delta: -4,
+    spo2Delta: -3,
+    respDelta: 2,
+    mvDelta: 0.8,
   },
-  // 0.38g Mars Habitat (58.0 kPa): hypobaric nominal SpO₂ 95% + orthostatic +6 bpm & BP rise
+  // 0.38g Mars Habitat (58.0 kPa): hypobaric nominal SpO₂ 95% + orthostatic/hypobaric +5 bpm & +2 rpm
   marte: {
-    hrDelta: 6,
+    hrDelta: 5,
     sysDelta: 11,
     diaDelta: 8,
     pttDelta: -16,
     tempDelta: -0.4,
     skinTempDelta: -0.3,
     spo2Delta: -3,
+    respDelta: 2,
+    mvDelta: 0.9,
   },
 };
+
+export interface LiveCabinTelemetry {
+  cabinPressureKpa: number;
+  co2MmHg: number;
+  dailyRadiationMsv: number;
+}
+
+export function getLiveEnvironmentTelemetry(
+  envId: MissionEnvironmentId,
+  baseDailyRadMsv: number,
+  tick: number
+): LiveCabinTelemetry {
+  const env = MISSION_ENVIRONMENTS[envId];
+  if (tick === 0) {
+    return {
+      cabinPressureKpa: env.cabinPressureKpa,
+      co2MmHg: env.co2MmHg,
+      dailyRadiationMsv: baseDailyRadMsv,
+    };
+  }
+  const pressureWave = [0.05, -0.02, -0.05, 0.03, -0.04, 0.02];
+  const co2Wave = [0.1, 0.0, -0.1, 0.1, -0.1, 0.0];
+  const radWave = [0.01, -0.01, 0.02, 0.0, -0.02, 0.01];
+  const i = tick % 6;
+  const j = (tick + 1) % 6;
+
+  return {
+    cabinPressureKpa: Number(
+      (env.cabinPressureKpa + pressureWave[i]).toFixed(2)
+    ),
+    co2MmHg: clamp(Number((env.co2MmHg + co2Wave[j]).toFixed(1)), 0.5, 10.0),
+    dailyRadiationMsv: clamp(
+      Number((baseDailyRadMsv + radWave[i]).toFixed(2)),
+      0.05,
+      10.0
+    ),
+  };
+}
 
 export function applyLivePhysioJitter(
   b: BiomarkerData,
@@ -545,6 +601,7 @@ export function applyLivePhysioJitter(
   const tempWave = [0.05, 0.0, -0.05, 0.05, -0.05, 0.0];
   const skinWave = [0.0, 0.05, -0.05, 0.0, 0.05, -0.05];
   const hrvWave = [-1, 1, 0, 1, -1, 1];
+  const radWave = [0.01, -0.01, 0.02, 0.0, -0.02, 0.01];
 
   const i = tick % 6;
   const j = (tick + 2) % 6;
@@ -564,6 +621,11 @@ export function applyLivePhysioJitter(
     bodyTempC: clamp(Number((b.bodyTempC + tempWave[i]).toFixed(2)), 35.0, 40.0),
     skinTempC: clamp(Number((b.skinTempC + skinWave[j]).toFixed(2)), 30.0, 38.5),
     hrvRmssdMs: clamp(b.hrvRmssdMs + hrvWave[i], 10, 95),
+    dailyRadiationMsv: clamp(
+      Number((b.dailyRadiationMsv + radWave[i]).toFixed(2)),
+      0.05,
+      10.0
+    ),
   };
 }
 
@@ -630,12 +692,12 @@ export function recalculateForEnvironment(
       100
     ),
     respiratoryRateRpm: clamp(
-      Math.round(b.respiratoryRateRpm + co2Delta * 1.4),
+      b.respiratoryRateRpm - prevOffset.respDelta + nextOffset.respDelta,
       10,
       30
     ),
     minuteVentilationLpm: clamp(
-      Number((b.minuteVentilationLpm + co2Delta * 0.65).toFixed(1)),
+      Number((b.minuteVentilationLpm - prevOffset.mvDelta + nextOffset.mvDelta).toFixed(1)),
       4.2,
       14.0
     ),
@@ -799,6 +861,10 @@ export function restoreNominalFromEmergency(
     spo2Percent: DEFAULT_BIOMARKERS.spo2Percent + offset.spo2Delta,
     bodyTempC: Number((DEFAULT_BIOMARKERS.bodyTempC + offset.tempDelta).toFixed(2)),
     skinTempC: Number((DEFAULT_BIOMARKERS.skinTempC + offset.skinTempDelta).toFixed(2)),
+    respiratoryRateRpm: DEFAULT_BIOMARKERS.respiratoryRateRpm + offset.respDelta,
+    minuteVentilationLpm: Number(
+      (DEFAULT_BIOMARKERS.minuteVentilationLpm + offset.mvDelta).toFixed(1)
+    ),
     dailyRadiationMsv: env.dailyRadiationMsv,
     lonelinessLevel: clamp(DEFAULT_BIOMARKERS.lonelinessLevel + env.isolationRiskBonus, 10, 80),
     boredomLevel: clamp(DEFAULT_BIOMARKERS.boredomLevel + Math.round(env.isolationRiskBonus * 0.7), 10, 80),

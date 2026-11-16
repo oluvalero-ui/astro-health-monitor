@@ -49,6 +49,8 @@ interface OverviewBentoGridProps {
   zoneStatuses: Record<SystemZoneId, HealthStatus>;
   readinessScore: number;
   history: TelemetryPoint[];
+  liveCabinPressureKpa?: number;
+  liveCo2MmHg?: number;
   onSelectZoneAndScroll: (zone: SystemZoneId) => void;
   onNavigateWearable: () => void;
   onNavigateBiomarkers: () => void;
@@ -128,6 +130,8 @@ export default function OverviewBentoGrid({
   zoneStatuses,
   readinessScore,
   history,
+  liveCabinPressureKpa,
+  liveCo2MmHg,
   onSelectZoneAndScroll,
   onNavigateWearable,
   onNavigateBiomarkers,
@@ -140,6 +144,8 @@ export default function OverviewBentoGrid({
   );
 
   const env = MISSION_ENVIRONMENTS[environmentId];
+  const currentPressureKpa = liveCabinPressureKpa ?? env.cabinPressureKpa;
+  const currentCo2MmHg = liveCo2MmHg ?? env.co2MmHg;
   const routineAnalysis = computeRoutineDeviations(routine);
 
   const donutData = ZONE_LIST.map((id) => ({
@@ -173,7 +179,7 @@ export default function OverviewBentoGrid({
     )
   );
   const calmPct = Math.max(0, Math.round(100 - (b.mentalFatigue + b.stressLevel) / 2));
-  const cleanAirPct = Math.max(0, Math.min(100, Math.round((1 - env.co2MmHg / 6) * 100)));
+  const cleanAirPct = Math.max(0, Math.min(100, Math.round((1 - currentCo2MmHg / 6) * 100)));
 
   const hazardBars: {
     label: string;
@@ -224,18 +230,18 @@ export default function OverviewBentoGrid({
     },
     {
       label: "CO₂ Scrubbing (CDRA System)",
-      metric: `CO₂ ${env.co2MmHg.toFixed(1)} mmHg`,
+      metric: `CO₂ ${currentCo2MmHg.toFixed(1)} mmHg`,
       pct: cleanAirPct,
       status:
-        env.co2MmHg >= 4.2
+        currentCo2MmHg >= 4.2
           ? "critical"
-          : env.co2MmHg >= 3.2
+          : currentCo2MmHg >= 3.2
           ? "warning"
           : "optimal",
       color:
-        env.co2MmHg >= 4.2
+        currentCo2MmHg >= 4.2
           ? "#ef4444"
-          : env.co2MmHg >= 3.2
+          : currentCo2MmHg >= 3.2
           ? "#f59e0b"
           : "#38bdf8",
       onClick: () => onSelectZoneAndScroll("corazon"),
@@ -436,10 +442,16 @@ export default function OverviewBentoGrid({
               Cabin environmental control (ECLSS), radiation shielding & mission synchrony.
             </p>
           </div>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-500/30 bg-sky-500/10 px-2.5 py-1 font-mono-hud text-xs font-semibold text-sky-300">
-            <Globe className="h-3.5 w-3.5 text-sky-400" />
-            {env.shortName}
-          </span>
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-500/35 bg-cyan-500/10 px-2.5 py-0.5 font-mono-hud text-[10px] font-bold text-cyan-200">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-cyan-300" />
+              Dynamic Environmental Telemetry: NASA ECLSS &amp; SRAG
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-500/30 bg-sky-500/10 px-2.5 py-1 font-mono-hud text-xs font-semibold text-sky-300">
+              <Globe className="h-3.5 w-3.5 text-sky-400" />
+              {env.shortName}
+            </span>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 items-center gap-4 sm:grid-cols-12">
@@ -507,7 +519,7 @@ export default function OverviewBentoGrid({
               <div className="rounded-lg bg-[#0c162b] px-1.5 py-1">
                 <div className="text-[9px] uppercase text-slate-400">Cabin ECLSS</div>
                 <div className="text-[11px] font-bold text-slate-200">
-                  {env.cabinPressureKpa} kPa
+                  {currentPressureKpa.toFixed(2)} kPa
                 </div>
               </div>
               <div className="rounded-lg bg-[#0c162b] px-1.5 py-1">

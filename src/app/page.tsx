@@ -24,7 +24,6 @@ import TopMissionBar from "@/components/TopMissionBar";
 import WearableHarnessPanel from "@/components/WearableHarnessPanel";
 import {
   INITIAL_DASHBOARD_STATE,
-  MISSION_ENVIRONMENTS,
   hydrateRecommendedHabits,
 } from "@/data/missionData";
 import {
@@ -44,12 +43,13 @@ import {
   computeMissionReadiness,
   computeRoutineDeviations,
   evaluateAllZoneStatuses,
+  getLiveEnvironmentTelemetry,
   hydrateBiomarkers,
   recalculateForEnvironment,
   restoreNominalFromEmergency,
 } from "@/utils/healthEngine";
 
-const STORAGE_KEY = "astro-med-hrp-state-v4";
+const STORAGE_KEY = "astro-med-hrp-state-v5";
 const STORAGE_EVENT = "astro-med-storage-change";
 
 const MODALITY_LABELS: Record<string, string> = {
@@ -195,6 +195,16 @@ export default function HomePage() {
         ? state.biomarkers
         : applyLivePhysioJitter(state.biomarkers, jitterTick),
     [state.biomarkers, jitterTick]
+  );
+
+  const liveCabinTelemetry = useMemo(
+    () =>
+      getLiveEnvironmentTelemetry(
+        state.environmentId,
+        state.biomarkers.dailyRadiationMsv,
+        jitterTick
+      ),
+    [state.environmentId, state.biomarkers.dailyRadiationMsv, jitterTick]
   );
 
   const handleInspectHabit = (habitId: string) => {
@@ -472,7 +482,7 @@ export default function HomePage() {
             biomarkers={liveBiomarkers}
             environmentId={state.environmentId}
             readinessScore={readinessScore}
-            cabinCo2MmHg={MISSION_ENVIRONMENTS[state.environmentId].co2MmHg}
+            cabinCo2MmHg={liveCabinTelemetry.co2MmHg}
             onSelectZone={handleSelectZoneAndScroll}
             onOpenWearable={() => handleNavigateSection("wearable")}
           />
@@ -487,6 +497,8 @@ export default function HomePage() {
                 zoneStatuses={zoneStatuses}
                 readinessScore={readinessScore}
                 history={state.history}
+                liveCabinPressureKpa={liveCabinTelemetry.cabinPressureKpa}
+                liveCo2MmHg={liveCabinTelemetry.co2MmHg}
                 onSelectZoneAndScroll={handleSelectZoneAndScroll}
                 onNavigateWearable={() => handleNavigateSection("wearable")}
                 onNavigateBiomarkers={() => handleNavigateSection("biomarcadores")}
@@ -543,6 +555,8 @@ export default function HomePage() {
             <WearableHarnessPanel
               environmentId={state.environmentId}
               biomarkers={liveBiomarkers}
+              cabinCo2MmHg={liveCabinTelemetry.co2MmHg}
+              cabinPressureKpa={liveCabinTelemetry.cabinPressureKpa}
               onCalibrateOscillometric={handleCalibrateOscillometric}
               onSelectSystemZone={handleSelectZoneAndScroll}
             />
