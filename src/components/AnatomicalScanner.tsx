@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import {
   Activity,
   AlertCircle,
+  AlertTriangle,
   Brain,
   CheckCircle2,
   Dumbbell,
@@ -20,7 +21,10 @@ import {
   MissionEnvironmentId,
   SystemZoneId,
 } from "@/types/astronaut";
-import { STATUS_HEX } from "@/utils/healthEngine";
+import {
+  getZoneTargetedRecommendations,
+  STATUS_HEX,
+} from "@/utils/healthEngine";
 import { StatusPill } from "@/components/ui/StatusPill";
 
 interface AnatomicalScannerProps {
@@ -102,6 +106,11 @@ export default function AnatomicalScanner({
   const guide = SYSTEM_DIAGNOSTIC_GUIDES[selectedZone];
   const activeStatus = zoneStatuses[selectedZone];
   const activeHex = STATUS_HEX[activeStatus];
+  const zoneRecs = getZoneTargetedRecommendations(
+    selectedZone,
+    biomarkers,
+    environmentId
+  );
   const [diagnosticTab, setDiagnosticTab] = useState<"protocolo" | "umbrales">(
     "protocolo"
   );
@@ -613,20 +622,73 @@ export default function AnatomicalScanner({
                 </ol>
               </div>
 
-              <div className="flex flex-col justify-between rounded-xl border border-emerald-500/25 bg-[#091826] p-4">
+              <div
+                className={`flex flex-col justify-between rounded-xl border p-4 ${
+                  activeStatus === "critical"
+                    ? "border-red-500/45 bg-[#200c11]"
+                    : activeStatus === "warning"
+                    ? "border-amber-500/40 bg-[#1c1508]"
+                    : "border-emerald-500/25 bg-[#091826]"
+                }`}
+              >
                 <div>
-                  <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-400">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                    Preventive Countermeasure (Immediate Action)
+                  <h4
+                    className={`flex items-center gap-2 text-xs font-bold uppercase tracking-wider ${
+                      activeStatus === "critical"
+                        ? "text-red-300"
+                        : activeStatus === "warning"
+                        ? "text-amber-300"
+                        : "text-emerald-400"
+                    }`}
+                  >
+                    {activeStatus === "critical" || activeStatus === "warning" ? (
+                      <AlertTriangle className="h-4 w-4 shrink-0" />
+                    ) : (
+                      <CheckCircle2 className="h-4 w-4 shrink-0" />
+                    )}
+                    {activeStatus === "critical"
+                      ? "Critical Emergency Countermeasures · Immediate Vital-Specific Action"
+                      : activeStatus === "warning"
+                      ? "Caution Intervention · Adapted to Active Vital Signs"
+                      : "Nominal Preventive Countermeasures"}
                   </h4>
                   <ul className="mt-3 space-y-2.5 text-xs leading-relaxed text-slate-200 sm:text-sm">
-                    {guide.preventiveCountermeasures.map((item, idx) => (
+                    {zoneRecs.map((item) => (
                       <li
-                        key={idx}
-                        className="flex items-start gap-2.5 rounded-lg border border-[#162642] bg-[#0c1426] p-3"
+                        key={item.id}
+                        className={`rounded-lg border p-3 ${
+                          item.status === "critical"
+                            ? "border-red-500/45 bg-[#0c1426]"
+                            : item.status === "warning"
+                            ? "border-amber-500/40 bg-[#0c1426]"
+                            : "border-[#162642] bg-[#0c1426]"
+                        }`}
                       >
-                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
-                        <span>{item}</span>
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="font-bold text-slate-100">
+                              {item.vitalName}
+                            </span>
+                            <span className="rounded border border-[#1b2d4b] bg-[#070c17] px-1.5 py-0.5 font-mono-hud text-[11px] font-semibold text-sky-300">
+                              {item.currentReading}
+                            </span>
+                          </div>
+                          <StatusPill status={item.status} showNominal />
+                        </div>
+                        <div
+                          className={`mt-1 font-mono-hud text-[11px] font-bold ${
+                            item.status === "critical"
+                              ? "text-red-300"
+                              : item.status === "warning"
+                              ? "text-amber-300"
+                              : "text-emerald-300"
+                          }`}
+                        >
+                          {item.problemLabel}
+                        </div>
+                        <p className="mt-1 text-xs leading-relaxed text-slate-300">
+                          {item.recommendation}
+                        </p>
                       </li>
                     ))}
                   </ul>

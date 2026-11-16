@@ -28,6 +28,10 @@ import {
   MissionEnvironmentId,
   SystemZoneId,
 } from "@/types/astronaut";
+import {
+  getActiveVitalRecommendations,
+  VitalSignRecommendation,
+} from "@/utils/healthEngine";
 import { NavSectionId } from "./LeftNavSidebar";
 
 interface SpeechRecognitionAlternativeLike {
@@ -159,8 +163,32 @@ export default function TopMissionBar({
       : "optimal";
 
   const isLowLatency = env.commLatencySeconds < 60;
-  const primaryCriticalZone: SystemZoneId = criticalZones[0] ?? "corazon";
-  const primaryWarningZone: SystemZoneId = warningZones[0] ?? "cerebro";
+  const activeVitalRecs = biomarkers
+    ? getActiveVitalRecommendations(biomarkers, environmentId)
+    : [];
+  const criticalVitalRecs = activeVitalRecs.filter(
+    (r) => r.status === "critical"
+  );
+  const warningVitalRecs = activeVitalRecs.filter(
+    (r) => r.status === "warning"
+  );
+  const primaryCriticalZone: SystemZoneId =
+    criticalZones[0] ?? criticalVitalRecs[0]?.zone ?? "corazon";
+  const primaryWarningZone: SystemZoneId =
+    warningZones[0] ?? warningVitalRecs[0]?.zone ?? "cerebro";
+  const topCriticalRec = criticalVitalRecs[0] ?? null;
+  const topWarningRec = warningVitalRecs[0] ?? null;
+
+  const formatRecAdvice = (rec?: VitalSignRecommendation): string => {
+    if (!rec) return "";
+    const tier =
+      rec.status === "critical"
+        ? "CRITICAL ALERT"
+        : rec.status === "warning"
+        ? "Status Caution"
+        : "Status Nominal";
+    return `${tier} — ${rec.problemLabel}: ${rec.recommendation}`;
+  };
 
   useEffect(() => {
     const updateClock = () => {
@@ -313,10 +341,14 @@ export default function TopMissionBar({
         ? `Understood, ${astronautName}. Switching to Biomarkers. On Mission Day ${missionDay} aboard ${env.shortName}, Flight Readiness is ${readinessScore} percent. Heart rate: ${b.bpm} bpm. Oxygen saturation: ${b.spo2Percent} percent. Blood pressure: ${b.systolicBP} over ${b.diastolicBP}. Respiratory rate: ${b.respiratoryRateRpm} breaths per minute. Core temperature: ${b.bodyTempC.toFixed(
             1
           )} degrees Celsius. Hydration: ${b.hydrationPercent} percent, and radiation shielding at ${shieldPct} percent. ${
-            criticalCount > 0
-              ? `Critical advisory: ${criticalCount} zone requires immediate attention (${ZONE_FRIENDLY_NAMES[primaryCriticalZone]}). I have opened the emergency protocol in Bio-Scanner — contact the Flight Surgeon immediately.`
-              : warningCount > 0
-              ? `Caution notice: ${warningCount} zone is in caution (${ZONE_FRIENDLY_NAMES[primaryWarningZone]}). I recommend drinking 300 milliliters of water, performing 5 minutes of slow paced breathing, and reviewing the clinical protocol.`
+            criticalCount > 0 || topCriticalRec
+              ? topCriticalRec
+                ? `CRITICAL ALERT (${criticalZones.length || criticalVitalRecs.length} triggered) — ${topCriticalRec.vitalName} (${topCriticalRec.currentReading}, ${topCriticalRec.problemLabel}): ${topCriticalRec.recommendation} I have opened Bio-Scanner protocols — contact the Flight Surgeon immediately.`
+                : `Critical advisory: ${criticalCount} zone requires immediate attention (${ZONE_FRIENDLY_NAMES[primaryCriticalZone]}). I have opened the emergency protocol in Bio-Scanner — contact the Flight Surgeon immediately.`
+              : warningCount > 0 || topWarningRec
+              ? topWarningRec
+                ? `Caution notice — ${topWarningRec.vitalName} (${topWarningRec.currentReading}, ${topWarningRec.problemLabel}): ${topWarningRec.recommendation}`
+                : `Caution notice: ${warningCount} zone is in caution (${ZONE_FRIENDLY_NAMES[primaryWarningZone]}). Review the clinical protocol in Bio-Scanner.`
               : `All primary systems are nominal. Maintain steady hydration and complete today's countermeasure exercise session.`
           } What else would you like to check?`
         : `Overall Flight Readiness is ${readinessScore} percent, and I've opened Biomarkers. What else would you like to check?`;
@@ -491,7 +523,7 @@ export default function TopMissionBar({
       return;
     }
 
-    // 4. Specific vital-sign queries: readout + clinical guidance + section jump
+    // 4. Specific vital-sign queries: readout + 3-tier severity- & problem-adapted clinical guidance
     if (b) {
       if (
         q.includes("heart") ||
@@ -502,18 +534,22 @@ export default function TopMissionBar({
         q.includes("hrv")
       ) {
         const restPct = Math.min(100, Math.round((b.hrvRmssdMs / 60) * 100));
+        const bpmRec = activeVitalRecs.find((r) => r.id === "bpm");
+        const hrvRec = activeVitalRecs.find((r) => r.id === "hrv");
+        const primaryHeartRec =
+          hrvRec && bpmRec && hrvRec.status === "critical" && bpmRec.status !== "critical"
+            ? hrvRec
+            : bpmRec;
         setAstroTargetZone("corazon");
         if (zoneStatuses.corazon !== "optimal") {
           onInspectProtocol("corazon");
         } else {
           onNavigateSection("biomarcadores");
         }
-        const rec =
-          b.bpm <= 92 && b.bpm >= 52 && b.hrvRmssdMs >= 38
-            ? "Status Nominal: rhythm is steady and well-recovered. Recommendation: maintain your 30-minute aerobic countermeasure and avoid stimulants before sleep."
-            : "Status Caution: elevated cardiac strain detected. Recommendation: perform 5 minutes of slow paced breathing (4 seconds inhale, 6 seconds exhale), drink 250 milliliters of water, and review the Heart protocol.";
         speakAstroText(
-          `Your heart rate is ${b.bpm} beats per minute with cardiac recovery at ${restPct} percent (${b.hrvRmssdMs} milliseconds HRV). ${rec} I've opened this metric view for you. What else would you like to check?`
+          `Your heart rate is ${b.bpm} beats per minute with cardiac recovery at ${restPct} percent (${b.hrvRmssdMs} milliseconds HRV). ${formatRecAdvice(
+            primaryHeartRec
+          )} I've opened the corresponding view. What else would you like to check?`
         );
         return;
       }
@@ -523,48 +559,53 @@ export default function TopMissionBar({
         q.includes("saturation") ||
         q.includes("spo2")
       ) {
+        const spo2Rec = activeVitalRecs.find((r) => r.id === "spo2");
         setAstroTargetZone("corazon");
-        onNavigateSection("biomarcadores");
-        const rec =
-          b.spo2Percent >= 95
-            ? "Status Nominal: oxygen delivery is adequate. Recommendation: keep the frontal sensor band clean and continue cabin duties normally."
-            : "Status Caution: oxygenation is below target. Recommendation: take 10 deep breaths, inspect module O2 and CO2 scrubbing, and review the cardiorespiratory protocol.";
+        if (spo2Rec && spo2Rec.status !== "optimal") {
+          onInspectProtocol("corazon");
+        } else {
+          onNavigateSection("biomarcadores");
+        }
         speakAstroText(
           `Your forehead-measured blood oxygen saturation is ${b.spo2Percent} percent, with a perfusion index of ${b.perfusionIndex.toFixed(
             1
-          )} percent. ${rec} I've opened Biomarkers so you can inspect the trend. What else would you like to check?`
+          )} percent. ${formatRecAdvice(
+            spo2Rec
+          )} I've opened this view so you can monitor oxygenation. What else would you like to check?`
         );
         return;
       }
 
       if (q.includes("pressure") || q.includes("bp") || q.includes("circulation")) {
+        const bpRec = activeVitalRecs.find((r) => r.id === "bp");
         setAstroTargetZone("corazon");
-        if (b.systolicBP >= 135 || b.systolicBP < 95) {
+        if (bpRec && bpRec.status !== "optimal") {
           onInspectProtocol("corazon");
         } else {
           onNavigateSection("biomarcadores");
         }
-        const rec =
-          b.systolicBP < 135 && b.systolicBP >= 95
-            ? "Status Nominal: systemic blood pressure is balanced. Recommendation: maintain steady hydration and low dietary sodium."
-            : "Status Caution: blood pressure outside target window. Recommendation: rest 10 minutes in neutral posture, hydrate, and re-zero the radial node at heart level.";
         speakAstroText(
-          `Your cuffless arterial pressure is ${b.systolicBP} over ${b.diastolicBP} millimeters of mercury (pulse transit time ${b.pttMs} milliseconds). ${rec} I've opened the corresponding view. What else would you like to check?`
+          `Your cuffless arterial pressure is ${b.systolicBP} over ${b.diastolicBP} millimeters of mercury (pulse transit time ${b.pttMs} milliseconds). ${formatRecAdvice(
+            bpRec
+          )} I've opened the corresponding view. What else would you like to check?`
         );
         return;
       }
 
       if (q.includes("breath") || q.includes("respirat") || q.includes("lung") || q.includes("ventil")) {
+        const respRec = activeVitalRecs.find((r) => r.id === "resp");
         setAstroTargetZone("corazon");
-        onNavigateSection("biomarcadores");
-        const rec =
-          b.respiratoryRateRpm >= 10 && b.respiratoryRateRpm <= 19
-            ? "Status Nominal: breathing is calm and steady. Recommendation: maintain nasal breathing cadence during cabin operations."
-            : "Status Caution: elevated respiratory rate. Recommendation: practice 4-second box breathing for 3 minutes and check cabin CO2 levels.";
+        if (respRec && respRec.status !== "optimal") {
+          onInspectProtocol("corazon");
+        } else {
+          onNavigateSection("biomarcadores");
+        }
         speakAstroText(
           `Your respiratory rate is ${b.respiratoryRateRpm} breaths per minute with minute ventilation at ${b.minuteVentilationLpm.toFixed(
             1
-          )} liters per minute. ${rec} I've opened Biomarkers where you can monitor ventilation. What else would you like to check?`
+          )} liters per minute. ${formatRecAdvice(
+            respRec
+          )} I've opened the respiratory view. What else would you like to check?`
         );
         return;
       }
@@ -574,18 +615,21 @@ export default function TopMissionBar({
         q.includes("heat") ||
         q.includes("fever")
       ) {
-        setAstroTargetZone("endocrino");
-        onNavigateSection("biomarcadores");
-        const rec =
-          b.bodyTempC >= 36.0 && b.bodyTempC <= 37.4
-            ? "Status Nominal: core thermoregulation is well balanced. Recommendation: keep suit ventilation steady and hydrate every 2 hours."
-            : "Status Caution: thermal deviation detected. Recommendation: drink 400 milliliters of cool water, reduce physical workload for 20 minutes, and re-measure.";
+        const tempRec = activeVitalRecs.find((r) => r.id === "temp");
+        setAstroTargetZone("abdomen");
+        if (tempRec && tempRec.status !== "optimal") {
+          onInspectProtocol("abdomen");
+        } else {
+          onNavigateSection("biomarcadores");
+        }
         speakAstroText(
           `Your core body temperature is ${b.bodyTempC.toFixed(
             1
           )} degrees Celsius and skin temperature is ${b.skinTempC.toFixed(
             1
-          )} degrees. ${rec} I've opened Biomarkers for review. What else would you like to check?`
+          )} degrees. ${formatRecAdvice(
+            tempRec
+          )} I've opened the thermal telemetry view. What else would you like to check?`
         );
         return;
       }
@@ -599,35 +643,41 @@ export default function TopMissionBar({
         q.includes("fluid") ||
         q.includes("abdomen")
       ) {
+        const metRec = q.includes("glucose") || q.includes("sugar")
+          ? activeVitalRecs.find((r) => r.id === "glucose")
+          : q.includes("water") || q.includes("hydrat") || q.includes("fluid")
+          ? activeVitalRecs.find((r) => r.id === "hydration")
+          : activeVitalRecs.find(
+              (r) => r.id === "hydration" || r.id === "glucose"
+            );
         setAstroTargetZone("abdomen");
-        if (b.hydrationPercent < 72 || b.bloodGlucoseMgDl > 125) {
+        if (metRec && metRec.status !== "optimal") {
           onInspectProtocol("abdomen");
         } else {
           onNavigateSection("biomarcadores");
         }
-        const rec =
-          b.hydrationPercent >= 75 &&
-          b.bloodGlucoseMgDl >= 75 &&
-          b.bloodGlucoseMgDl <= 115
-            ? "Status Nominal: hydration reserve and glycemia are optimal. Recommendation: continue sipping electrolyte water every hour."
-            : "Status Caution: metabolic adjustment needed. Recommendation: drink 350 milliliters of oral rehydration solution now to protect renal function in microgravity and favor complex carbohydrates.";
         speakAstroText(
-          `Body hydration is at ${b.hydrationPercent} percent and blood glucose is ${b.bloodGlucoseMgDl} milligrams per deciliter. ${rec} I've opened the relevant telemetry view. What else would you like to check?`
+          `Body hydration is at ${b.hydrationPercent} percent and blood glucose is ${b.bloodGlucoseMgDl} milligrams per deciliter. ${formatRecAdvice(
+            metRec
+          )} I've opened the relevant telemetry view. What else would you like to check?`
         );
         return;
       }
 
       if (q.includes("radiat") || q.includes("shield") || q.includes("dosimet")) {
+        const radRec = activeVitalRecs.find((r) => r.id === "radiation");
         setAstroTargetZone("endocrino");
-        onNavigateSection("wearable");
-        const rec =
-          dailyRadiationMsv <= 0.8
-            ? "Status Nominal: habitat shielding is holding exposure within ALARA bounds. Recommendation: keep your thoracic dosimeter active."
-            : "Status Caution: elevated radiation flux. Recommendation: relocate to water-wall or polyethylene shielding, suspend EVA tasks, and take ration antioxidants.";
+        if (radRec && radRec.status !== "optimal") {
+          onInspectProtocol("endocrino");
+        } else {
+          onNavigateSection("wearable");
+        }
         speakAstroText(
           `Radiation shielding is holding at ${shieldPct} percent today, with dosimetry reading ${dailyRadiationMsv.toFixed(
             2
-          )} millisieverts per day. ${rec} I've opened Bio-Monitor 3N where the thoracic dosimeter is tracked. What else would you like to check?`
+          )} millisieverts per day. ${formatRecAdvice(
+            radRec
+          )} What else would you like to check?`
         );
         return;
       }
@@ -639,16 +689,24 @@ export default function TopMissionBar({
         q.includes("muscle") ||
         q.includes("bone")
       ) {
-        setAstroTargetZone("musculo");
-        onNavigateSection("informes");
-        const rec =
-          b.sleepHours >= 6.8 && b.postureScore >= 75
-            ? "Status Nominal: restorative sleep and musculoskeletal posture are solid. Recommendation: protect your 8-hour sleep block and ARED resistive training."
-            : "Status Caution: sleep deficit or postural fatigue. Recommendation: dim cabin blue light 60 minutes prior to sleep, wear eye shades, and perform unloading stretches.";
+        const sleepOrMuscleRec =
+          q.includes("posture")
+            ? activeVitalRecs.find((r) => r.id === "rostro")
+            : q.includes("sleep") || q.includes("rest")
+            ? activeVitalRecs.find((r) => r.id === "neuro")
+            : activeVitalRecs.find((r) => r.id === "musculo");
+        setAstroTargetZone(sleepOrMuscleRec?.zone ?? "musculo");
+        if (sleepOrMuscleRec && sleepOrMuscleRec.status !== "optimal") {
+          onInspectProtocol(sleepOrMuscleRec.zone);
+        } else {
+          onNavigateSection("informes");
+        }
         speakAstroText(
           `You slept ${b.sleepHours.toFixed(
             1
-          )} hours, posture score is ${b.postureScore} percent, and circadian rhythm stability is ${b.melatoninIndex} percent. ${rec} I've opened Countermeasures and clinical progression charts. What else would you like to check?`
+          )} hours, posture score is ${b.postureScore} percent, and physical fatigue is ${b.physicalFatigue}/100. ${formatRecAdvice(
+            sleepOrMuscleRec
+          )} What else would you like to check?`
         );
         return;
       }
@@ -663,14 +721,17 @@ export default function TopMissionBar({
         q.includes("brain") ||
         q.includes("cognit")
       ) {
+        const neuroRec = activeVitalRecs.find((r) => r.id === "neuro");
         setAstroTargetZone("cerebro");
-        onNavigateSection("biomarcadores");
-        const rec =
-          b.stressLevel <= 45 && b.mentalFatigue <= 50
-            ? "Status Nominal: cognitive load is balanced and vocal stress is low. Recommendation: keep taking 5-minute resets every 2 hours of console work."
-            : "Status Caution: accumulated mental strain detected. Recommendation: take a 15-minute active break, practice diaphragmatic breathing, and check in with Flight Control or crewmates.";
+        if (neuroRec && neuroRec.status !== "optimal") {
+          onInspectProtocol("cerebro");
+        } else {
+          onNavigateSection("biomarcadores");
+        }
         speakAstroText(
-          `Stress level is ${b.stressLevel} percent, mental fatigue is ${b.mentalFatigue} percent, and reaction latency is ${b.reactionTimeMs} milliseconds. ${rec} I've opened Biomarkers and Behavioral Health. What else would you like to check?`
+          `Stress level is ${b.stressLevel} percent, mental fatigue is ${b.mentalFatigue} percent, and reaction latency is ${b.reactionTimeMs} milliseconds. ${formatRecAdvice(
+            neuroRec
+          )} What else would you like to check?`
         );
         return;
       }
@@ -1068,20 +1129,34 @@ export default function TopMissionBar({
           <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-2.5">
             <div className="flex items-start gap-2">
               <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
-              <div>
-                <strong className="text-amber-300">
-                  Automated Preventive Advisory (
-                  {warningZones.map((z) => ZONE_FRIENDLY_NAMES[z]).join(", ")}
-                  ):
-                </strong>{" "}
-                Recommended action:{" "}
-                <strong>consult Ground Flight Surgeon</strong> (
-                {telemedicineEnabled
-                  ? `active link · ${env.commLatencyLabel}`
-                  : `offline mode · ${env.commLatencyLabel}`}
-                ) or open the{" "}
-                <strong>autonomous Clinical Protocol Manual</strong> in
-                Bio-Scanner [5].
+              <div className="space-y-1">
+                <div>
+                  <strong className="text-amber-300">
+                    Automated Preventive Advisory (
+                    {warningZones.map((z) => ZONE_FRIENDLY_NAMES[z]).join(", ")}
+                    ):
+                  </strong>{" "}
+                  Recommended action:{" "}
+                  <strong>consult Ground Flight Surgeon</strong> (
+                  {telemedicineEnabled
+                    ? `active link · ${env.commLatencyLabel}`
+                    : `offline mode · ${env.commLatencyLabel}`}
+                  ) or open the{" "}
+                  <strong>autonomous Clinical Protocol Manual</strong> in
+                  Bio-Scanner [5].
+                </div>
+                {warningVitalRecs.length > 0 && (
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-amber-100/95">
+                    {warningVitalRecs.slice(0, 2).map((rec) => (
+                      <span key={rec.id}>
+                        <strong className="font-mono-hud text-amber-300">
+                          {rec.vitalName} ({rec.currentReading}) · {rec.problemLabel}:
+                        </strong>{" "}
+                        {rec.recommendation}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -1137,6 +1212,18 @@ export default function TopMissionBar({
                     ? `Ground link active (${env.commLatencyLabel}): transmit your telemetry to the Flight Surgeon immediately.`
                     : `No real-time Ground communication (${env.commLatencyLabel} or offline mode): open the Clinical Manual under "Bio-Scanner → 1. Exam & Action Protocol".`}
                 </div>
+                {criticalVitalRecs.length > 0 && (
+                  <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-red-100">
+                    {criticalVitalRecs.slice(0, 2).map((rec) => (
+                      <span key={rec.id}>
+                        <strong className="font-mono-hud text-red-200">
+                          {rec.vitalName} ({rec.currentReading}) · {rec.problemLabel}:
+                        </strong>{" "}
+                        {rec.recommendation}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 

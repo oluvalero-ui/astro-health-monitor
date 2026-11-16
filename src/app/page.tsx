@@ -588,6 +588,8 @@ export default function HomePage() {
               <div className="xl:col-span-5">
                 <RecommendedHabitsPanel
                   habits={state.quests}
+                  biomarkers={state.biomarkers}
+                  environmentId={state.environmentId}
                   onToggleHabit={handleToggleHabit}
                   onAddCustomHabit={handleAddCustomHabit}
                   onInspectHabit={handleInspectHabit}

@@ -287,6 +287,11 @@ export function evaluateAllZoneStatuses(
       evaluateBoredomStatus(b.boredomLevel),
       evaluateSleepStatus(b.sleepHours),
       evaluateMoodStatus(b.moodScore),
+      b.reactionTimeMs > 380
+        ? "critical"
+        : b.reactionTimeMs >= 285
+        ? "warning"
+        : "optimal",
       routineAnalysis.overallStatus === "critical" ? "warning" : "optimal",
       brainOrthostaticStatus,
     ]),
@@ -707,4 +712,614 @@ export function computeMissionReadiness(
   const values = Object.values(zoneStatuses).map((s) => weights[s]);
   const avgZones = values.reduce((acc, v) => acc + v, 0) / values.length;
   return Math.round(avgZones * 0.75 + routineStability * 0.25);
+}
+
+export interface VitalSignRecommendation {
+  id: string;
+  vitalName: string;
+  zone: SystemZoneId;
+  currentReading: string;
+  status: HealthStatus;
+  problemLabel: string;
+  recommendation: string;
+}
+
+const SEVERITY_PRIORITY: Record<HealthStatus, number> = {
+  critical: 0,
+  warning: 1,
+  optimal: 2,
+};
+
+function evaluateNeuroRec(b: BiomarkerData): VitalSignRecommendation {
+  const pvtStatus: HealthStatus =
+    b.reactionTimeMs > 380
+      ? "critical"
+      : b.reactionTimeMs >= 285
+      ? "warning"
+      : "optimal";
+  const status = worstStatus([
+    evaluateSleepStatus(b.sleepHours),
+    evaluateStressStatus(b.stressLevel),
+    pvtStatus,
+  ]);
+  const issues: string[] = [];
+  if (b.sleepHours < 6.8) issues.push(`sleep deficit (${b.sleepHours.toFixed(1)} h)`);
+  if (b.reactionTimeMs >= 285) issues.push(`delayed PVT (${b.reactionTimeMs} ms)`);
+  if (b.stressLevel >= 48) issues.push(`vocal/mental strain (${b.stressLevel}%)`);
+
+  if (status === "critical") {
+    return {
+      id: "neuro",
+      vitalName: "Neurocognitive, Sleep & PVT",
+      zone: "cerebro",
+      currentReading: `${b.reactionTimeMs} ms · ${b.sleepHours.toFixed(1)}h · Stress ${b.stressLevel}%`,
+      status,
+      problemLabel: `Severe Cognitive Exhaustion${issues.length ? ` (${issues.join(", ")})` : ""}`,
+      recommendation:
+        "Mandatory stand-down from safety-critical EVA, robotics, or docking ops; schedule a 90-minute protected sleep block and run Node 3 acoustic decompression.",
+    };
+  }
+  if (status === "warning") {
+    return {
+      id: "neuro",
+      vitalName: "Neurocognitive, Sleep & PVT",
+      zone: "cerebro",
+      currentReading: `${b.reactionTimeMs} ms · ${b.sleepHours.toFixed(1)}h · Stress ${b.stressLevel}%`,
+      status,
+      problemLabel: `Moderate Fatigue & Strain${issues.length ? ` (${issues.join(", ")})` : ""}`,
+      recommendation:
+        "Dim cabin blue lighting 60 minutes prior to sleep, take a 15-minute cognitive reset, and use Node 3 BLE earpiece guided breathing.",
+    };
+  }
+  return {
+    id: "neuro",
+    vitalName: "Neurocognitive, Sleep & PVT",
+    zone: "cerebro",
+    currentReading: `${b.reactionTimeMs} ms · ${b.sleepHours.toFixed(1)}h · Stress ${b.stressLevel}%`,
+    status,
+    problemLabel: "Cognitive Vigilance & Sleep Nominal",
+    recommendation:
+      "Cognitive vigilance (PVT), sleep architecture, and vocal stress within nominal bounds.",
+  };
+}
+
+export function getActiveVitalRecommendations(
+  b: BiomarkerData,
+  environmentId: MissionEnvironmentId = "iss"
+): VitalSignRecommendation[] {
+  const env = MISSION_ENVIRONMENTS[environmentId];
+  const isPartialG = env.gravityG > 0;
+  const hypercapniaNote =
+    env.co2MmHg > 3.0 ? ` Cabin CO₂ is ${env.co2MmHg.toFixed(1)} mmHg (> 3.0 scrubber limit).` : "";
+
+  const items: VitalSignRecommendation[] = [];
+
+  // 1. Heart Rate (BPM)
+  if (b.bpm > 115) {
+    items.push({
+      id: "bpm",
+      vitalName: "Heart Rate (ECG)",
+      zone: "corazon",
+      currentReading: `${b.bpm} bpm`,
+      status: "critical",
+      problemLabel: "Severe Tachycardia",
+      recommendation:
+        "Immediate rest in neutral 0g posture; perform vagal breathing (4 s inhale, 8 s exhale), drink 300 mL cool electrolyte water, and lock 3-lead thoracic ECG for Flight Surgeon review.",
+    });
+  } else if (b.bpm < 44) {
+    items.push({
+      id: "bpm",
+      vitalName: "Heart Rate (ECG)",
+      zone: "corazon",
+      currentReading: `${b.bpm} bpm`,
+      status: "critical",
+      problemLabel: "Severe Bradycardia",
+      recommendation:
+        "Suspend physical exertion immediately, verify thoracic vest electrode contact, assess for dizziness/syncope, and alert Flight Surgeon.",
+    });
+  } else if (b.bpm > 92) {
+    items.push({
+      id: "bpm",
+      vitalName: "Heart Rate (ECG)",
+      zone: "corazon",
+      currentReading: `${b.bpm} bpm`,
+      status: "warning",
+      problemLabel: "Moderate Tachycardia",
+      recommendation:
+        "Pause heavy tasks for 15 minutes, sip 250 mL water, and perform 5 minutes of slow paced nasal breathing (4 s in, 6 s out).",
+    });
+  } else if (b.bpm < 52) {
+    items.push({
+      id: "bpm",
+      vitalName: "Heart Rate (ECG)",
+      zone: "corazon",
+      currentReading: `${b.bpm} bpm`,
+      status: "warning",
+      problemLabel: "Mild Bradycardia",
+      recommendation:
+        "Monitor orthostatic tolerance during posture changes and verify electrolyte hydration.",
+    });
+  } else {
+    items.push({
+      id: "bpm",
+      vitalName: "Heart Rate (ECG)",
+      zone: "corazon",
+      currentReading: `${b.bpm} bpm`,
+      status: "optimal",
+      problemLabel: "Sinus Rhythm Nominal",
+      recommendation:
+        "Maintain daily 30-minute CEVIS/T2 aerobic countermeasure and avoid stimulants before sleep.",
+    });
+  }
+
+  // 2. Arterial Blood Pressure (PTT)
+  if (b.systolicBP >= 150 || b.diastolicBP >= 95) {
+    items.push({
+      id: "bp",
+      vitalName: "Arterial Blood Pressure (PTT)",
+      zone: "corazon",
+      currentReading: `${b.systolicBP}/${b.diastolicBP} mmHg`,
+      status: "critical",
+      problemLabel: "Hypertensive Surge",
+      recommendation:
+        "Halt ARED resistive loading immediately; adopt head-elevated posture, run a 30 s cuff recalibration on Node 3, and initiate Flight Surgeon antihypertensive protocol.",
+    });
+  } else if (b.systolicBP < 86 || b.diastolicBP < 55) {
+    items.push({
+      id: "bp",
+      vitalName: "Arterial Blood Pressure (PTT)",
+      zone: "corazon",
+      currentReading: `${b.systolicBP}/${b.diastolicBP} mmHg`,
+      status: "critical",
+      problemLabel: "Acute Hypotension / Syncope Risk",
+      recommendation: `Ingest 500 mL oral rehydration solution immediately, engage lower-body compression garment, and avoid rapid standing transitions${
+        isPartialG ? ` in ${env.gravityLabel}` : ""
+      }.`,
+    });
+  } else if (b.systolicBP >= 134 || b.diastolicBP >= 86) {
+    items.push({
+      id: "bp",
+      vitalName: "Arterial Blood Pressure (PTT)",
+      zone: "corazon",
+      currentReading: `${b.systolicBP}/${b.diastolicBP} mmHg`,
+      status: "warning",
+      problemLabel: "Elevated Blood Pressure",
+      recommendation:
+        "Rest 10 minutes in neutral posture, restrict dietary sodium in today's ration, and re-zero optical PTT against the arm cuff.",
+    });
+  } else if (b.systolicBP < 95 || b.diastolicBP < 62) {
+    items.push({
+      id: "bp",
+      vitalName: "Arterial Blood Pressure (PTT)",
+      zone: "corazon",
+      currentReading: `${b.systolicBP}/${b.diastolicBP} mmHg`,
+      status: "warning",
+      problemLabel: "Borderline Hypotension",
+      recommendation:
+        "Increase fluid intake by 350 mL with electrolytes to buffer microgravity plasma volume loss.",
+    });
+  } else {
+    items.push({
+      id: "bp",
+      vitalName: "Arterial Blood Pressure (PTT)",
+      zone: "corazon",
+      currentReading: `${b.systolicBP}/${b.diastolicBP} mmHg`,
+      status: "optimal",
+      problemLabel: "Arterial Pressure Balanced",
+      recommendation:
+        "Systemic blood pressure balanced; continue steady hydration and low-sodium rations.",
+    });
+  }
+
+  // 3. Oxygen Saturation (SpO2)
+  if (b.spo2Percent < 92) {
+    items.push({
+      id: "spo2",
+      vitalName: "Oxygen Saturation (SpO₂)",
+      zone: "corazon",
+      currentReading: `${b.spo2Percent}%`,
+      status: "critical",
+      problemLabel: "Acute Hypoxemia",
+      recommendation: `Don portable emergency O₂ mask (2–4 L/min), inspect cabin ECLSS O₂ supply and CO₂ scrubbers immediately, and cease all physical activity.${hypercapniaNote}`,
+    });
+  } else if (b.spo2Percent < 95) {
+    items.push({
+      id: "spo2",
+      vitalName: "Oxygen Saturation (SpO₂)",
+      zone: "corazon",
+      currentReading: `${b.spo2Percent}%`,
+      status: "warning",
+      problemLabel: "Mild Desaturation",
+      recommendation: `Take 10 slow deep diaphragmatic breaths, verify frontal headband optical seating, and check module air circulation.${hypercapniaNote}`,
+    });
+  } else {
+    items.push({
+      id: "spo2",
+      vitalName: "Oxygen Saturation (SpO₂)",
+      zone: "corazon",
+      currentReading: `${b.spo2Percent}%`,
+      status: "optimal",
+      problemLabel: "Arterial Oxygenation Optimal",
+      recommendation:
+        "Cranial SpO₂ optimal; keep frontal optical sensor band clean.",
+    });
+  }
+
+  // 4. Respiratory Rate (RIP)
+  if (b.respiratoryRateRpm > 24) {
+    items.push({
+      id: "resp",
+      vitalName: "Respiratory Rate (RIP)",
+      zone: "corazon",
+      currentReading: `${b.respiratoryRateRpm} rpm`,
+      status: "critical",
+      problemLabel: "Severe Tachypnea / Hypercapnia Check",
+      recommendation: `Stop exertion, inspect cabin CO₂ partial pressure (> 3.0 mmHg scrubber threshold), and perform guided 4–6 s slow breathing.${hypercapniaNote}`,
+    });
+  } else if (b.respiratoryRateRpm < 9) {
+    items.push({
+      id: "resp",
+      vitalName: "Respiratory Rate (RIP)",
+      zone: "corazon",
+      currentReading: `${b.respiratoryRateRpm} rpm`,
+      status: "critical",
+      problemLabel: "Bradypnea Alert",
+      recommendation:
+        "Trigger acoustic alert via Node 3 BLE earpiece, verify airway patency, and contact Flight Surgeon immediately.",
+    });
+  } else if (b.respiratoryRateRpm > 20 || b.respiratoryRateRpm < 12) {
+    items.push({
+      id: "resp",
+      vitalName: "Respiratory Rate (RIP)",
+      zone: "corazon",
+      currentReading: `${b.respiratoryRateRpm} rpm`,
+      status: "warning",
+      problemLabel: "Altered Respiratory Cadence",
+      recommendation:
+        "Practice 3 minutes of 4-second box breathing and verify thoracic RIP vest fit.",
+    });
+  } else {
+    items.push({
+      id: "resp",
+      vitalName: "Respiratory Rate (RIP)",
+      zone: "corazon",
+      currentReading: `${b.respiratoryRateRpm} rpm`,
+      status: "optimal",
+      problemLabel: "Ventilation Calm & Unlabored",
+      recommendation: "Respiratory cadence calm and unlabored.",
+    });
+  }
+
+  // 5. Cardiac Recovery (HRV)
+  if (b.hrvRmssdMs < 14) {
+    items.push({
+      id: "hrv",
+      vitalName: "Cardiac Recovery (HRV rMSSD)",
+      zone: "corazon",
+      currentReading: `${b.hrvRmssdMs} ms`,
+      status: "critical",
+      problemLabel: "Severe Autonomic Exhaustion",
+      recommendation:
+        "Cancel high-load EVA or robotics operations and enforce a 20-minute supine vagal recovery block.",
+    });
+  } else if (b.hrvRmssdMs <= 25) {
+    items.push({
+      id: "hrv",
+      vitalName: "Cardiac Recovery (HRV rMSSD)",
+      zone: "corazon",
+      currentReading: `${b.hrvRmssdMs} ms`,
+      status: "warning",
+      problemLabel: "Sympathetic Strain / Low HRV",
+      recommendation:
+        "Take a 10-minute recovery pause before the next operational block and avoid caffeine.",
+    });
+  }
+
+  // 6. Blood Glucose (PoC)
+  if (b.bloodGlucoseMgDl < 65) {
+    items.push({
+      id: "glucose",
+      vitalName: "Blood Glucose (PoC)",
+      zone: "abdomen",
+      currentReading: `${b.bloodGlucoseMgDl} mg/dL`,
+      status: "critical",
+      problemLabel: "Acute Hypoglycemia",
+      recommendation:
+        "Ingest 15–20 g fast-acting oral glucose gel immediately and repeat Point-of-Care glucose check in 15 minutes.",
+    });
+  } else if (b.bloodGlucoseMgDl > 180) {
+    items.push({
+      id: "glucose",
+      vitalName: "Blood Glucose (PoC)",
+      zone: "abdomen",
+      currentReading: `${b.bloodGlucoseMgDl} mg/dL`,
+      status: "critical",
+      problemLabel: "Marked Hyperglycemia",
+      recommendation:
+        "Drink 500 mL plain water, withhold simple carbohydrates, and perform 15 minutes of light cycle ergometry.",
+    });
+  } else if (b.bloodGlucoseMgDl < 74) {
+    items.push({
+      id: "glucose",
+      vitalName: "Blood Glucose (PoC)",
+      zone: "abdomen",
+      currentReading: `${b.bloodGlucoseMgDl} mg/dL`,
+      status: "warning",
+      problemLabel: "Borderline Low Glucose",
+      recommendation:
+        "Consume a complex-carbohydrate ration bar now to stabilize glycemic reserve.",
+    });
+  } else if (b.bloodGlucoseMgDl > 125) {
+    items.push({
+      id: "glucose",
+      vitalName: "Blood Glucose (PoC)",
+      zone: "abdomen",
+      currentReading: `${b.bloodGlucoseMgDl} mg/dL`,
+      status: "warning",
+      problemLabel: "Elevated Glucose",
+      recommendation:
+        "Replace simple sugars with high-fiber rations and drink 300 mL water.",
+    });
+  } else {
+    items.push({
+      id: "glucose",
+      vitalName: "Blood Glucose (PoC)",
+      zone: "abdomen",
+      currentReading: `${b.bloodGlucoseMgDl} mg/dL`,
+      status: "optimal",
+      problemLabel: "Glycemic Reserve Stable",
+      recommendation:
+        "Glycemic energy reserve stable; maintain scheduled balanced rations.",
+    });
+  }
+
+  // 7. Body Hydration
+  if (b.hydrationPercent < 68) {
+    items.push({
+      id: "hydration",
+      vitalName: "Body Hydration",
+      zone: "abdomen",
+      currentReading: `${b.hydrationPercent}%`,
+      status: "critical",
+      problemLabel: "Severe Dehydration / Renal Stone Risk",
+      recommendation:
+        "Initiate structured oral rehydration (600 mL electrolyte solution over 45 minutes) to prevent renal calculi and orthostatic collapse.",
+    });
+  } else if (b.hydrationPercent < 80) {
+    items.push({
+      id: "hydration",
+      vitalName: "Body Hydration",
+      zone: "abdomen",
+      currentReading: `${b.hydrationPercent}%`,
+      status: "warning",
+      problemLabel: "Mild Hypohydration",
+      recommendation:
+        "Drink 350 mL electrolyte water now and set hourly 150 mL sip reminders.",
+    });
+  } else {
+    items.push({
+      id: "hydration",
+      vitalName: "Body Hydration",
+      zone: "abdomen",
+      currentReading: `${b.hydrationPercent}%`,
+      status: "optimal",
+      problemLabel: "Hydration Reserve Optimal",
+      recommendation: "Intravascular and cellular hydration optimal.",
+    });
+  }
+
+  // 8. Core Body Temperature (ZHF)
+  if (b.bodyTempC >= 38.0) {
+    items.push({
+      id: "temp",
+      vitalName: "Core Body Temperature (ZHF)",
+      zone: "abdomen",
+      currentReading: `${b.bodyTempC.toFixed(1)} °C`,
+      status: "critical",
+      problemLabel: "Febrile / Hyperthermia Alert",
+      recommendation:
+        "Administer onboard antipyretic per medical kit protocol, maximize suit/cabin cooling airflow, and drink 500 mL cool electrolyte water.",
+    });
+  } else if (b.bodyTempC <= 35.4) {
+    items.push({
+      id: "temp",
+      vitalName: "Core Body Temperature (ZHF)",
+      zone: "abdomen",
+      currentReading: `${b.bodyTempC.toFixed(1)} °C`,
+      status: "critical",
+      problemLabel: "Hypothermia Alert",
+      recommendation:
+        "Don thermal insulation garment, ingest warm fluids, and verify frontal ZHF thermistor contact.",
+    });
+  } else if (b.bodyTempC >= 37.3 || b.bodyTempC <= 36.0) {
+    items.push({
+      id: "temp",
+      vitalName: "Core Body Temperature (ZHF)",
+      zone: "abdomen",
+      currentReading: `${b.bodyTempC.toFixed(1)} °C`,
+      status: "warning",
+      problemLabel: "Thermal Drift Detected",
+      recommendation:
+        "Suspend physical exercise for 20 minutes, drink 350 mL cool water, and monitor core-to-skin thermal gradient.",
+    });
+  } else {
+    items.push({
+      id: "temp",
+      vitalName: "Core Body Temperature (ZHF)",
+      zone: "abdomen",
+      currentReading: `${b.bodyTempC.toFixed(1)} °C`,
+      status: "optimal",
+      problemLabel: "Core Thermoregulation Nominal",
+      recommendation: "Core thermoregulation balanced in afebrile range.",
+    });
+  }
+
+  // 9. Neurocognitive, Sleep & Stress
+  items.push(evaluateNeuroRec(b));
+
+  // 10. Radiation Exposure (Node 3 Dosimetry)
+  if (b.dailyRadiationMsv >= CSA_RADIATION_LIMITS.dailyAlertMsv) {
+    items.push({
+      id: "radiation",
+      vitalName: "Radiation Dosimetry (Node 3)",
+      zone: "endocrino",
+      currentReading: `${b.dailyRadiationMsv.toFixed(2)} mSv/d`,
+      status: "critical",
+      problemLabel: "High Radiation Flux",
+      recommendation:
+        "Relocate immediately to polyethylene / water-wall shielded sector, suspend EVA tasks, and log thoracic dosimeter reading.",
+    });
+  } else if (b.dailyRadiationMsv >= CSA_RADIATION_LIMITS.dailyNominalMsv + 0.15) {
+    items.push({
+      id: "radiation",
+      vitalName: "Radiation Dosimetry (Node 3)",
+      zone: "endocrino",
+      currentReading: `${b.dailyRadiationMsv.toFixed(2)} mSv/d`,
+      status: "warning",
+      problemLabel: "Elevated Radiation Drift",
+      recommendation:
+        "Limit time in lightly shielded modules and take antioxidant ration supplement.",
+    });
+  } else {
+    items.push({
+      id: "radiation",
+      vitalName: "Radiation Dosimetry (Node 3)",
+      zone: "endocrino",
+      currentReading: `${b.dailyRadiationMsv.toFixed(2)} mSv/d`,
+      status: "optimal",
+      problemLabel: "Radiation Shielding Nominal",
+      recommendation:
+        "Habitat shielding holds exposure within ALARA limits; keep dosimeter active.",
+    });
+  }
+
+  // 11. Cortisol / Endocrine Load
+  if (b.cortisolIndex > 74) {
+    items.push({
+      id: "cortisol",
+      vitalName: "Endocrine Cortisol Index",
+      zone: "endocrino",
+      currentReading: `${b.cortisolIndex}/100`,
+      status: "critical",
+      problemLabel: "Acute Hormonal Stress Surge",
+      recommendation:
+        "Execute 15 minutes of slow vagal breathing, reduce schedule density, and protect 8-hour circadian dark window.",
+    });
+  } else if (b.cortisolIndex > 50) {
+    items.push({
+      id: "cortisol",
+      vitalName: "Endocrine Cortisol Index",
+      zone: "endocrino",
+      currentReading: `${b.cortisolIndex}/100`,
+      status: "warning",
+      problemLabel: "Moderate Cortisol Elevation",
+      recommendation:
+        "Insert a 10-minute workload buffer and synchronize SSLA lighting to circadian phase.",
+    });
+  } else {
+    items.push({
+      id: "cortisol",
+      vitalName: "Endocrine Cortisol Index",
+      zone: "endocrino",
+      currentReading: `${b.cortisolIndex}/100`,
+      status: "optimal",
+      problemLabel: "Cortisol & Circadian Rhythm Nominal",
+      recommendation:
+        "Endocrine cortisol/melatonin rhythm and radiation dosimetry within nominal limits.",
+    });
+  }
+
+  // 12. Musculoskeletal Fatigue & Bone Mineral Density
+  const musculoStatus = worstStatus([
+    evaluatePhysicalFatigueStatus(b.physicalFatigue),
+    evaluateBoneDensityStatus(b.boneDensityIndex),
+  ]);
+  if (musculoStatus === "critical") {
+    items.push({
+      id: "musculo",
+      vitalName: "Musculoskeletal & Bone Load",
+      zone: "musculo",
+      currentReading: `Fatigue ${b.physicalFatigue}/100 · Bone ${b.boneDensityIndex}%`,
+      status: "critical",
+      problemLabel: "Severe Muscular Exhaustion / Bone Unloading Risk",
+      recommendation:
+        "Suspend heavy resistance sessions for 24 h; prioritize protein + vitamin D/calcium ration and verify neuromuscular recovery.",
+    });
+  } else if (musculoStatus === "warning") {
+    items.push({
+      id: "musculo",
+      vitalName: "Musculoskeletal & Bone Load",
+      zone: "musculo",
+      currentReading: `Fatigue ${b.physicalFatigue}/100 · Bone ${b.boneDensityIndex}%`,
+      status: "warning",
+      problemLabel: "Moderate Muscular Fatigue / Microgravity Unloading",
+      recommendation:
+        "Perform gentle thoracic/lumbar unloading stretches and adjust ARED load to 70% intensity today.",
+    });
+  } else {
+    items.push({
+      id: "musculo",
+      vitalName: "Musculoskeletal & Bone Load",
+      zone: "musculo",
+      currentReading: `Fatigue ${b.physicalFatigue}/100 · Bone ${b.boneDensityIndex}%`,
+      status: "optimal",
+      problemLabel: "Musculoskeletal & Bone Strength Nominal",
+      recommendation:
+        "Maintain scheduled 90-minute ARED resistive protocol and vitamin D supplementation.",
+    });
+  }
+
+  // 13. Posture & Ocular/Vocal Strain
+  const rostroStatus = worstStatus([
+    evaluatePostureStatus(b.postureScore),
+    evaluateFacialTensionStatus(b.facialTension),
+  ]);
+  if (rostroStatus === "critical") {
+    items.push({
+      id: "rostro",
+      vitalName: "Posture & Laryngeal/Facial Tension",
+      zone: "rostro",
+      currentReading: `Posture ${b.postureScore}% · Tension ${b.facialTension}/100`,
+      status: "critical",
+      problemLabel: "Severe Slump / High Ocular-Vocal Tension",
+      recommendation:
+        "Step away from workstation immediately; perform 10 minutes of cervical decompression stretches and artificial tears instillation.",
+    });
+  } else if (rostroStatus === "warning") {
+    items.push({
+      id: "rostro",
+      vitalName: "Posture & Laryngeal/Facial Tension",
+      zone: "rostro",
+      currentReading: `Posture ${b.postureScore}% · Tension ${b.facialTension}/100`,
+      status: "warning",
+      problemLabel: "Moderate Cervical Slump / Screen Strain",
+      recommendation:
+        "Perform 5 minutes of cervical/dorsal stretching and apply 20-20-20 distant visual focus breaks.",
+    });
+  } else {
+    items.push({
+      id: "rostro",
+      vitalName: "Posture & Laryngeal/Facial Tension",
+      zone: "rostro",
+      currentReading: `Posture ${b.postureScore}% · Tension ${b.facialTension}/100`,
+      status: "optimal",
+      problemLabel: "Posture & Cranio-Vocal Comfort Nominal",
+      recommendation:
+        "Keep ergonomic neutral spinal restraint and 2-hour visual break intervals.",
+    });
+  }
+
+  return items.sort(
+    (a, z) => SEVERITY_PRIORITY[a.status] - SEVERITY_PRIORITY[z.status]
+  );
+}
+
+export function getZoneTargetedRecommendations(
+  zone: SystemZoneId,
+  b: BiomarkerData,
+  environmentId: MissionEnvironmentId = "iss"
+): VitalSignRecommendation[] {
+  return getActiveVitalRecommendations(b, environmentId).filter(
+    (item) => item.zone === zone
+  );
 }
