@@ -13,9 +13,7 @@ import BiomarkersDashboard from "@/components/BiomarkersDashboard";
 import EmergencyBannerModal from "@/components/EmergencyBannerModal";
 import HabitsExplanationPanel from "@/components/HabitsExplanationPanel";
 import LeftNavSidebar, { NavSectionId } from "@/components/LeftNavSidebar";
-import MultimodalScanModal, {
-  ScanModalTab,
-} from "@/components/MultimodalScanModal";
+import MultimodalScanModal from "@/components/MultimodalScanModal";
 import OverviewBentoGrid from "@/components/OverviewBentoGrid";
 import PrimaryVitalsStrip from "@/components/PrimaryVitalsStrip";
 import RecommendedHabitsPanel from "@/components/RecommendedHabitsPanel";
@@ -51,15 +49,13 @@ import {
   restoreNominalFromEmergency,
 } from "@/utils/healthEngine";
 
-const STORAGE_KEY = "astro-med-hrp-state-v3";
+const STORAGE_KEY = "astro-med-hrp-state-v4";
 const STORAGE_EVENT = "astro-med-storage-change";
 
 const MODALITY_LABELS: Record<string, string> = {
-  camara: "CAMERA",
-  ultrasonido: "ULTRASOUND",
-  manual: "MANUAL",
+  manual: "POC MANUAL",
   emergencia: "EMERGENCY",
-  wearable: "WEARABLE",
+  wearable: "WEARABLE 3N",
 };
 
 let cachedRaw: string | null = null;
@@ -180,7 +176,6 @@ export default function HomePage() {
   const [activeNavSection, setActiveNavSection] =
     useState<NavSectionId>("resumen");
   const [scanModalOpen, setScanModalOpen] = useState(false);
-  const [scanInitialTab, setScanInitialTab] = useState<ScanModalTab>("camara");
   const [referencesOpen, setReferencesOpen] = useState(false);
   const [highlightedHabitId, setHighlightedHabitId] = useState<string | null>(
     null
@@ -278,41 +273,8 @@ export default function HomePage() {
     }));
   };
 
-  const handleOpenScanTab = (tab: ScanModalTab) => {
-    setScanInitialTab(tab);
+  const handleOpenPocModal = () => {
     setScanModalOpen(true);
-  };
-
-  const handleApplyCameraResults = (
-    updates: Partial<BiomarkerData>,
-    summary: string
-  ) => {
-    setState((prev) => {
-      const nextBio: BiomarkerData = { ...prev.biomarkers, ...updates };
-      return {
-        ...prev,
-        emergencyMode: false,
-        previousBiomarkers: prev.biomarkers,
-        biomarkers: nextBio,
-        lastCameraFinding: summary,
-        history: appendTelemetrySnapshot(
-          prev.history,
-          "Camera",
-          nextBio,
-          prev.routine
-        ),
-        scanLogs: [
-          {
-            id: `log-cam-${Date.now()}`,
-            timestamp: getUtcStamp(),
-            modality: "camara",
-            summary,
-          },
-          ...prev.scanLogs.slice(0, 7),
-        ],
-      };
-    });
-    setSelectedZone("rostro");
   };
 
   const handleApplyManualEntry = (
@@ -467,7 +429,7 @@ export default function HomePage() {
       <LeftNavSidebar
         activeSection={activeNavSection}
         onNavigate={handleNavigateSection}
-        onOpenScanModal={() => handleOpenScanTab("camara")}
+        onOpenScanModal={handleOpenPocModal}
       />
 
       {/* Right Main Scrollable Area */}
@@ -487,7 +449,7 @@ export default function HomePage() {
           onNavigateSection={handleNavigateSection}
           onSelectEnvironment={handleSelectEnvironment}
           onToggleTelemedicine={handleToggleTelemedicine}
-          onOpenScanModal={() => handleOpenScanTab("camara")}
+          onOpenScanModal={handleOpenPocModal}
           onInspectProtocol={handleSelectZoneAndScroll}
           onResetMission={handleResetMission}
         />
@@ -527,7 +489,8 @@ export default function HomePage() {
                 history={state.history}
                 onSelectZoneAndScroll={handleSelectZoneAndScroll}
                 onNavigateWearable={() => handleNavigateSection("wearable")}
-                onOpenScanTab={handleOpenScanTab}
+                onNavigateBiomarkers={() => handleNavigateSection("biomarcadores")}
+                onOpenPocModal={handleOpenPocModal}
               />
 
               <section className="rounded-xl border border-[#1b2d4b] bg-[#0c1426] p-4">
@@ -571,7 +534,7 @@ export default function HomePage() {
               zoneStatuses={zoneStatuses}
               biomarkers={liveBiomarkers}
               environmentId={state.environmentId}
-              onOpenScanTab={handleOpenScanTab}
+              onOpenPocModal={handleOpenPocModal}
             />
           )}
 
@@ -592,9 +555,8 @@ export default function HomePage() {
               biomarkers={liveBiomarkers}
               previousBiomarkers={state.previousBiomarkers}
               routine={state.routine}
-              lastCameraFinding={state.lastCameraFinding}
               onSelectSystemZone={handleSelectZoneAndScroll}
-              onOpenManualEdit={() => handleOpenScanTab("manual")}
+              onOpenManualEdit={handleOpenPocModal}
               onJumpToWearable={() => handleNavigateSection("wearable")}
             />
           )}
@@ -635,16 +597,13 @@ export default function HomePage() {
         </main>
       </div>
 
-      {/* Module 3: Multimodal Scan Modal (Camera / Manual) */}
+      {/* Module 3: Point-of-Care Manual Entry & Clinical Profile Simulator */}
       {scanModalOpen && (
         <MultimodalScanModal
           isOpen={scanModalOpen}
-          initialTab={scanInitialTab}
-          environmentId={state.environmentId}
           biomarkers={state.biomarkers}
           routine={state.routine}
           onClose={() => setScanModalOpen(false)}
-          onApplyCameraResults={handleApplyCameraResults}
           onApplyManualEntry={handleApplyManualEntry}
         />
       )}

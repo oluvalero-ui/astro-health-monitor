@@ -93,7 +93,7 @@ export default function EmergencyBannerModal({
               <strong className="font-mono-hud text-red-950">
                 {biomarkers.cortisolIndex}/100
               </strong>
-              ), and severe exhaustion posture via camera telemetry.
+              ), and severe postural / autonomic strain across Bio-Monitor 3N.
             </p>
 
             {/* Comm Link Reality Box */}

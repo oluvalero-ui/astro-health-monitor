@@ -33,7 +33,7 @@ interface AnatomicalScannerProps {
   zoneStatuses: Record<SystemZoneId, HealthStatus>;
   biomarkers: BiomarkerData;
   environmentId: MissionEnvironmentId;
-  onOpenScanTab: (tab: "camara" | "manual") => void;
+  onOpenPocModal: () => void;
 }
 
 const ZONE_ICONS: Record<SystemZoneId, React.ReactNode> = {
@@ -101,7 +101,7 @@ export default function AnatomicalScanner({
   zoneStatuses,
   biomarkers,
   environmentId,
-  onOpenScanTab,
+  onOpenPocModal,
 }: AnatomicalScannerProps) {
   const guide = SYSTEM_DIAGNOSTIC_GUIDES[selectedZone];
   const activeStatus = zoneStatuses[selectedZone];
@@ -125,11 +125,6 @@ export default function AnatomicalScanner({
       strokeWidth: isSel ? 2.6 : 1.7,
     };
   };
-
-  const recommendedScanTab: "camara" | "manual" =
-    selectedZone === "rostro" || selectedZone === "cerebro"
-      ? "camara"
-      : "manual";
 
   return (
     <section
@@ -550,11 +545,11 @@ export default function AnatomicalScanner({
 
               <button
                 type="button"
-                onClick={() => onOpenScanTab(recommendedScanTab)}
+                onClick={onOpenPocModal}
                 className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-[#1a73e8] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-blue-600"
               >
                 <ScanLine className="h-3.5 w-3.5" />
-                Scan Now
+                PoC Log / Sim
               </button>
             </div>
 

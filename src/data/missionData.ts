@@ -214,43 +214,43 @@ export const SYSTEM_DIAGNOSTIC_GUIDES: Record<SystemZoneId, SystemDiagnosticGuid
   },
   rostro: {
     id: "rostro",
-    name: "Face / Posture",
-    shortTitle: "Facial & Postural Telemetry",
+    name: "Posture & Vocal Strain",
+    shortTitle: "Postural & Cranio-Vocal Telemetry",
     subtitle:
-      "Facial micro-expressions, ocular tension, and upper-body posture tracked via camera",
+      "Thoracic postural tilt, vocal-cord strain via Node 3 piezo collar, and ocular/fatigue self-check",
     monitoredVariables: [
-      "Shoulder and cervical posture (slump angle)",
-      "Facial tension and blink rate",
-      "Visual markers of exhaustion or flat affect",
+      "Shoulder and cervical ergonomics (3N chest accelerometer)",
+      "Laryngeal vocal-cord micro-vibration strain (~60 dBA noise-immune)",
+      "Subjective ocular fatigue & restorative break compliance",
     ],
     howToPerform: [
-      "Open the 'Computer Vision (Face & Posture)' tab inside New Clinical Assessment.",
-      "Position yourself ~50 cm from the console camera under even frontal lighting.",
-      "Look steadily toward the camera for 5 seconds with a relaxed expression.",
-      "The system automatically quantifies shoulder droop, eye aperture, and facial muscle stiffness.",
+      "Open 'PoC Log / Simulator' in the top bar or left rail to log PoC status or inject test profiles.",
+      "Inspect thoracic posture alignment score on Bio-Monitor 3N (Chest Smart Vest node).",
+      "Check Node 3 Piezoelectric Laryngeal Collar vocal calm index (filtered against ECLSS fan noise).",
+      "Record any dry eye or persistent screen tension in Point-of-Care Manual Entry.",
     ],
     whyNecessary:
-      "Crew members frequently report feeling 'nominal' out of mission duty even while fatigued or depressed. Optical computer vision detects silent neuromuscular cues before subjective distress is acknowledged.",
+      "Crew members frequently report feeling 'nominal' out of mission duty even while fatigued or strained. Continuous chest posture accelerometry and piezoelectric vocal-cord telemetry detect silent neuromuscular drift early.",
     fiveHazardsImpact: {
       radiation:
-        "Cumulative radiation-related biological fatigue manifests early as heavy eyelids and reduced facial expressiveness.",
+        "Cumulative radiation-related biological fatigue manifests early as heavy eyelids and postural slump.",
       isolation:
-        "Weeks of confinement flatten emotional expressiveness ('flat affect') and encourage closed, hunched postures.",
+        "Weeks of confinement flatten emotional expressiveness and increase vocal cord tension and hunched console postures.",
       distance:
-        "With delayed communications, ground psychologists cannot observe crew continuously; onboard vision fills this monitoring gap.",
+        "With delayed communications, ground psychologists cannot observe crew continuously; Bio-Monitor 3N fills this monitoring gap locally.",
       gravity:
-        "Without gravity, fluids pool in the face ('puffy-face syndrome') and spinal elongation causes forward slouching over consoles.",
+        "Without gravity, cephalad fluid shift ('puffy-face syndrome') and spinal elongation alter lumbar/cervical ergonomics over consoles.",
       closedEnvironment:
-        "Dry recycled cabin air and particulates irritate the eyes, increasing strained blinking and visual screen fatigue.",
+        "Dry recycled cabin air and ~60 dBA fan noise strain eyes and voice; piezoelectric laryngeal sensing isolates vocal vibration from cabin noise.",
     },
     attentionThreshold: {
-      optimal: "Upright posture ≥ 75/100 and facial tension < 35/100.",
+      optimal: "Upright posture ≥ 75/100 and vocal/facial strain < 35/100.",
       warning:
-        "Repeated shoulder slump (posture < 65) or facial/ocular tension between 45 and 70.",
+        "Repeated shoulder slump (posture < 65) or ocular/vocal tension between 45 and 70.",
       critical:
-        "Severe exhaustion posture (< 45/100), vacant gaze, or tension > 75/100 with involuntary micro-sleeps.",
+        "Severe exhaustion posture (< 45/100) or tension > 75/100 with involuntary micro-sleeps.",
       flightSurgeonNote:
-        "Attach camera biometric capture to daily medical log and suspend EVAs or robotics ops pending recovery.",
+        "Log Bio-Monitor 3N posture and laryngeal readings in PoC Entry and suspend EVAs or robotics ops pending recovery.",
     },
     preventiveCountermeasures: [
       "Perform 5 minutes of neck, dorsal, and chest stretches every 2 hours of console work.",
@@ -363,7 +363,7 @@ export const SYSTEM_DIAGNOSTIC_GUIDES: Record<SystemZoneId, SystemDiagnosticGuid
     howToPerform: [
       "Scan your continuous dermal glucose patch (or capillary strip) to obtain mg/dL.",
       "Check metered hydration pouch consumption to verify daily intake (target: 2.5 L).",
-      "If experiencing bloating or GI discomfort, perform guided portable ultrasound over abdominal landmarks.",
+      "Inspect thoracic skin temperature and Respiratory RIP flow on Bio-Monitor 3N to rule out visceral strain.",
     ],
     whyNecessary:
       "Altered thirst signaling and blunted taste buds in microgravity frequently lead crew to undereat and underhydrate silently. Hypoglycemia causes rapid cognitive decline, while dehydration precipitates renal stones.",
@@ -407,7 +407,7 @@ export const SYSTEM_DIAGNOSTIC_GUIDES: Record<SystemZoneId, SystemDiagnosticGuid
     ],
     howToPerform: [
       "After daily exercise, rate perceived lower-limb and lumbar fatigue on a 1–10 scale.",
-      "Once weekly, scan calcaneus or proximal femur with portable ultrasound densitometry.",
+      "Inspect longitudinal Bone Mineral Density (BMD) projection calibrated against your pre-flight NASA DEXA baseline.",
       "Confirm total resistive load minutes logged in your daily ARED training schedule.",
     ],
     whyNecessary:
@@ -431,7 +431,7 @@ export const SYSTEM_DIAGNOSTIC_GUIDES: Record<SystemZoneId, SystemDiagnosticGuid
       critical:
         "Physical fatigue ≥ 75/100, bone density < 89%, or acute joint pain precluding EVA suit donning.",
       flightSurgeonNote:
-        "Reduce resistive load for 48 h, review Vitamin D/calcium status with Flight Surgeon, and schedule ultrasound check.",
+        "Reduce resistive load for 48 h, review Vitamin D/calcium status with Flight Surgeon, and monitor pre-flight DEXA trajectory.",
     },
     preventiveCountermeasures: [
       "Complete 60 min resistive training (ARED or high-load bands) + 30 min aerobic conditioning daily.",
@@ -699,7 +699,7 @@ export const DEFAULT_EMERGENCY_CHECKLIST: EmergencyProtocolStep[] = [
     stepNumber: 3,
     title: "Automated Medical Telemetry Packaging",
     instruction:
-      "Bundle priority telemetry packet: heart rate (BPM), glucose (mg/dL), arterial BP, stress/cortisol index, and camera posture/facial capture.",
+      "Bundle priority telemetry packet: heart rate (BPM), glucose (mg/dL), arterial BP, stress/cortisol index, and Node 3 laryngeal/postural status.",
     completed: false,
   },
   {
@@ -747,10 +747,6 @@ export const INITIAL_DASHBOARD_STATE: AstronautDashboardState = {
   quests: DEFAULT_QUESTS,
   emergencyMode: false,
   emergencyChecklist: DEFAULT_EMERGENCY_CHECKLIST,
-  lastUltrasoundFinding:
-    "Femoral bone mineral density and fluid distribution within nominal baseline.",
-  lastCameraFinding:
-    "Upright posture (85/100) and calm micro-expression with zero exhaustion markers.",
   scanLogs: [
     {
       id: "log-1",
@@ -761,8 +757,8 @@ export const INITIAL_DASHBOARD_STATE: AstronautDashboardState = {
     {
       id: "log-2",
       timestamp: "10:30 UTC",
-      modality: "camara",
-      summary: "Facial assessment: low ocular tension (22/100), clear focus.",
+      modality: "wearable",
+      summary: "Node 3 laryngeal collar: vocal calm nominal (78%), ~60 dBA ECLSS noise filtered.",
     },
   ],
 };
@@ -797,7 +793,7 @@ export const SCIENTIFIC_REFERENCES: ScientificReferenceSection[] = [
         detail:
           "Months inside confined modules with small crews lead to mood degradation, sleep disruption, chronic monotony, loneliness, and team friction.",
         appMapping:
-          "Tracked via Loneliness, Boredom, Stress, Depression indices, Routine Change Detector, and Camera Posture Telemetry.",
+          "Tracked via Loneliness, Boredom, Stress, Depression indices, Routine Change Detector, and 3N Posture + Node 3 Laryngeal Telemetry.",
       },
       {
         name: "3. Distance from Earth",
@@ -842,7 +838,7 @@ export const SCIENTIFIC_REFERENCES: ScientificReferenceSection[] = [
         detail:
           "Canadian biomedical programs prioritize non-invasive sensors (guided ultrasound, optical/salivary assays, wearable Bio-Monitor) operable by non-physician crew.",
         appMapping:
-          "Modular Bio-Monitor 3N wearable network (Thoracic Vest · Frontal Headband · Node 3 Wristband, Laryngeal Collar & BLE Bone-Conduction Earpiece), facial/posture CV scanner, and plain-language clinical guides.",
+          "Modular Bio-Monitor 3N wearable network (Thoracic Vest · Frontal Headband · Node 3 Wristband, Laryngeal Collar & BLE Bone-Conduction Earpiece), PoC entry, and plain-language clinical guides.",
       },
     ],
   },

@@ -176,7 +176,7 @@ export interface EmergencyProtocolStep {
 export interface ScanLogEntry {
   id: string;
   timestamp: string;
-  modality: "camara" | "ultrasonido" | "manual" | "emergencia" | "wearable";
+  modality: "manual" | "emergencia" | "wearable";
   summary: string;
 }
 
@@ -195,7 +195,5 @@ export interface AstronautDashboardState {
   streakDays?: number;
   emergencyMode: boolean;
   emergencyChecklist: EmergencyProtocolStep[];
-  lastUltrasoundFinding: string;
-  lastCameraFinding: string;
   scanLogs: ScanLogEntry[];
 }

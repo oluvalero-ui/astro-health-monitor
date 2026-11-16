@@ -64,7 +64,6 @@ interface BiomarkersDashboardProps {
   biomarkers: BiomarkerData;
   previousBiomarkers: BiomarkerData;
   routine: RoutineTracking;
-  lastCameraFinding: string;
   onSelectSystemZone: (zone: SystemZoneId) => void;
   onOpenManualEdit: () => void;
   onJumpToWearable?: () => void;
@@ -212,7 +211,6 @@ export default function BiomarkersDashboard({
   biomarkers: b,
   previousBiomarkers: prev,
   routine,
-  lastCameraFinding,
   onSelectSystemZone,
   onOpenManualEdit,
   onJumpToWearable,
@@ -663,7 +661,7 @@ export default function BiomarkersDashboard({
             </p>
           </div>
           <span className="font-mono-hud text-[11px] text-slate-400">
-            Face: {lastCameraFinding}
+            3N Posture: {b.postureScore}% · Vocal Calm: {100 - b.facialTension}%
           </span>
         </div>
 

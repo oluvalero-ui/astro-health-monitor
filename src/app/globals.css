@@ -205,22 +205,6 @@ body {
   animation: scanline-sweep 4.2s ease-in-out infinite;
 }
 
-@keyframes ultrasound-sweep {
-  0% {
-    transform: translateX(-10%);
-  }
-  50% {
-    transform: translateX(110%);
-  }
-  100% {
-    transform: translateX(-10%);
-  }
-}
-
-.animate-ultrasound {
-  animation: ultrasound-sweep 2.6s ease-in-out infinite;
-}
-
 @keyframes emergency-pulse-border {
   0%,
   100% {

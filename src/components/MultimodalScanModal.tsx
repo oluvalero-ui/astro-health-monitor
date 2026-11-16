@@ -12,23 +12,14 @@ import {
 } from "lucide-react";
 import {
   BiomarkerData,
-  MissionEnvironmentId,
   RoutineTracking,
 } from "@/types/astronaut";
 
-export type ScanModalTab = "camara" | "manual";
-
 interface MultimodalScanModalProps {
   isOpen: boolean;
-  initialTab?: ScanModalTab;
-  environmentId?: MissionEnvironmentId;
   biomarkers: BiomarkerData;
   routine: RoutineTracking;
   onClose: () => void;
-  onApplyCameraResults?: (
-    updates: Partial<BiomarkerData>,
-    summary: string
-  ) => void;
   onApplyManualEntry: (
     nextBiomarkers: BiomarkerData,
     nextRoutine: RoutineTracking

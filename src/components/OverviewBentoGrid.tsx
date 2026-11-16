@@ -17,7 +17,7 @@ import {
   YAxis,
 } from "recharts";
 import {
-  Camera,
+  Activity,
   Globe,
   ScanLine,
   Sliders,
@@ -41,7 +41,6 @@ import {
   STATUS_HEX,
 } from "@/utils/healthEngine";
 import { StatusPill } from "@/components/ui/StatusPill";
-import { ScanModalTab } from "./MultimodalScanModal";
 
 interface OverviewBentoGridProps {
   environmentId: MissionEnvironmentId;
@@ -52,7 +51,8 @@ interface OverviewBentoGridProps {
   history: TelemetryPoint[];
   onSelectZoneAndScroll: (zone: SystemZoneId) => void;
   onNavigateWearable: () => void;
-  onOpenScanTab: (tab: ScanModalTab) => void;
+  onNavigateBiomarkers: () => void;
+  onOpenPocModal: () => void;
 }
 
 const emptySubscribe = () => () => {};
@@ -130,7 +130,8 @@ export default function OverviewBentoGrid({
   history,
   onSelectZoneAndScroll,
   onNavigateWearable,
-  onOpenScanTab,
+  onNavigateBiomarkers,
+  onOpenPocModal,
 }: OverviewBentoGridProps) {
   const mounted = useSyncExternalStore(
     emptySubscribe,
@@ -602,24 +603,24 @@ export default function OverviewBentoGrid({
             </div>
           </button>
 
-          {/* Module 2: AI Camera */}
+          {/* Module 2: Biomarkers, DEXA & Circadian */}
           <button
             type="button"
-            onClick={() => onOpenScanTab("camara")}
+            onClick={onNavigateBiomarkers}
             className="group flex cursor-pointer flex-col justify-between rounded-xl border border-[#1e3254] bg-[#091120] p-3.5 text-left transition hover:border-sky-400/60 hover:bg-[#0e192f]"
           >
             <div className="flex items-center justify-between">
               <span className="rounded border border-teal-500/30 bg-teal-500/10 px-1.5 py-0.5 font-mono-hud text-[10px] font-bold uppercase tracking-wider text-teal-300">
-                COMPUTER VISION
+                BIOMARKERS &amp; DEXA
               </span>
-              <Camera className="h-5 w-5 text-teal-400 transition group-hover:scale-110" />
+              <Activity className="h-5 w-5 text-teal-400 transition group-hover:scale-110" />
             </div>
             <div className="mt-3">
               <div className="text-sm font-bold text-slate-100">
-                Posture {b.postureScore}% · Biometrics
+                DEXA {b.boneDensityIndex.toFixed(1)}% · 24h UTC
               </div>
               <div className="mt-0.5 text-[11px] text-slate-400">
-                Oculomotor & facial strain analysis
+                12 endogenous, 1 exogenous &amp; circadian curves
               </div>
             </div>
           </button>
@@ -641,29 +642,29 @@ export default function OverviewBentoGrid({
                 3N Harness (13 Channels)
               </div>
               <div className="mt-0.5 text-[11px] text-slate-400">
-                Thoracic, Frontal & Radial nodes
+                Vest, Headband &amp; Node 3 Larynx-BLE
               </div>
             </div>
           </button>
 
-          {/* Module 4: Manual Entry */}
+          {/* Module 4: PoC Log & Simulator */}
           <button
             type="button"
-            onClick={() => onOpenScanTab("manual")}
+            onClick={onOpenPocModal}
             className="group flex cursor-pointer flex-col justify-between rounded-xl border border-[#1e3254] bg-[#091120] p-3.5 text-left transition hover:border-sky-400/60 hover:bg-[#0e192f]"
           >
             <div className="flex items-center justify-between">
               <span className="rounded border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 font-mono-hud text-[10px] font-bold uppercase tracking-wider text-amber-300">
-                MEDICAL LOG
+                POC SIMULATOR
               </span>
               <Sliders className="h-5 w-5 text-amber-400 transition group-hover:scale-110" />
             </div>
             <div className="mt-3">
               <div className="text-sm font-bold text-slate-100">
-                Manual Clinical Entry
+                Manual Entry &amp; Profiles
               </div>
               <div className="mt-0.5 text-[11px] text-slate-400">
-                Biomarker & daily routine updates
+                Point-of-Care tests &amp; 1-click stress presets
               </div>
             </div>
           </button>

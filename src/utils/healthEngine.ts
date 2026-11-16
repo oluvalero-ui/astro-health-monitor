@@ -771,8 +771,6 @@ export function buildEmergencyState(
       ...s,
       completed: false,
     })),
-    lastCameraFinding:
-      "ALERT: Severe shoulder slump (posture 38/100), extreme ocular tension (84/100), and facial exhaustion markers.",
     scanLogs: [
       {
         id: `log-em-${Date.now()}`,
@@ -821,8 +819,6 @@ export function restoreNominalFromEmergency(
       ...s,
       completed: false,
     })),
-    lastCameraFinding:
-      "Upright posture (85/100) and calm micro-expression with zero exhaustion markers.",
   };
 }
 
